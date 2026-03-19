@@ -6,8 +6,10 @@ async function init(){
 
   console.log("Students module iniciado")
 
-  // 🔐 PROTEGE ROTA
   await checkAuth()
+
+  // 🔥 AGUARDA O HTML EXISTIR
+  await new Promise(resolve => setTimeout(resolve, 50))
 
   const search = document.getElementById("searchStudents")
 
@@ -24,7 +26,6 @@ async function init(){
   setupModal()
 
   await loadStudents()
-
 }
 
 async function loadStudents(){
