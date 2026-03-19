@@ -73,15 +73,28 @@ function renderStudents(list){
 
     const tr = document.createElement("tr")
 
-    tr.innerHTML = `
-      <td>${student.name}</td>
-      <td>${student.email}</td>
-      <td>
-        <button class="btn-edit" onclick="StudentsModule.editStudent('${student.id}')">
-          Editar
-        </button>
-      </td>
-    `
+// Nome
+const tdName = document.createElement("td")
+tdName.textContent = student.name
+
+// Email
+const tdEmail = document.createElement("td")
+tdEmail.textContent = student.email
+
+// Ações
+const tdActions = document.createElement("td")
+
+const btn = document.createElement("button")
+btn.className = "btn-edit"
+btn.textContent = "Editar"
+btn.onclick = () => StudentsModule.editStudent(student.id)
+
+tdActions.appendChild(btn)
+
+// Monta linha
+tr.appendChild(tdName)
+tr.appendChild(tdEmail)
+tr.appendChild(tdActions)
 
     tableBody.appendChild(tr)
 
@@ -184,10 +197,15 @@ async function saveStudent(){
   const email = document.getElementById("editStudentEmail").value
   const phone = document.getElementById("editStudentPhone").value
 
-  if(!name || !email){
-    showError("Nome e email são obrigatórios")
-    return
-  }
+  if(!name.trim() || !email.trim()){
+  showError("Nome e email são obrigatórios")
+  return
+}
+
+if(!email.includes("@")){
+  showError("Email inválido")
+  return
+}
 
   try{
 
@@ -230,14 +248,18 @@ async function saveStudent(){
 
 // 🔥 erro padrão UI
 function showError(msg){
-  alert(msg)
+  if(window.Toast){
+    Toast.error(msg)
+  } else {
+    console.error(msg)
+  }
 }
-
 window.StudentsModule = {
   init,
   loadStudents,
   editStudent,
-  saveStudent
+  saveStudent,
+  newStudent
 };
 
 })();
