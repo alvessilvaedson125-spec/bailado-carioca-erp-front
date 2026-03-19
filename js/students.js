@@ -133,8 +133,7 @@ function editStudent(id){
   document.getElementById("editStudentEmail").value = student.email
   document.getElementById("editStudentPhone").value = student.phone || ""
 
-  document.querySelector("#studentModal h3").innerText = "Editar aluno"
-
+  document.getElementById("modalTitle").innerText = "Editar aluno"
   document.getElementById("studentModal").classList.remove("hidden")
 
 }
@@ -146,7 +145,7 @@ function newStudent(){
   const emailInput = document.getElementById("editStudentEmail")
   const phoneInput = document.getElementById("editStudentPhone")
   const modal = document.getElementById("studentModal")
-  const title = document.querySelector("#studentModal h3")
+ const title = document.getElementById("modalTitle")
 
   // 🔴 GUARDA DE SEGURANÇA
   if(!idInput || !nameInput || !emailInput || !phoneInput || !modal || !title){
