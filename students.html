@@ -41,17 +41,32 @@ placeholder="Pesquisar aluno..."
 <div id="studentModal" class="modal hidden">
   <div class="modal-content">
 
-    <h3>Novo aluno</h3>
+    <h3 style="margin-bottom:20px;">Novo aluno</h3>
+
+    <div class="form-group">
+      <label>Nome</label>
+      <input type="text" id="editStudentName" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="editStudentEmail" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>Telefone</label>
+      <input type="text" id="editStudentPhone" class="form-control">
+    </div>
 
     <input type="hidden" id="editStudentId">
 
-    <input type="text" id="editStudentName" placeholder="Nome">
-    <input type="email" id="editStudentEmail" placeholder="Email">
-    <input type="text" id="editStudentPhone" placeholder="Telefone">
-
-    <div style="margin-top:10px;">
-      <button id="cancelStudentBtn">Cancelar</button>
-      <button id="saveStudentBtn">Salvar</button>
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+      <button id="cancelStudentBtn" style="background:#e5e7eb; color:#111827;">
+        Cancelar
+      </button>
+      <button id="saveStudentBtn">
+        Salvar
+      </button>
     </div>
 
   </div>
