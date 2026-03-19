@@ -42,10 +42,10 @@ async function apiRequest(endpoint, method = "GET", body = null) {
   }
 
   if (response.status === 401) {
-    localStorage.removeItem("token")
-    window.location.href = "/login.html"
-    return
-  }
+  localStorage.removeItem("token")
+  window.location.href = "/login.html"
+  throw new Error("Sessão expirada")
+}
 
   if (!response.ok) {
     throw new Error(
@@ -60,8 +60,8 @@ async function fetchList(endpoint) {
   const res = await apiRequest(endpoint)
 
   if (!res.success) {
-    throw new Error("Erro ao carregar dados da API")
-  }
+  throw new Error(res.message || "Erro ao carregar dados")
+}
 
   return res.data || []
 }

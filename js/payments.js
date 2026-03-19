@@ -10,6 +10,8 @@ async function generatePayments() {
     document.getElementById("competence-year").value ||
     new Date().getFullYear();
 
+  try {
+
   const data = await apiRequest(
     "/api/v1/payments/generate",
     "POST",
@@ -19,11 +21,18 @@ async function generatePayments() {
     }
   );
 
-  document.getElementById("output").textContent =
-    JSON.stringify(data, null, 2);
-
+  if (data.generated === 0) {
+  alert(`Nenhuma nova mensalidade gerada (${data.skipped} já existiam)`);
+} else {
+  alert(`${data.generated} mensalidades geradas (${data.skipped} ignoradas)`);
+}
   await loadPayments();
   await loadFinancialSummary();
+
+} catch (err) {
+  alert(err.message);
+}
+
 }
 
 function renderStatus(status){
@@ -56,7 +65,14 @@ async function loadPayments() {
     url += "?" + params.join("&");
   }
 
-  const data = await apiRequest(url);
+  let data;
+
+try {
+  data = await apiRequest(url);
+} catch (err) {
+  alert(err.message);
+  return;
+}
 
   const tbody = document.getElementById("payments-body");
   tbody.innerHTML = "";
@@ -69,7 +85,7 @@ async function loadPayments() {
     tr.innerHTML = `
       <td>${p.student_name}</td>
       <td>${p.class_name ?? "-"}</td>
-      <td>${p.final_amount}</td>
+     <td>R$ ${Number(p.final_amount).toFixed(2)}</td>
       <td>${p.competence_month}/${p.competence_year}</td>
      <td>${renderStatus(p.computed_status)}</td>
       <td>
@@ -95,16 +111,21 @@ async function markAsPaid(id, button) {
   try {
     button.disabled = true;
     button.innerText = "Processando...";
+    button.style.opacity = "0.6";
 
     await apiRequest(`/api/v1/payments/${id}`, 'PATCH');
 
-    await loadPayments();
+button.innerText = "Pago";
+button.style.opacity = "1";
+
+await loadPayments();
 
   } catch (error) {
-    console.error(error);
-    button.disabled = false;
-    button.innerText = "Marcar pago";
-  }
+  console.error(error);
+  alert(error.message);
+  button.disabled = false;
+  button.innerText = "Marcar pago";
+}
 }
 
 async function loadFinancialSummary(month, year) {
@@ -178,8 +199,8 @@ monthTotal += Number(p.final_amount || 0);
 
 });
 
-document.getElementById("cash-today").innerText = "R$ " + todayTotal;
-document.getElementById("cash-month").innerText = "R$ " + monthTotal;
+document.getElementById("cash-today").innerText = "R$ " + todayTotal.toFixed(2)
+document.getElementById("cash-month").innerText = "R$ " + monthTotal.toFixed(2)
 
 }catch(err){
 console.error("Erro no caixa", err);

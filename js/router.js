@@ -3,49 +3,36 @@
 const content = document.getElementById("content")
 
 async function checkAuth() {
-
-  const token = localStorage.getItem("token")
-
-  if (!token) {
-    window.location.href = "index.html"
-    return false
-  }
-
   try {
-
-    const response = await fetch(
-      "https://bailado-carioca-escola-api.alvessilvaedson125.workers.dev/api/v1/auth/me",
-      {
-        headers: {
-          Authorization: "Bearer " + token
-        }
-      }
-    )
-
-    const data = await response.json()
-
-    if (!data.success) {
-      localStorage.removeItem("token")
-      window.location.href = "index.html"
-      return false
-    }
-
+    await apiRequest("/api/v1/auth/me")
     return true
-
+ 
   } catch {
-
+    localStorage.removeItem("token")
     window.location.href = "index.html"
     return false
-
+ 
   }
+
 
 }
 
+
 async function loadPage(page) {
 
-    setActiveMenu(page)
+
+
+
+    if (!localStorage.getItem("token")) {
+  window.location.href = "index.html"
+  return
+}
+ 
+  setActiveMenu(page)
 
   try {
+
+    content.innerHTML = "<p>Carregando...</p>"
 
     const response = await fetch(page + ".html")
 
@@ -86,10 +73,13 @@ const module = modules[page]
 if(module && typeof module.init === "function"){
 module.init()
 }else{
-console.warn("Módulo não encontrado ou sem init:", page)
+  console.warn("Módulo não encontrado ou sem init:", page)
+  content.innerHTML += "<p>Erro ao carregar módulo</p>"
 }
 
 }
+
+let isLoading = false
 
 function setupNavigation() {
 
@@ -97,13 +87,21 @@ function setupNavigation() {
 
   links.forEach(link => {
 
-    link.addEventListener("click", () => {
+link.addEventListener("click", () => {
 
-      const page = link.dataset.page
+  if (isLoading) return
 
-      loadPage(page)
+  isLoading = true
 
-    })
+  const page = link.dataset.page
+
+  loadPage(page).finally(() => {
+    isLoading = false
+  })
+
+})
+
+
 
   })
 
