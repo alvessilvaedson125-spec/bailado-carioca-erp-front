@@ -253,7 +253,10 @@ function showError(msg){
   } else {
     console.error(msg)
   }
+  
 }
+
+
 window.StudentsModule = {
   init,
   loadStudents,
@@ -262,4 +265,6 @@ window.StudentsModule = {
   newStudent
 };
 
+
 })();
+
