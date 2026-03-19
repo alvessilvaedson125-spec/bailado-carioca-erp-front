@@ -22,15 +22,15 @@ async function generatePayments() {
   );
 
   if (data.generated === 0) {
-  alert(`Nenhuma nova mensalidade gerada (${data.skipped} já existiam)`);
+  Toast.warning(`Nenhuma nova mensalidade gerada (${data.skipped} já existiam)`);
 } else {
-  alert(`${data.generated} mensalidades geradas (${data.skipped} ignoradas)`);
+  Toast.success(`${data.generated} mensalidades geradas (${data.skipped} ignoradas)`);
 }
   await loadPayments();
   await loadFinancialSummary();
 
 } catch (err) {
-  alert(err.message);
+  Toast.error(err.message);
 }
 
 }
