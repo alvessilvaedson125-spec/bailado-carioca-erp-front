@@ -1,0 +1,63 @@
+<h2>Caixa</h2>
+
+<h3 id="cash-balance" style="font-weight: bold; font-size: 18px;">
+  Saldo atual: R$ 0
+</h3>
+
+<div id="cash-summary" style="margin-bottom: 10px;">
+  <div id="cash-in" style="color: green;"></div>
+  <div id="cash-out" style="color: red;"></div>
+</div>
+
+<div class="card">
+
+
+<h3>Nova movimentação</h3>
+
+<div class="form-row">
+<label>Data</label>
+<input type="date" id="cash-date">
+<label>Tipo</label>
+<select id="cash-type">
+  <option value="in">Entrada</option>
+<option value="out">Saída</option>
+</select>
+
+<label>Valor</label>
+<input type="number" id="cash-amount">
+
+<label>Descrição</label>
+<input type="text" id="cash-description">
+
+<button onclick="CashModule.createEntry()">
+Salvar
+</button>
+
+<div id="cash-error" style="color: red; margin-top: 8px;"></div>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h3>Movimentações</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Data</th>
+<th>Tipo</th>
+<th>Valor</th>
+<th>Descrição</th>
+</tr>
+</thead>
+
+<tbody id="cash-body"></tbody>
+
+</table>
+
+</div>

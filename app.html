@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bailado Carioca ERP</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="header">
+
+<div class="header-left">
+Bailado Carioca — Gestão Escolar
+</div>
+
+<div class="header-right">
+
+<span id="user-name"></span>
+
+<button id="logout-btn">
+Logout
+</button>
+
+</div>
+
+</header>
+
+<div class="layout">
+
+<aside class="sidebar">
+
+<ul>
+
+<li data-page="dashboard">Painel</li>
+<li data-page="students">Alunos</li>
+<li data-page="classes">Turmas</li>
+<li data-page="enrollments">Matrículas</li>
+<li data-page="payments">Pagamentos</li>
+<li data-page="cash">Caixa</li>
+<li data-page="teachers">Professores</li>
+<li data-page="units">Unidades</li>
+<li data-page="reports">Relatórios</li>
+<li data-page="admin">Administração</li>
+
+</ul>
+
+</aside>
+
+<main id="content">
+
+<h2>Carregando...</h2>
+
+</main>
+
+</div>
+
+</div>
+
+<!-- Modal editar aluno -->
+<div id="classModal" class="modal hidden">
+  <div class="modal-content">
+
+    <h3>Nova Turma</h3>
+
+    <input id="editClassName" placeholder="Nome da turma" />
+
+    <select id="editClassTeacher"></select>
+
+    <select id="editClassUnit"></select>
+
+    <select id="editClassDay"></select>
+
+    <input id="editClassTime" type="time" />
+
+    <input id="editClassCapacityConductors" placeholder="Cap condutores" />
+    <input id="editClassCapacityStudents" placeholder="Cap conduzidas" />
+
+    <div style="margin-top: 10px;">
+      <button onclick="closeClassModal()">Cancelar</button>
+
+      <button id="saveClassBtn" type="button">
+        Salvar
+      </button>
+    </div>
+
+  </div>
+</div>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/router.js"></script>
+<script src="js/students.js"></script>
+<script src="js/classes.js"></script>
+<script src="js/units.js"></script>
+<script src="js/teachers.js"></script>
+<script src="js/enrollments.js"></script>
+<script src="js/payments.js"></script>
+<script src="js/cash.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/dashboard.js"></script>
+
+<script>
+
+(async () => {
+
+  const token = localStorage.getItem("token")
+
+  if (!token) {
+
+    window.location.href = "index.html"
+    return
+
+  }
+
+  try {
+
+    const response = await fetch(
+      "https://bailado-carioca-escola-api.alvessilvaedson125.workers.dev/api/v1/auth/me",
+      {
+        headers: {
+          Authorization: "Bearer " + token
+        }
+      }
+    )
+
+    const data = await response.json()
+
+    if (!data.success) {
+
+      localStorage.removeItem("token")
+      window.location.href = "index.html"
+      return
+
+    }
+
+    console.log("Usuário autenticado:", data)
+
+  } catch {
+
+    window.location.href = "index.html"
+
+  }
+
+})()
+
+
+
+</script>
+
+</body>
+</html>

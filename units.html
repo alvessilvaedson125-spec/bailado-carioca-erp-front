@@ -1,0 +1,93 @@
+<div class="page">
+
+<h1>Unidades</h1>
+
+<div class="toolbar">
+
+<input
+type="text"
+id="searchUnit"
+placeholder="Buscar unidade..."
+/>
+
+<button
+id="newUnitBtn"
+class="btn-primary"
+onclick="openNewUnitModal()"
+>
+Nova Unidade
+</button>
+
+</div>
+
+<table class="data-table">
+
+<thead>
+<tr>
+
+<th>Nome</th>
+<th>Criado em</th>
+<th>Ações</th>
+
+</tr>
+</thead>
+
+<tbody id="unitsTable">
+
+<tr>
+<td colspan="3" class="empty-state">
+Nenhuma unidade encontrada
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<!-- MODAL -->
+
+<div id="unitModal" class="modal hidden">
+
+<div class="modal-content">
+
+<h2 id="unitModalTitle">Nova Unidade</h2>
+
+<input
+type="hidden"
+id="editUnitId"
+/>
+
+<div class="form-group">
+
+<label>Nome</label>
+
+<input
+type="text"
+id="editUnitName"
+placeholder="Nome da unidade"
+/>
+
+</div>
+
+<div class="modal-actions">
+
+<button onclick="closeUnitModal()">
+Cancelar
+</button>
+
+<button
+id="saveUnitBtn"
+class="btn-primary"
+onclick="saveUnit()"
+>
+Salvar
+</button>
+
+</div>
+
+</div>
+
+</div>
