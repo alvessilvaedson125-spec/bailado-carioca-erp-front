@@ -141,15 +141,30 @@ function editStudent(id){
 
 function newStudent(){
 
-  document.getElementById("editStudentId").value = ""
-  document.getElementById("editStudentName").value = ""
-  document.getElementById("editStudentEmail").value = ""
-  document.getElementById("editStudentPhone").value = ""
+  const idInput = document.getElementById("editStudentId")
+  const nameInput = document.getElementById("editStudentName")
+  const emailInput = document.getElementById("editStudentEmail")
+  const phoneInput = document.getElementById("editStudentPhone")
+  const modal = document.getElementById("studentModal")
+  const title = document.querySelector("#studentModal h3")
 
-  document.querySelector("#studentModal h3").innerText = "Novo aluno"
+  // 🔴 GUARDA DE SEGURANÇA
+  if(!idInput || !nameInput || !emailInput || !phoneInput || !modal || !title){
+    console.error("Modal não está disponível no DOM")
+    return
+  }
 
-  document.getElementById("studentModal").classList.remove("hidden")
+  // limpa campos
+  idInput.value = ""
+  nameInput.value = ""
+  emailInput.value = ""
+  phoneInput.value = ""
 
+  // título
+  title.innerText = "Novo aluno"
+
+  // abre modal
+  modal.classList.remove("hidden")
 }
 
 function setupModal(){

@@ -12,7 +12,7 @@ async function apiRequest(endpoint, method = "GET", body = null) {
     headers: {
       "Content-Type": "application/json",
     },
-    signal: controller.signal
+    signal: controller.signala
   }
 
   if (token) {
