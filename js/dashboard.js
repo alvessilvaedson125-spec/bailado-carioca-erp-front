@@ -184,9 +184,43 @@ if (ctx && cashData.length) {
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false
+  responsive: true,
+  maintainAspectRatio: false,
+
+  plugins: {
+    legend: {
+      position: "top",
+      labels: {
+        font: {
+          size: 12,
+          weight: "bold"
+        }
+      }
+    },
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          return context.dataset.label + ": " +
+            context.raw.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL"
+            });
+        }
+      }
     }
+  },
+
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        callback: function(value) {
+          return "R$ " + value;
+        }
+      }
+    }
+  }
+}
   });
 
 }
