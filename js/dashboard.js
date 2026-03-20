@@ -130,73 +130,66 @@ async function init() {
 
 if (ctx && cashData.length) {
 
-  const receitas = [];
-  const despesas = [];
+  const monthly = {};
 
   cashData.forEach(e => {
-    if (e.type === "in") receitas.push(Number(e.amount));
-    if (e.type === "out") despesas.push(Number(e.amount));
+    const date = new Date(e.created_at);
+    const month = date.toLocaleString("pt-BR", { month: "short" });
+
+    if (!monthly[month]) {
+      monthly[month] = { in: 0, out: 0 };
+    }
+
+    const amount = Number(e.amount) || 0;
+
+    if (e.type === "in") monthly[month].in += amount;
+    if (e.type === "out") monthly[month].out += amount;
   });
 
- const monthly = {};
+  const labels = Object.keys(monthly);
+  const receitasData = labels.map(m => monthly[m].in);
+  const despesasData = labels.map(m => monthly[m].out);
 
-cashData.forEach(e => {
-  const date = new Date(e.created_at);
-  const month = date.toLocaleString("pt-BR", { month: "short" });
+  const ctx2d = ctx.getContext("2d");
 
-  if (!monthly[month]) {
-    monthly[month] = { in: 0, out: 0 };
-  }
+  const gradientReceita = ctx2d.createLinearGradient(0, 0, 0, 300);
+  gradientReceita.addColorStop(0, "rgba(34,197,94,0.4)");
+  gradientReceita.addColorStop(1, "rgba(34,197,94,0)");
 
-  const amount = Number(e.amount) || 0;
+  const gradientDespesa = ctx2d.createLinearGradient(0, 0, 0, 300);
+  gradientDespesa.addColorStop(0, "rgba(239,68,68,0.4)");
+  gradientDespesa.addColorStop(1, "rgba(239,68,68,0)");
 
-  if (e.type === "in") monthly[month].in += amount;
-  if (e.type === "out") monthly[month].out += amount;
-});
-
-const labels = Object.keys(monthly);
-const receitasData = labels.map(m => monthly[m].in);
-const despesasData = labels.map(m => monthly[m].out);
-
-new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels,
-    datasets: [
-      {
-        label: 'Receitas',
-        data: receitasData,
-        tension: 0.4,
-        borderWidth: 2,
-        fill: false
-      },
-      {
-        label: 'Despesas',
-        data: despesasData,
-        tension: 0.4,
-        borderWidth: 2,
-        fill: false
-      }
-    ]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top'
-      }
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Receitas',
+          data: receitasData,
+          borderColor: "#22c55e",
+          backgroundColor: gradientReceita,
+          fill: true,
+          tension: 0.4
+        },
+        {
+          label: 'Despesas',
+          data: despesasData,
+          borderColor: "#ef4444",
+          backgroundColor: gradientDespesa,
+          fill: true,
+          tension: 0.4
+        }
+      ]
     },
-    scales: {
-      y: {
-        beginAtZero: true
-      }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
     }
-  }
-});
+  });
 
 }
-
 }
 
 
