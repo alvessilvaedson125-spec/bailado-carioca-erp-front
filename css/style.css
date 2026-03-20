@@ -473,24 +473,36 @@ tr:hover {
   border-radius: 8px;
 }
 
-.search-box-modern {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  padding: 10px 12px;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 300px;
+ /* ===== SEARCH SaaS ===== */
+
+.search-box-modern{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#f9fafb;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:10px 14px;
+  max-width:340px;
+  transition:all 0.2s ease;
 }
 
-.search-box-modern input {
-  border: none;
-  outline: none;
-  background: transparent;
-  width: 100%;
-  font-size: 14px;
+.search-box-modern:focus-within{
+  border-color:#6366f1;
+  box-shadow:0 0 0 2px rgba(99,102,241,0.1);
+}
+
+.search-icon{
+  font-size:14px;
+  opacity:0.6;
+}
+
+.search-box-modern input{
+  border:none;
+  outline:none;
+  background:transparent;
+  width:100%;
+  font-size:14px;
 }
 
 #studentsTable {
