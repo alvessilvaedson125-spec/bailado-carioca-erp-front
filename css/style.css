@@ -539,18 +539,26 @@ tr:hover {
 }
 
 .btn-edit{
-  background:#eef2ff;
+  display:flex;
+  align-items:center;
+  gap:6px;
+
+  background:transparent;
   color:#4f46e5;
   border:none;
-  padding:6px 12px;
+
+  padding:6px 10px;
   border-radius:8px;
-  font-size:12px;
+
+  font-size:13px;
+  font-weight:500;
+
   cursor:pointer;
   transition:all 0.2s ease;
 }
 
 .btn-edit:hover{
-  background:#e0e7ff;
+  background:#eef2ff;
 }
 
 /* ===== HEADER PROFISSIONAL ===== */

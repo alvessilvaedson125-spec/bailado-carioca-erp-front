@@ -87,7 +87,10 @@ const tdActions = document.createElement("td")
 
 const btn = document.createElement("button")
 btn.className = "btn-edit"
-btn.textContent = "Editar"
+
+// 🔥 conteúdo mais profissional
+btn.innerHTML = "✏️ <span>Editar</span>"
+
 btn.onclick = () => StudentsModule.editStudent(student.id)
 
 tdActions.appendChild(btn)
