@@ -151,31 +151,55 @@ function calcGrowth(data) {
 
 if (ctx && cashData.length) {
 
+  // =============================
+  // AGRUPAMENTO REAL POR MÊS (YYYY-MM)
+  // =============================
   const monthly = {};
 
   cashData.forEach(e => {
     const date = new Date(e.created_at);
-    const month = date.toLocaleString("pt-BR", { month: "short" });
+    const monthKey = date.toISOString().slice(0, 7); // YYYY-MM
 
-    if (!monthly[month]) {
-      monthly[month] = { in: 0, out: 0 };
+    if (!monthly[monthKey]) {
+      monthly[monthKey] = { in: 0, out: 0 };
     }
 
     const amount = Number(e.amount) || 0;
 
-    if (e.type === "in") monthly[month].in += amount;
-    if (e.type === "out") monthly[month].out += amount;
+    if (e.type === "in") monthly[monthKey].in += amount;
+    if (e.type === "out") monthly[monthKey].out += amount;
   });
 
-  const labels = Object.keys(monthly);
-  
-  let receitasData = labels.map(m => monthly[m].in);
-let despesasData = labels.map(m => monthly[m].out);
+  // =============================
+  // ORDENAÇÃO CORRETA
+  // =============================
+  const labels = Object.keys(monthly).sort();
 
-const receitaGrowth = calcGrowth(receitasData);
-const despesaGrowth = calcGrowth(despesasData);
+  // =============================
+  // FORMATAR LABEL (jan, fev...)
+  // =============================
+  const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
- 
+  const labelsFormatted = labels.map(m => {
+    const [year, month] = m.split("-");
+    return monthNames[parseInt(month, 10) - 1];
+  });
+
+  // =============================
+  // DATASETS
+  // =============================
+  const receitasData = labels.map(m => monthly[m].in);
+  const despesasData = labels.map(m => monthly[m].out);
+
+  // =============================
+  // GROWTH (AGORA CORRETO)
+  // =============================
+  const receitaGrowth = calcGrowth(receitasData);
+  const despesaGrowth = calcGrowth(despesasData);
+
+  // =============================
+  // GRADIENTES
+  // =============================
   const ctx2d = ctx.getContext("2d");
 
   const gradientReceita = ctx2d.createLinearGradient(0, 0, 0, 300);
@@ -186,10 +210,13 @@ const despesaGrowth = calcGrowth(despesasData);
   gradientDespesa.addColorStop(0, "rgba(239,68,68,0.4)");
   gradientDespesa.addColorStop(1, "rgba(239,68,68,0)");
 
+  // =============================
+  // CHART
+  // =============================
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels,
+      labels: labelsFormatted,
       datasets: [
         {
           label: 'Receitas',
@@ -210,43 +237,41 @@ const despesaGrowth = calcGrowth(despesasData);
       ]
     },
     options: {
-  responsive: true,
-  maintainAspectRatio: false,
-
-  plugins: {
-    legend: {
-      position: "top",
-      labels: {
-        font: {
-          size: 12,
-          weight: "bold"
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "top",
+          labels: {
+            font: {
+              size: 12,
+              weight: "bold"
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ": " +
+                context.raw.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL"
+                });
+            }
+          }
         }
-      }
-    },
-    tooltip: {
-      callbacks: {
-        label: function(context) {
-          return context.dataset.label + ": " +
-            context.raw.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            });
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return "R$ " + value;
+            }
+          }
         }
       }
     }
-  },
-
-  scales: {
-    y: {
-      beginAtZero: true,
-      ticks: {
-        callback: function(value) {
-          return "R$ " + value;
-        }
-      }
-    }
-  }
-}
   });
 
 }
