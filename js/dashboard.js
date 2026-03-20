@@ -175,25 +175,7 @@ let despesasData = labels.map(m => monthly[m].out);
 const receitaGrowth = calcGrowth(receitasData);
 const despesaGrowth = calcGrowth(despesasData);
 
-  if (labels.length === 1) {
-  const base = labels[0];
-
-  labels.unshift("jan", "fev");
-
-  const receitaAtual = receitasData[0];
-  const despesaAtual = despesasData[0];
-
-  receitasData.unshift(
-    receitaAtual * 0.6,
-    receitaAtual * 0.8
-  );
-
-  despesasData.unshift(
-    despesaAtual * 0.5,
-    despesaAtual * 0.7
-  );
-}
-
+ 
   const ctx2d = ctx.getContext("2d");
 
   const gradientReceita = ctx2d.createLinearGradient(0, 0, 0, 300);
