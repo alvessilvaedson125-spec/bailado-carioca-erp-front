@@ -101,13 +101,17 @@ function calcGrowth(data) {
         if (receitaEl) {
   receitaEl.innerText =
     "Receitas: " + formatCurrency(totalIn) +
-    " (" + receitaGrowth.toFixed(1) + "%)";
+    (typeof receitaGrowth !== "undefined"
+      ? " (" + receitaGrowth.toFixed(1) + "%)"
+      : "");
 }
 
-        if (despesaEl) {
+       if (despesaEl) {
   despesaEl.innerText =
     "Despesas: " + formatCurrency(totalOut) +
-    " (" + despesaGrowth.toFixed(1) + "%)";
+    (typeof despesaGrowth !== "undefined"
+      ? " (" + despesaGrowth.toFixed(1) + "%)"
+      : "");
 }
 
         if (resultadoEl) {
