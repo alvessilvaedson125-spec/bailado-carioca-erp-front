@@ -1,82 +1,95 @@
 <div class="dashboard">
 
-<h2>Dashboard</h2>
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <h2>Dashboard</h2>
+      <p>Visão geral do sistema</p>
+    </div>
+  </div>
 
-<!-- KPIs -->
-<div class="metrics">
+  <!-- KPIs -->
+  <div class="metrics">
 
-  <div class="metric-card kpi">
-  <div class="metric-title">Alunos</div>
-  <div class="metric-value" id="metric-students">0</div>
-  <div class="metric-sub">Total cadastrados</div>
-</div>
-
-<div class="metric-card kpi">
-  <div class="metric-title">Turmas</div>
-  <div class="metric-value" id="metric-classes">0</div>
-  <div class="metric-sub">Ativas no sistema</div>
-</div>
-
-<div class="metric-card kpi">
-  <div class="metric-title">Matrículas</div>
-  <div class="metric-value" id="metric-enrollments">0</div>
-  <div class="metric-sub">Vínculos ativos</div>
-</div>
-
-<div class="metric-card kpi">
-  <div class="metric-title">Pagamentos</div>
-  <div class="metric-value" id="metric-payments">0</div>
-  <div class="metric-sub">Registros financeiros</div>
-</div>
-
-</div>
-
-<br>
-
-<!-- DRE -->
-<div class="card dre-card">
-
-  <h3>DRE (Resultado Financeiro)</h3>
-
-  <div class="dre-grid">
-
-    <div class="dre-item receita">
-      <span>Receitas</span>
-      <strong id="dre-receita">R$ 0,00</strong>
+    <div class="metric-card">
+      <div class="metric-title">Alunos</div>
+      <div class="metric-value" id="metric-students">0</div>
+      <div class="metric-sub">Total cadastrados</div>
     </div>
 
-    <div class="dre-item despesa">
-      <span>Despesas</span>
-      <strong id="dre-despesa">R$ 0,00</strong>
+    <div class="metric-card">
+      <div class="metric-title">Turmas</div>
+      <div class="metric-value" id="metric-classes">0</div>
+      <div class="metric-sub">Ativas no sistema</div>
     </div>
 
-    <div class="dre-item resultado">
-      <span>Resultado</span>
-      <strong id="dre-resultado">R$ 0,00</strong>
+    <div class="metric-card">
+      <div class="metric-title">Matrículas</div>
+      <div class="metric-value" id="metric-enrollments">0</div>
+      <div class="metric-sub">Vínculos ativos</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-title">Pagamentos</div>
+      <div class="metric-value" id="metric-payments">0</div>
+      <div class="metric-sub">Registros financeiros</div>
     </div>
 
   </div>
 
-</div>
+  <!-- DRE -->
+  <div class="card dre-card">
 
-<br>
+    <div class="card-header">
+      <h3>DRE (Resultado Financeiro)</h3>
+    </div>
 
-<!-- GRÁFICO -->
-<div class="card">
+    <div class="dre-grid">
 
-  <h3>Evolução Financeira</h3>
+      <div class="dre-item receita">
+        <span>Receitas</span>
+        <strong id="dre-receita">R$ 0,00</strong>
+      </div>
 
-  <canvas id="financeChart" height="100"></canvas>
+      <div class="dre-item despesa">
+        <span>Despesas</span>
+        <strong id="dre-despesa">R$ 0,00</strong>
+      </div>
 
-</div>
+      <div class="dre-item resultado">
+        <span>Resultado</span>
+        <strong id="dre-resultado">R$ 0,00</strong>
+      </div>
 
-<br>
+    </div>
 
-<!-- AÇÕES -->
-<div class="card">
-  <h3>Ações rápidas</h3>
-  <button onclick="loadStudents()">Listar alunos</button>
-  <button onclick="logout()">Sair do sistema</button>
-</div>
+  </div>
+
+  <!-- GRÁFICO -->
+  <div class="card">
+
+    <div class="card-header">
+      <h3>Evolução Financeira</h3>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="financeChart"></canvas>
+    </div>
+
+  </div>
+
+  <!-- AÇÕES -->
+  <div class="card">
+
+    <div class="card-header">
+      <h3>Ações rápidas</h3>
+    </div>
+
+    <div class="actions">
+      <button onclick="loadStudents()">Listar alunos</button>
+      <button onclick="logout()">Sair do sistema</button>
+    </div>
+
+  </div>
 
 </div>
