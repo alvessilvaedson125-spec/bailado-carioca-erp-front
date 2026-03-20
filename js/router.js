@@ -1,33 +1,24 @@
-// router.js
-
 const content = document.getElementById("content")
 
 async function checkAuth() {
   try {
     await apiRequest("/api/v1/auth/me")
     return true
- 
+
   } catch {
     localStorage.removeItem("token")
     window.location.href = "index.html"
     return false
- 
   }
-
-
 }
-
 
 async function loadPage(page) {
 
+  if (!localStorage.getItem("token")) {
+    window.location.href = "index.html"
+    return
+  }
 
-
-
-    if (!localStorage.getItem("token")) {
-  window.location.href = "index.html"
-  return
-}
- 
   setActiveMenu(page)
 
   try {
@@ -57,25 +48,25 @@ async function loadPage(page) {
 
 function initModule(page){
 
-const modules = {
-dashboard: window.DashboardModule,
-students: window.StudentsModule,
-classes: window.ClassesModule,
-units: window.UnitsModule,
-teachers: window.TeachersModule,
-enrollments: window.EnrollmentsModule,
-payments: window.PaymentsModule,
-cash: window.CashModule
-}
+  const modules = {
+    dashboard: window.DashboardModule,
+    students: window.StudentsModule,
+    classes: window.ClassesModule,
+    units: window.UnitsModule,
+    teachers: window.TeachersModule,
+    enrollments: window.EnrollmentsModule,
+    payments: window.PaymentsModule,
+    cash: window.CashModule
+  }
 
-const module = modules[page]
+  const module = modules[page]
 
-if(module && typeof module.init === "function"){
-module.init()
-}else{
-  console.warn("Módulo não encontrado ou sem init:", page)
-  content.innerHTML += "<p>Erro ao carregar módulo</p>"
-}
+  if(module && typeof module.init === "function"){
+    module.init()
+  } else {
+    console.warn("Módulo não encontrado ou sem init:", page)
+    content.innerHTML += "<p>Erro ao carregar módulo</p>"
+  }
 
 }
 
@@ -87,21 +78,19 @@ function setupNavigation() {
 
   links.forEach(link => {
 
-link.addEventListener("click", () => {
+    link.addEventListener("click", () => {
 
-  if (isLoading) return
+      if (isLoading) return
 
-  isLoading = true
+      isLoading = true
 
-  const page = link.dataset.page
+      const page = link.dataset.page
 
-  loadPage(page).finally(() => {
-    isLoading = false
-  })
+      loadPage(page).finally(() => {
+        isLoading = false
+      })
 
-})
-
-
+    })
 
   })
 
@@ -121,17 +110,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function setActiveMenu(page){
 
-const items = document.querySelectorAll(".sidebar li")
+  const items = document.querySelectorAll(".sidebar li")
 
-items.forEach(li => {
-li.classList.remove("active")
-})
+  items.forEach(li => {
+    li.classList.remove("active")
+  })
 
-const target = document.querySelector(`.sidebar li[data-page="${page}"]`)
+  const target = document.querySelector(`.sidebar li[data-page="${page}"]`)
 
-if(target){
-target.classList.add("active")
+  if(target){
+    target.classList.add("active")
+  }
+
 }
-
-}
-
