@@ -85,13 +85,30 @@ async function init() {
                 currency: "BRL"
             });
 
+function calcGrowth(data) {
+  if (data.length < 2) return 0;
+
+  const last = data[data.length - 1];
+  const prev = data[data.length - 2];
+
+  if (prev === 0) return 0;
+
+  return ((last - prev) / prev) * 100;
+}
+
+
+
         if (receitaEl) {
-            receitaEl.innerText = "Receitas: " + formatCurrency(totalIn);
-        }
+  receitaEl.innerText =
+    "Receitas: " + formatCurrency(totalIn) +
+    " (" + receitaGrowth.toFixed(1) + "%)";
+}
 
         if (despesaEl) {
-            despesaEl.innerText = "Despesas: " + formatCurrency(totalOut);
-        }
+  despesaEl.innerText =
+    "Despesas: " + formatCurrency(totalOut) +
+    " (" + despesaGrowth.toFixed(1) + "%)";
+}
 
         if (resultadoEl) {
             resultadoEl.innerText = "Resultado: " + formatCurrency(resultado);
@@ -150,6 +167,9 @@ if (ctx && cashData.length) {
   
   let receitasData = labels.map(m => monthly[m].in);
 let despesasData = labels.map(m => monthly[m].out);
+
+const receitaGrowth = calcGrowth(receitasData);
+const despesaGrowth = calcGrowth(despesasData);
 
   if (labels.length === 1) {
   const base = labels[0];
