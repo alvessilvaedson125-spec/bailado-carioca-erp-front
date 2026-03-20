@@ -138,19 +138,62 @@ if (ctx && cashData.length) {
     if (e.type === "out") despesas.push(Number(e.amount));
   });
 
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Receitas', 'Despesas'],
-      datasets: [{
-        label: 'Financeiro',
-        data: [
-          receitas.reduce((a,b)=>a+b,0),
-          despesas.reduce((a,b)=>a+b,0)
-        ]
-      }]
+ const monthly = {};
+
+cashData.forEach(e => {
+  const date = new Date(e.created_at);
+  const month = date.toLocaleString("pt-BR", { month: "short" });
+
+  if (!monthly[month]) {
+    monthly[month] = { in: 0, out: 0 };
+  }
+
+  const amount = Number(e.amount) || 0;
+
+  if (e.type === "in") monthly[month].in += amount;
+  if (e.type === "out") monthly[month].out += amount;
+});
+
+const labels = Object.keys(monthly);
+const receitasData = labels.map(m => monthly[m].in);
+const despesasData = labels.map(m => monthly[m].out);
+
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'Receitas',
+        data: receitasData,
+        tension: 0.4,
+        borderWidth: 2,
+        fill: false
+      },
+      {
+        label: 'Despesas',
+        data: despesasData,
+        tension: 0.4,
+        borderWidth: 2,
+        fill: false
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top'
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true
+      }
     }
-  });
+  }
+});
 
 }
 
