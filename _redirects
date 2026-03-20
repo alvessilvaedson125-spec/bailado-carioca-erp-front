@@ -1,0 +1,2 @@
+# Impede Cloudflare de reescrever .html para clean URLs
+/*.html    /:splat.html   200
