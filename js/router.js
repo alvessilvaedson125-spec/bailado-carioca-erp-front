@@ -9,8 +9,7 @@ async function checkAuth() {
  
   } catch {
     localStorage.removeItem("token")
-   console.warn("Sessão inválida - aguardando controle do auth boundary")
-return false
+    window.location.href = "index.html"
     return false
  
   }
@@ -23,8 +22,9 @@ async function loadPage(page) {
 
 
 
-if (!localStorage.getItem("token")) {
-  console.warn("Sem token - bloqueando carregamento da rota")
+
+    if (!localStorage.getItem("token")) {
+  window.location.href = "index.html"
   return
 }
  
@@ -107,10 +107,17 @@ link.addEventListener("click", () => {
 
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Router pronto - aguardando auth boundary")
-})
+document.addEventListener("DOMContentLoaded", async () => {
 
+  const ok = await checkAuth()
+
+  if (!ok) return
+
+  setupNavigation()
+
+  loadPage("dashboard")
+
+})
 
 function setActiveMenu(page){
 
