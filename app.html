@@ -115,20 +115,69 @@ Logout
 <script src="js/dashboard.js"></script>
 
 <script>
+function showLogin() {
+  const loginRoot = document.getElementById("login-root")
+  const appRoot = document.getElementById("app-root")
+
+  // esconder app
+  appRoot.style.display = "none"
+
+  // render login (simples por enquanto)
+  loginRoot.innerHTML = `
+    <div class="login-container">
+      <h2>Bailado Carioca</h2>
+      <p>Gestão Escolar</p>
+
+      <input id="login-email" placeholder="Email" />
+      <input id="login-password" type="password" placeholder="Senha" />
+
+      <button id="login-btn">Entrar</button>
+    </div>
+  `
+
+  document.getElementById("login-btn").onclick = async () => {
+    const email = document.getElementById("login-email").value
+    const password = document.getElementById("login-password").value
+
+    try {
+      const res = await fetch(
+        "https://bailado-carioca-escola-api.alvessilvaedson125.workers.dev/api/v1/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        }
+      )
+
+      const data = await res.json()
+
+      if (!data.success) {
+        alert("Login inválido")
+        return
+      }
+
+      localStorage.setItem("token", data.token)
+
+      // recarrega para entrar no app
+      window.location.reload()
+
+    } catch (err) {
+      alert("Erro ao conectar com servidor")
+    }
+  }
+}
 
 (async () => {
-
   const token = localStorage.getItem("token")
 
   if (!token) {
-
-    window.location.href = "index.html"
+    showLogin()
     return
-
   }
 
   try {
-
     const response = await fetch(
       "https://bailado-carioca-escola-api.alvessilvaedson125.workers.dev/api/v1/auth/me",
       {
@@ -141,25 +190,21 @@ Logout
     const data = await response.json()
 
     if (!data.success) {
-
       localStorage.removeItem("token")
-      window.location.href = "index.html"
+      showLogin()
       return
-
     }
 
     console.log("Usuário autenticado:", data)
 
+    // garante que login não aparece
+    document.getElementById("login-root").style.display = "none"
+
   } catch {
-
-    window.location.href = "index.html"
-
+    localStorage.removeItem("token")
+    showLogin()
   }
-
 })()
-
-
-
 </script>
 
 </body>
