@@ -153,7 +153,7 @@ function showLogin() {
 
       const data = await res.json()
 
-      if (!data.success) {
+      if (!data.success || !data.data || !data.data.id) {
         alert("Login inválido")
         return
       }
