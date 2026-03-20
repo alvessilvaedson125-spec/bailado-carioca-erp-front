@@ -85,7 +85,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* HEADER DENTRO DO CARD */
 .card-header {
   margin-bottom: 14px;
 }
@@ -121,7 +120,6 @@ button:hover {
   margin-bottom: 20px;
 }
 
-/* HEADER DO DASHBOARD */
 .page-header {
   margin-bottom: 20px;
 }
@@ -147,12 +145,18 @@ button:hover {
   padding: 18px;
   border: 1px solid #e5e7eb;
   transition: 0.2s;
+  border-left: 4px solid transparent;
 }
 
 .metric-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(0,0,0,0.08);
 }
+
+.metric-card:nth-child(1) { border-color: #2563eb; }
+.metric-card:nth-child(2) { border-color: #16a34a; }
+.metric-card:nth-child(3) { border-color: #f59e0b; }
+.metric-card:nth-child(4) { border-color: #dc2626; }
 
 .metric-title {
   font-size: 12px;
@@ -171,43 +175,49 @@ button:hover {
 }
 
 /* =========================
-   DRE
+   FINANCE / DRE
 ========================= */
+.finance-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
 .dre-grid {
   display: grid;
   grid-template-columns: repeat(3,1fr);
   gap: 16px;
-  margin-top: 10px;
 }
 
 .dre-item {
   background: #f9fafb;
-  padding: 14px;
+  padding: 16px;
   border-radius: 10px;
 }
 
 .dre-item span {
-  font-size: 12px;
+  font-size: 13px;
   color: #6b7280;
 }
 
-.dre-item strong {
-  font-size: 18px;
-  margin-top: 4px;
+.value {
   display: block;
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 6px;
 }
 
-.receita strong { color: #16a34a; }
-.despesa strong { color: #dc2626; }
-.resultado strong { color: #2563eb; }
+.positive { color: #16a34a; }
+.negative { color: #dc2626; }
+.highlight { color: #2563eb; }
 
 /* =========================
-   CHART (CORRIGIDO)
+   CHART
 ========================= */
 .chart-container {
-  position: relative;
   width: 100%;
-  height: 260px;
+  height: 220px;
 }
 
 .chart-container canvas {
@@ -216,104 +226,8 @@ button:hover {
 }
 
 /* =========================
-   ACTIONS
+   LOGIN (UNIFICADO)
 ========================= */
-.actions {
-  display: flex;
-  gap: 10px;
-}
-
-/* =========================
-   LOGIN (CORRIGIDO)
-========================= */
-body.login {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #1f2937, #111827);
-}
-
-body.login form {
-  background: white;
-  padding: 36px;
-  border-radius: 16px;
-  width: 360px;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.25);
-}
-
-body.login h2 {
-  margin-bottom: 20px;
-}
-
-.form-control {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  margin-bottom: 14px;
-}
-
-/* LOGIN PAGE */
-.login-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: #f5f6fa;
-}
-
-.login-card {
-  width: 360px;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 32px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-
-.login-header h1 {
-  margin: 0;
-  font-size: 22px;
-}
-
-.login-header p {
-  margin: 4px 0 20px;
-  color: #777;
-}
-
-.login-body h2 {
-  margin-bottom: 16px;
-}
-
-.input-group {
-  margin-bottom: 12px;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-}
-
-.login-btn {
-  width: 100%;
-  padding: 10px;
-  background: #6c5ce7;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.login-btn:hover {
-  background: #5a4bd6;
-}
-
-/* ===============================
-   LOGIN PAGE
-   =============================== */
-
 .login-page {
   height: 100vh;
   display: flex;
@@ -388,4 +302,13 @@ body.login h2 {
   color: red;
   text-align: center;
   font-size: 13px;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+@media (max-width: 900px) {
+  .finance-layout {
+    grid-template-columns: 1fr;
+  }
 }

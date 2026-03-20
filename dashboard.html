@@ -38,58 +38,42 @@
   </div>
 
   <!-- DRE -->
-  <div class="card dre-card">
+  <div class="card finance-card">
 
-    <div class="card-header">
-      <h3>DRE (Resultado Financeiro)</h3>
-    </div>
-
-    <div class="dre-grid">
-
-      <div class="dre-item receita">
-        <span>Receitas</span>
-        <strong id="dre-receita">R$ 0,00</strong>
-      </div>
-
-      <div class="dre-item despesa">
-        <span>Despesas</span>
-        <strong id="dre-despesa">R$ 0,00</strong>
-      </div>
-
-      <div class="dre-item resultado">
-        <span>Resultado</span>
-        <strong id="dre-resultado">R$ 0,00</strong>
-      </div>
-
-    </div>
-
+  <div class="card-header">
+    <h3>Financeiro</h3>
   </div>
 
-  <!-- GRÁFICO -->
-  <div class="card">
+  <div class="finance-layout">
 
-    <div class="card-header">
-      <h3>Evolução Financeira</h3>
-    </div>
+    <!-- DRE -->
+    <div class="dre-grid">
 
+  <div class="dre-item receita">
+    <span>Receitas</span>
+    <strong class="value positive" id="dre-receita">R$ 0,00</strong>
+  </div>
+
+  <div class="dre-item despesa">
+    <span>Despesas</span>
+    <strong class="value negative" id="dre-despesa">R$ 0,00</strong>
+  </div>
+
+  <div class="dre-item resultado">
+    <span>Resultado</span>
+    <strong class="value highlight" id="dre-resultado">R$ 0,00</strong>
+  </div>
+
+</div>
+
+    <!-- GRÁFICO -->
     <div class="chart-container">
       <canvas id="financeChart"></canvas>
     </div>
 
   </div>
 
-  <!-- AÇÕES -->
-  <div class="card">
+</div>
 
-    <div class="card-header">
-      <h3>Ações rápidas</h3>
-    </div>
-
-    <div class="actions">
-      <button onclick="loadStudents()">Listar alunos</button>
-      <button onclick="logout()">Sair do sistema</button>
-    </div>
-
-  </div>
-
+  
 </div>
