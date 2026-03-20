@@ -107,17 +107,10 @@ link.addEventListener("click", () => {
 
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-
-  const ok = await checkAuth()
-
-  if (!ok) return
-
-  setupNavigation()
-
-  loadPage("dashboard")
-
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Router pronto - aguardando auth boundary")
 })
+
 
 function setActiveMenu(page){
 
