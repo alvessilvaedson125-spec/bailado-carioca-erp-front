@@ -634,3 +634,26 @@ tr:hover {
   gap:10px;
   border-top:1px solid #f1f5f9;
 }
+
+/* ===== AVATAR ALUNO ===== */
+
+.student-cell{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.student-avatar{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:#6366f1;
+  color:white;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:12px;
+  font-weight:600;
+}

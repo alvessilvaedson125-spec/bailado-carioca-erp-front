@@ -76,8 +76,28 @@ function renderStudents(list){
 
 // Nome
 const tdName = document.createElement("td")
-tdName.textContent = student.name
 
+const wrapper = document.createElement("div")
+wrapper.className = "student-cell"
+
+// avatar (iniciais)
+const avatar = document.createElement("div")
+avatar.className = "student-avatar"
+avatar.textContent = student.name
+  .split(" ")
+  .map(n => n[0])
+  .slice(0,2)
+  .join("")
+  .toUpperCase()
+
+// nome
+const name = document.createElement("span")
+name.textContent = student.name
+
+wrapper.appendChild(avatar)
+wrapper.appendChild(name)
+
+tdName.appendChild(wrapper)
 // Email
 const tdEmail = document.createElement("td")
 tdEmail.textContent = student.email
