@@ -505,48 +505,52 @@ tr:hover {
   font-size:14px;
 }
 
-#studentsTable {
-  width: 100%;
-  border-collapse: collapse;
+/* ===== TABELA SaaS ===== */
+
+#studentsTable{
+  width:100%;
+  border-collapse:collapse;
 }
 
-#studentsTable thead {
-  background: #f9fafb;
+#studentsTable thead{
+  background:#f9fafb;
 }
 
-#studentsTable th {
-  text-align: left;
-  padding: 12px;
-  font-size: 13px;
-  color: #6b7280;
-  font-weight: 500;
+#studentsTable th{
+  text-align:left;
+  font-size:12px;
+  color:#6b7280;
+  font-weight:500;
+  padding:12px;
 }
 
-#studentsTable td {
-  padding: 14px 12px;
-  border-top: 1px solid #f1f5f9;
+#studentsTable td{
+  padding:14px 12px;
+  border-top:1px solid #f1f5f9;
+  font-size:14px;
 }
 
-#studentsTable tbody tr {
-  transition: background 0.2s ease;
+#studentsTable tr{
+  transition:all 0.2s ease;
 }
 
-#studentsTable tbody tr:hover {
-  background: #f9fafb;
+#studentsTable tbody tr:hover{
+  background:#f9fafb;
 }
 
-.btn-edit {
-  background: #eef2ff;
-  color: #4f46e5;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
+.btn-edit{
+  background:#eef2ff;
+  color:#4f46e5;
+  border:none;
+  padding:6px 12px;
+  border-radius:8px;
+  font-size:12px;
+  cursor:pointer;
+  transition:all 0.2s ease;
 }
 
-.btn-edit:hover {
-  background: #e0e7ff;
+.btn-edit:hover{
+  background:#e0e7ff;
 }
 
 /* ===== HEADER PROFISSIONAL ===== */
