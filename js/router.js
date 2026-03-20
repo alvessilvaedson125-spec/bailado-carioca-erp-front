@@ -9,7 +9,8 @@ async function checkAuth() {
  
   } catch {
     localStorage.removeItem("token")
-    window.location.href = "index.html"
+   console.warn("Sessão inválida - aguardando controle do auth boundary")
+return false
     return false
  
   }
@@ -22,9 +23,8 @@ async function loadPage(page) {
 
 
 
-
-    if (!localStorage.getItem("token")) {
-  window.location.href = "index.html"
+if (!localStorage.getItem("token")) {
+  console.warn("Sem token - bloqueando carregamento da rota")
   return
 }
  
