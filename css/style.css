@@ -127,17 +127,19 @@ tr:hover {
    FORMS (PADRÃO ÚNICO)
 ========================= */
 
-.form-control {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #dcdcdc;
-  border-radius: 6px;
-  font-size: 14px;
+.form-control{
+  width:100%;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  font-size:14px;
+  transition:all 0.2s ease;
 }
 
-.form-control:focus {
-  border-color: #5b4bdb;
-  outline: none;
+.form-control:focus{
+  outline:none;
+  border-color:#6366f1;
+  box-shadow:0 0 0 2px rgba(99,102,241,0.1);
 }
 
 .form-group {
@@ -420,10 +422,14 @@ tr:hover {
   margin-top: 20px;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+ .form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.form-group.full-width{
+  grid-column:1 / -1;
 }
 
 .full-width {
@@ -458,13 +464,17 @@ tr:hover {
   background: #4338ca;
 }
 
-.btn-secondary {
-  background: #e5e7eb;
-  color: #111827;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
+.btn-secondary{
+  background:#f3f4f6;
+  color:#374151;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.btn-secondary:hover{
+  background:#e5e7eb;
 }
 .btn-lg {
   padding: 10px 18px;
@@ -580,4 +590,47 @@ tr:hover {
   font-size:13px;
   color:#6b7280;
   margin-top:4px;
+}
+
+/* ===== MODAL SaaS ===== */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+
+.modal-content{
+  background:white;
+  border-radius:16px;
+  width:100%;
+  max-width:520px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.2);
+  overflow:hidden;
+}
+
+.modal-header{
+  padding:20px 24px 10px;
+  border-bottom:1px solid #f1f5f9;
+}
+
+.modal-header h2{
+  font-size:18px;
+  font-weight:600;
+}
+
+.modal-body{
+  padding:20px 24px;
+}
+
+.modal-footer{
+  padding:16px 24px;
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  border-top:1px solid #f1f5f9;
 }
