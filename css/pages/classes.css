@@ -1,0 +1,95 @@
+/* =========================
+   HEADER
+========================= */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.page-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-input {
+  width: 260px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+/* =========================
+   TABLE CONTAINER
+========================= */
+
+.table-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* =========================
+   TABLE
+========================= */
+
+#classesTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#classesTable thead {
+  background: #f9fafb;
+}
+
+#classesTable th {
+  text-align: left;
+  padding: 12px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+#classesTable td {
+  padding: 14px 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+#classesTable tr:hover {
+  background: #f9fafb;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+#classModal .modal-content {
+  width: 600px;
+  max-width: 90%;
+}
+
+#classModal .form-group {
+  margin-bottom: 12px;
+}
+
+#classModal input,
+#classModal select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
