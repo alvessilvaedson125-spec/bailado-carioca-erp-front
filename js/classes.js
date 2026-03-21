@@ -17,13 +17,12 @@ async function init(){
 
   setupClassModal();
 
-  const newBtn = document.getElementById("newClassBtn");
-
-  if (newBtn) {
-    newBtn.onclick = newClass;
-  } else {
-    console.error("newClassBtn não encontrado");
+ document.addEventListener("click", (e) => {
+  const btn = e.target.closest("#newClassBtn");
+  if (btn) {
+    newClass();
   }
+});
 }
 
 async function loadClasses(){
