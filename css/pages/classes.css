@@ -83,9 +83,14 @@
 ========================= */
 
 #classModal {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
+}
+
+/* quando abrir */
+#classModal.active {
+  display: flex;
 }
 
 #classModal .modal-content {
@@ -113,6 +118,9 @@
   margin-top: 12px;
 }
 
+.hidden {
+  display: none !important;
+}
 
 /* =========================
    FORM
