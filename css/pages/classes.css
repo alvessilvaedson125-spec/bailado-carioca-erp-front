@@ -93,3 +93,71 @@
   gap: 10px;
   margin-top: 15px;
 }
+
+#classModal h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+#classModal label {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  display: block;
+}
+
+#classModal input,
+#classModal select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+#classModal input:focus,
+#classModal select:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: #fff;
+}
+
+#classModal .form-group {
+  margin-bottom: 16px;
+}
+
+#classModal .modal-content {
+  padding: 24px;
+}
+
+#classModal .modal-body {
+  margin-top: 10px;
+}
+
+#classModal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#classModal .btn-primary {
+  background: #6366f1;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 500;
+}
+
+#classModal .btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+  border-radius: 10px;
+  padding: 10px 16px;
+}
+
+#classModal .modal-content {
+  width: 520px;
+  max-width: 90%;
+}
