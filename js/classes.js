@@ -17,12 +17,7 @@ async function init(){
 
   setupClassModal();
 
- document.addEventListener("click", (e) => {
-  const btn = e.target.closest("#newClassBtn");
-  if (btn) {
-    newClass();
-  }
-});
+ 
 }
 
 async function loadClasses(){
@@ -191,7 +186,10 @@ document.getElementById("editClassUnit").value = ""
 document.getElementById("editClassDay").value = ""
 document.getElementById("editClassTime").value = ""
 
-document.querySelector("#classModal h2").innerText = "Nova turma"
+const title = document.querySelector("#classModal h2");
+if (title) {
+  title.innerText = "Nova turma";
+}
 
 const modal = document.getElementById("classModal")
 modal.classList.remove("hidden")
@@ -283,6 +281,12 @@ alert("Erro na API")
 
 }
 
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("#newClassBtn");
+  if (btn) {
+    newClass();
+  }
+});
 
 
 window.ClassesModule = {
@@ -298,3 +302,4 @@ window.saveClass = saveClass;
 window.newClass = newClass;
 
 })();
+
