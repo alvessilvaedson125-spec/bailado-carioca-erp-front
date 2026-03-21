@@ -25,7 +25,7 @@ async function loadPage(page) {
 
     content.innerHTML = "<p>Carregando...</p>"
 
-    const response = await fetch("/" + page + ".html", {
+    const response = await fetch("/" + page, {
   cache: "no-store"
 })
 
