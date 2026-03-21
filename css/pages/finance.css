@@ -1,0 +1,42 @@
+.finance-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+.dre-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 16px;
+}
+
+.dre-item {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.dre-item span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.value {
+  display: block;
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+.positive { color: #16a34a; }
+.negative { color: #dc2626; }
+.highlight { color: #2563eb; }
+
+
+
+@media (max-width: 900px) {
+  .finance-layout {
+    grid-template-columns: 1fr;
+  }
+}
