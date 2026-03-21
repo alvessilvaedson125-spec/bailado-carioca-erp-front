@@ -25,10 +25,9 @@ async function loadPage(page) {
 
     content.innerHTML = "<p>Carregando...</p>"
 
-    const response = await fetch("/" + page, {
+    const response = await fetch(page + ".html", {
   cache: "no-store"
 })
-
     if (!response.ok) {
       content.innerHTML = "<h2>Página não encontrada</h2>"
       return
