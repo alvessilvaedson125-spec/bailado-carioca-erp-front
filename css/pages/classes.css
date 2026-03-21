@@ -6,21 +6,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .page-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
 }
 
 .search-input {
   width: 260px;
-  padding: 10px 12px;
+  padding: 10px 14px;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 10px;
+  background: #f9fafb;
+  transition: all 0.2s ease;
 }
+
+.search-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
 
 /* =========================
    TABLE CONTAINER
@@ -28,10 +38,11 @@
 
 .table-container {
   background: #fff;
-  border-radius: 12px;
-  padding: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
 }
+
 
 /* =========================
    TABLE
@@ -48,62 +59,73 @@
 
 #classesTable th {
   text-align: left;
-  padding: 12px;
-  font-size: 13px;
+  padding: 14px;
+  font-size: 12px;
+  font-weight: 600;
   color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 #classesTable td {
-  padding: 14px 12px;
+  padding: 16px 14px;
   border-top: 1px solid #e5e7eb;
+  font-size: 14px;
 }
 
 #classesTable tr:hover {
   background: #f9fafb;
 }
 
+
 /* =========================
-   MODAL
+   MODAL BASE
 ========================= */
+
+#classModal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 #classModal .modal-content {
-  width: 600px;
+  width: 520px;
   max-width: 90%;
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.18);
+  animation: modalFade 0.2s ease;
 }
 
-#classModal .form-group {
-  margin-bottom: 12px;
-}
-
-#classModal input,
-#classModal select {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-}
 
 /* =========================
-   ACTION BUTTONS
+   MODAL HEADER
 ========================= */
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
+#classModal h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
-#classModal h2 {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 4px;
+#classModal .modal-body {
+  margin-top: 12px;
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+#classModal .form-group {
+  margin-bottom: 16px;
 }
 
 #classModal label {
   font-size: 13px;
   color: #6b7280;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   display: block;
 }
 
@@ -114,6 +136,7 @@
   border-radius: 10px;
   border: 1px solid #e5e7eb;
   background: #f9fafb;
+  font-size: 14px;
   transition: all 0.2s ease;
 }
 
@@ -122,19 +145,13 @@
   outline: none;
   border-color: #6366f1;
   background: #fff;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
 }
 
-#classModal .form-group {
-  margin-bottom: 16px;
-}
 
-#classModal .modal-content {
-  padding: 24px;
-}
-
-#classModal .modal-body {
-  margin-top: 10px;
-}
+/* =========================
+   ACTION BUTTONS
+========================= */
 
 #classModal .modal-actions {
   display: flex;
@@ -144,20 +161,47 @@
 }
 
 #classModal .btn-primary {
-  background: #6366f1;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
   border-radius: 10px;
-  padding: 10px 16px;
+  padding: 10px 18px;
   font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#classModal .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(99,102,241,0.25);
 }
 
 #classModal .btn-secondary {
   background: #e5e7eb;
   color: #374151;
   border-radius: 10px;
-  padding: 10px 16px;
+  padding: 10px 18px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-#classModal .modal-content {
-  width: 520px;
-  max-width: 90%;
+#classModal .btn-secondary:hover {
+  background: #d1d5db;
+}
+
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
