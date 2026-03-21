@@ -173,7 +173,9 @@ document.getElementById("editClassUnit").value = cls.unit_id ?? ""
 document.getElementById("editClassDay").value = cls.day_of_week ?? ""
 document.getElementById("editClassTime").value = cls.start_time ?? ""
 
-document.getElementById("classModal").classList.remove("hidden")
+const modal = document.getElementById("classModal")
+modal.classList.remove("hidden")
+modal.classList.add("active")
 
 }
 
@@ -190,10 +192,11 @@ document.getElementById("editClassUnit").value = ""
 document.getElementById("editClassDay").value = ""
 document.getElementById("editClassTime").value = ""
 
-document.querySelector("#classModal h3").innerText = "Nova turma"
+document.querySelector("#classModal h2").innerText = "Nova turma"
 
-document.getElementById("classModal").classList.remove("hidden")
-
+const modal = document.getElementById("classModal")
+modal.classList.remove("hidden")
+modal.classList.add("active")
 
 
 }
@@ -225,9 +228,10 @@ closeClassModal()
 }
 
 }
-
 function closeClassModal(){
-document.getElementById("classModal").classList.add("hidden")
+  const modal = document.getElementById("classModal")
+  modal.classList.remove("active")
+  modal.classList.add("hidden")
 }
 
 async function saveClass(){
