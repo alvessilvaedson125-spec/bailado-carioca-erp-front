@@ -226,6 +226,18 @@ function renderEnrollments(){
 const tbody = document.querySelector("#enrollmentsTable tbody")
 if(!tbody) return
 
+const total = enrollmentsCache.length
+const active = enrollmentsCache.filter(e => e.status === "active").length
+const inactive = total - active
+
+const statTotal = document.getElementById("statTotal")
+const statActive = document.getElementById("statActive")
+const statInactive = document.getElementById("statInactive")
+
+if(statTotal) statTotal.innerText = total
+if(statActive) statActive.innerText = active
+if(statInactive) statInactive.innerText = inactive
+
 if(enrollmentsCache.length === 0){
 tbody.innerHTML = `<tr><td colspan="6">Nenhuma matrícula</td></tr>`
 return

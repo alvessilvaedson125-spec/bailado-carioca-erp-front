@@ -103,3 +103,28 @@
 .btn-edit:hover {
   background: rgba(99, 102, 241, 0.2);
 }
+
+.enrollments-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 10px;
+  padding: 14px 18px;
+  min-width: 120px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.stat-card span {
+  font-size: 12px;
+  color: #888;
+}
+
+.stat-card strong {
+  display: block;
+  font-size: 20px;
+  margin-top: 4px;
+}
