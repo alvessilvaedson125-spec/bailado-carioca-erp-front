@@ -27,6 +27,12 @@ closeEnrollmentModal()
 })
 }
 
+const searchInput = document.getElementById("searchEnrollments");
+
+if (searchInput) {
+  searchInput.addEventListener("input", filterEnrollments);
+}
+
 }
 
 /* =========================
@@ -354,6 +360,25 @@ document.getElementById("editEnrollmentFee").value = ""
 document.getElementById("editEnrollmentDiscount").value = 0
 document.getElementById("editEnrollmentStatus").value = "active"
 
+}
+
+function filterEnrollments() {
+  const search = document.getElementById("searchEnrollments");
+  if (!search) return;
+
+  const term = search.value.toLowerCase();
+
+  if (term === "") {
+    renderEnrollments(enrollmentsCache);
+    return;
+  }
+
+  const filtered = enrollmentsCache.filter(e =>
+    e.student_name.toLowerCase().includes(term) ||
+    e.class_name.toLowerCase().includes(term)
+  );
+
+  renderEnrollments(filtered);
 }
 
 window.EnrollmentsModule = {
