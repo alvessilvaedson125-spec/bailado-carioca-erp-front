@@ -49,10 +49,16 @@
 
 </div>
 
-<!-- SCRIPTS (CRÍTICO) -->
+<!-- CORE / GLOBAL -->
+<script src="js/toast.js"></script>
+<script src="js/utils.js"></script>
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
+
+<!-- SISTEMA -->
 <script src="js/router.js"></script>
+
+<!-- MÓDULOS -->
 <script src="js/students.js"></script>
 <script src="js/classes.js"></script>
 <script src="js/units.js"></script>
@@ -60,11 +66,17 @@
 <script src="js/enrollments.js"></script>
 <script src="js/payments.js"></script>
 <script src="js/cash.js"></script>
-<script src="js/toast.js"></script>
+
+<!-- EXTERNOS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- DASHBOARD -->
 <script src="js/dashboard.js"></script>
 
+
 <script>
+  
+  
   (function () {
     const token = localStorage.getItem("token");
 
@@ -72,6 +84,7 @@
       window.location.href = "index.html";
     }
   })();
+
 </script>
 
 </body>
