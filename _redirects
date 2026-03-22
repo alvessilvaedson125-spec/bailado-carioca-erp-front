@@ -1,6 +1,10 @@
-# STATIC (NUNCA INTERCEPTAR)
-/js/*   /js/:splat   200
-/css/*  /css/:splat  200
+# Arquivos estáticos (NUNCA INTERCEPTAR)
+/js/*      /js/:splat      200
+/css/*     /css/:splat     200
 
-# SPA
-/*      /index.html  200
+# HTML direto (importante!)
+/app       /app.html       200
+/dashboard /dashboard.html 200
+
+# fallback SPA (somente se não for arquivo)
+/*         /index.html     200
