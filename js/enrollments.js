@@ -240,11 +240,25 @@ const tr = document.createElement("tr")
 tr.innerHTML = `
 <td>${safe(enrollment.student_name)}</td>
 <td>${safe(enrollment.class_name)}</td>
-<td>${formatRole(enrollment.role || "-")}</td>
-<td>${safe(enrollment.status)}</td>
-<td>${formatDate(enrollment.created_at)}</td>
+
 <td>
-<button class="btn-edit">Editar</button>
+  <span class="role-badge">
+    ${formatRole(enrollment.role || "-")}
+  </span>
+</td>
+
+<td>
+  <span class="status-badge ${enrollment.status}">
+    ${enrollment.status === "active" ? "Ativo" : "Inativo"}
+  </span>
+</td>
+
+<td>${formatDate(enrollment.created_at)}</td>
+
+<td>
+  <button class="btn-edit">
+    ✏️ <span>Editar</span>
+  </button>
 </td>
 `
 

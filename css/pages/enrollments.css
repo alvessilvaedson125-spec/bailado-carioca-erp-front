@@ -60,3 +60,46 @@
   padding: 6px 10px;
   font-size: 12px;
 }
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.status-badge.inactive {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.role-badge {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btn-edit {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-edit:hover {
+  background: rgba(99, 102, 241, 0.2);
+}
