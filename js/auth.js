@@ -39,10 +39,13 @@ async function checkAuth() {
 
   } catch (error) {
     localStorage.removeItem("token");
-    window.location.href = "index.html";
+
+    // 🔥 PROTEÇÃO ANTI-LOOP
+    if (!window.location.pathname.includes("index.html")) {
+      window.location.href = "index.html";
+    }
   }
 }
-
 // ===============================
 // LOGOUT
 // ===============================

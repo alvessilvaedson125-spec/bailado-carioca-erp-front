@@ -14,10 +14,9 @@ async function checkAuth() {
 
 async function loadPage(page) {
 
-  if (!localStorage.getItem("token")) {
-    window.location.href = "index.html"
-    return
-  }
+ if (!localStorage.getItem("token")) {
+  return // 🚫 NÃO redireciona aqui
+}
 
   setActiveMenu(page)
 
