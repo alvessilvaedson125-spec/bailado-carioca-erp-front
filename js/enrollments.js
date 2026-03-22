@@ -227,13 +227,13 @@ alert("Erro na API")
    RENDER
 ========================= */
 
-function renderEnrollments(){
+function renderEnrollments(list = enrollmentsCache){
 
 const tbody = document.querySelector("#enrollmentsTable tbody")
 if(!tbody) return
 
-const total = enrollmentsCache.length
-const active = enrollmentsCache.filter(e => e.status === "active").length
+const total = list.length
+const active = list.filter(e => e.status === "active").length
 const inactive = total - active
 
 const statTotal = document.getElementById("statTotal")
@@ -244,14 +244,14 @@ if(statTotal) statTotal.innerText = total
 if(statActive) statActive.innerText = active
 if(statInactive) statInactive.innerText = inactive
 
-if(enrollmentsCache.length === 0){
+if(list.length === 0){
 tbody.innerHTML = `<tr><td colspan="6">Nenhuma matrícula</td></tr>`
 return
 }
 
 tbody.innerHTML = ""
 
-enrollmentsCache.forEach(enrollment=>{
+list.forEach(enrollment=>{
 
 const tr = document.createElement("tr")
 
