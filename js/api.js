@@ -43,8 +43,7 @@ async function apiRequest(endpoint, method = "GET", body = null) {
 
   if (response.status === 401) {
   localStorage.removeItem("token")
- window.location.replace("/index.html")
-  throw new Error("Sessão expirada")
+  throw new Error("UNAUTHORIZED")
 }
 
   if (!response.ok) {
