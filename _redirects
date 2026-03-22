@@ -1,7 +1,7 @@
-# NÃO mexer em assets
-/js/*   /js/:splat   200
-/css/*  /css/:splat  200
+# NÃO mexer em assets estáticos
+/js/*     /js/:splat     200
+/css/*    /css/:splat    200
 
-# SPA fallback (somente rotas)
-# importante: sem afetar arquivos reais
-/*      /index.html 200
+# SPA fallback (apenas para rotas do app)
+#/app/*   /app.html      200   ← se você usa /app
+/*        /index.html    200
