@@ -1,7 +1,6 @@
 (function () {
   function show(message, type = "info", duration = 3000) {
-    let container = document.getElementById("toast-container");
-
+    let container = <div id="toast-container" class="toast-container"></div>
     if (!container) {
       container = document.createElement("div");
       container.id = "toast-container";
