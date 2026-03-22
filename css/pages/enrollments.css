@@ -1,0 +1,62 @@
+/* =========================
+   ENROLLMENTS PAGE
+========================= */
+
+/* HEADER */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.page-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* TABLE CONTAINER */
+
+.table-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+/* TABLE */
+
+#enrollmentsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#enrollmentsTable thead th {
+  text-align: left;
+  font-size: 12px;
+  color: #6b7280;
+  padding: 12px;
+}
+
+#enrollmentsTable tbody td {
+  padding: 14px 12px;
+  border-top: 1px solid #eee;
+}
+
+/* HOVER */
+
+#enrollmentsTable tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* ACTION BUTTON */
+
+#enrollmentsTable .btn-edit {
+  padding: 6px 10px;
+  font-size: 12px;
+}
