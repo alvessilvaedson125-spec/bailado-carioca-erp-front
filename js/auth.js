@@ -40,9 +40,9 @@ async function checkAuth() {
   } catch (error) {
     localStorage.removeItem("token");
 
-    // 🔥 PROTEÇÃO ANTI-LOOP
-    if (!window.location.pathname.includes("index.html")) {
-      window.location.href = "index.html";
+    // 🔒 REDIRECT LIMPO (sem loop)
+    if (!window.location.pathname.endsWith("index.html")) {
+      window.location.replace("/index.html");
     }
   }
 }
