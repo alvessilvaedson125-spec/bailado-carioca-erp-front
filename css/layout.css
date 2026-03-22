@@ -56,3 +56,31 @@
   overflow-y: auto;
 }
 
+/* =========================
+   PAGE CONTAINER (REAL)
+========================= */
+
+.page {
+  padding: 24px 32px;
+  max-width: 1200px;
+}
+
+/* header padrão */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.page-header p {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+

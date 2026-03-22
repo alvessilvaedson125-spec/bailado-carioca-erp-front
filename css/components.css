@@ -351,3 +351,24 @@ button:hover {
   font-size: 16px;
   margin-top: 4px;
 }
+
+.page-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-item strong {
+  font-size: 18px;
+}
