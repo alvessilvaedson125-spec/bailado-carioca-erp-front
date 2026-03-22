@@ -331,3 +331,23 @@ button:hover {
     transform: translateY(-10px);
   }
 }
+/* =========================
+   SUMMARY GRID (PAYMENTS)
+========================= */
+
+.summary-grid {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.summary-item strong {
+  font-size: 16px;
+  margin-top: 4px;
+}

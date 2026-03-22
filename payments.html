@@ -1,7 +1,12 @@
 
 
 
-<h2>Pagamentos</h2>
+<div class="page-header">
+  <div>
+    <h1>Pagamentos</h1>
+    <p>Gestão de mensalidades e fluxo financeiro</p>
+  </div>
+</div>
 
 <!-- ========================= -->
 <!-- GERADOR DE MENSALIDADES -->
@@ -9,7 +14,7 @@
 
 <div class="card">
 
-<h3>Gerar mensalidades</h3>
+<div class="card-title">Gerar mensalidades</div>
 
 <div class="form-row">
 
@@ -24,7 +29,7 @@
 
 </div>
 
-<br>
+
 
 <!-- ========================= -->
 <!-- FILTROS -->
@@ -48,32 +53,36 @@
 
 </div>
 
-<br>
+
 
 <!-- ========================= -->
 <!-- DASHBOARD FINANCEIRO -->
 <!-- ========================= -->
 
-<div class="card" style="display:flex; gap:20px; margin-bottom:20px;">
+<div class="card">
 
-  <div>
-    <strong>Total esperado</strong>
-    <div id="total-expected">R$ 0</div>
-  </div>
+  <div class="summary-grid">
 
-  <div>
-    <strong>Recebido</strong>
-    <div id="total-paid">R$ 0</div>
-  </div>
+    <div class="summary-item">
+      <span>Total esperado</span>
+      <strong id="total-expected">R$ 0</strong>
+    </div>
 
-  <div>
-    <strong>Pendente</strong>
-    <div id="total-pending">R$ 0</div>
-  </div>
+    <div class="summary-item">
+      <span>Recebido</span>
+      <strong id="total-paid">R$ 0</strong>
+    </div>
 
-  <div>
-    <strong>Vencido</strong>
-    <div id="total-overdue">R$ 0</div>
+    <div class="summary-item">
+      <span>Pendente</span>
+      <strong id="total-pending">R$ 0</strong>
+    </div>
+
+    <div class="summary-item">
+      <span>Vencido</span>
+      <strong id="total-overdue">R$ 0</strong>
+    </div>
+
   </div>
 
 </div>
@@ -82,23 +91,23 @@
 <!-- CAIXA (FLUXO) -->
 <!-- ========================= -->
 
-<div class="card" style="margin-bottom:20px;">
+<div class="card">
 
-<h3>Caixa</h3>
+  <h3>Caixa</h3>
 
-<div style="display:flex; gap:20px;">
+  <div class="summary-grid">
 
-  <div>
-    <strong>Hoje</strong>
-    <div id="cash-today">R$ 0</div>
+    <div class="summary-item">
+      <span>Hoje</span>
+      <strong id="cash-today">R$ 0</strong>
+    </div>
+
+    <div class="summary-item">
+      <span>Mês</span>
+      <strong id="cash-month">R$ 0</strong>
+    </div>
+
   </div>
-
-  <div>
-    <strong>Mês</strong>
-    <div id="cash-month">R$ 0</div>
-  </div>
-
-</div>
 
 </div>
 
