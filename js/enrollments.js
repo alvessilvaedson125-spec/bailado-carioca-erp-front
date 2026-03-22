@@ -30,7 +30,15 @@ closeEnrollmentModal()
 const searchInput = document.getElementById("searchEnrollments");
 
 if (searchInput) {
-  searchInput.addEventListener("input", filterEnrollments);
+ searchInput.addEventListener("input", () => {
+
+  clearTimeout(searchTimeout);
+
+  searchTimeout = setTimeout(() => {
+    filterEnrollments();
+  }, 300);
+
+});
 }
 
 }
@@ -361,6 +369,8 @@ document.getElementById("editEnrollmentDiscount").value = 0
 document.getElementById("editEnrollmentStatus").value = "active"
 
 }
+
+let searchTimeout = null;
 
 function filterEnrollments() {
   const search = document.getElementById("searchEnrollments");
