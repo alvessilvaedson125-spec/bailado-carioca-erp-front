@@ -1,6 +1,6 @@
-# Permite arquivos JS e CSS funcionarem normalmente
+# STATIC (NUNCA INTERCEPTAR)
 /js/*   /js/:splat   200
 /css/*  /css/:splat  200
 
-# SPA fallback
+# SPA
 /*      /index.html  200
