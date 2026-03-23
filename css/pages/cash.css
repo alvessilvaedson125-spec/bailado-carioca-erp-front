@@ -1,0 +1,38 @@
+/* =========================
+   CASH TABLE
+========================= */
+
+.cash-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.cash-table th {
+  text-align: left;
+  font-size: 12px;
+  color: #6b7280;
+  padding: 12px 16px;
+}
+
+.cash-table td {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.cash-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.cash-balance {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.cash-in {
+  color: #16a34a;
+}
+
+.cash-out {
+  color: #dc2626;
+}
