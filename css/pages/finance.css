@@ -17,9 +17,8 @@
   margin-top: 4px;
 }
 
-
 /* =========================
-   FILTERS (GERAR + FILTRAR)
+   FILTERS
 ========================= */
 
 .payments-filters {
@@ -41,7 +40,6 @@
   margin-bottom: 10px;
 }
 
-
 /* inputs */
 
 .form-row {
@@ -58,9 +56,8 @@
   min-width: 80px;
 }
 
-
 /* =========================
-   KPI (RESUMO)
+   KPI
 ========================= */
 
 .payments-kpis {
@@ -106,7 +103,6 @@
   background: linear-gradient(135deg, #ef4444, #dc2626);
 }
 
-
 /* =========================
    CAIXA
 ========================= */
@@ -132,9 +128,8 @@
   margin-top: 4px;
 }
 
-
 /* =========================
-   TABELA
+   TABELA (CORRIGIDA)
 ========================= */
 
 .payments-table {
@@ -146,10 +141,14 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
+/* estrutura */
+
 .payments-table table {
   width: 100%;
   border-collapse: collapse;
 }
+
+/* header */
 
 .payments-table thead {
   background: #f9fafb;
@@ -160,24 +159,45 @@
   font-size: 11px;
   text-transform: uppercase;
   color: #6b7280;
-  padding: 12px 20px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
 }
+
+/* células */
 
 .payments-table td {
-  padding: 14px 20px;
-  border-top: 1px solid #f1f5f9;
+  padding: 16px 20px;
   font-size: 14px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-/* linhas mais limpas */
+/* evitar quebra feia */
+
+.payments-table td,
+.payments-table th {
+  white-space: nowrap;
+}
+
+/* zebra */
+
+.payments-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* hover */
 
 .payments-table tbody tr:hover {
-  background: #f9fafb;
+  background: #f1f5f9;
+  transition: background 0.2s;
 }
+
+/* =========================
+   STATUS (CORRIGIDO)
+========================= */
 
 .status {
   display: inline-block;
-  padding: 4px 10px;
+  padding: 6px 12px;
   font-size: 12px;
   border-radius: 999px;
   font-weight: 500;
@@ -196,4 +216,13 @@
 .status-overdue {
   background: #fee2e2;
   color: #991b1b;
+}
+
+/* =========================
+   AÇÕES
+========================= */
+
+.payments-table td:last-child {
+  text-align: right;
+  padding-right: 24px;
 }
