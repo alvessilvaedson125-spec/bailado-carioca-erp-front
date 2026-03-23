@@ -37,15 +37,15 @@ async function generatePayments() {
 
 function renderStatus(status){
 
-if(status === "paid"){
-return "<span style='color:#16a34a;font-weight:600'>✔ Pago</span>"
-}
+  if(status === "paid"){
+    return "<span class='status status-paid'>Pago</span>"
+  }
 
-if(status === "overdue"){
-return "<span style='color:#dc2626;font-weight:600'>⚠ Vencido</span>"
-}
+  if(status === "overdue"){
+    return "<span class='status status-overdue'>Vencido</span>"
+  }
 
-return "<span style='color:#f59e0b;font-weight:600'>● Pendente</span>"
+  return "<span class='status status-pending'>Pendente</span>"
 
 }
 
