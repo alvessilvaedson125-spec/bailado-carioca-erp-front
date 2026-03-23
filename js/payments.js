@@ -249,7 +249,7 @@ function setupPaymentsToggle() {
       row.style.display = (!expanded && index >= LIMIT) ? 'none' : '';
     });
 
-    btn.textContent = expanded ? 'Mostrar menos' : 'Mostrar mais';
+   btn.textContent = expanded ? 'Mostrar menos ▲' : 'Mostrar mais ▼';
   }
 
   btn.onclick = () => {
