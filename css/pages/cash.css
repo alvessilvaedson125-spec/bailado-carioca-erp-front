@@ -88,3 +88,18 @@
   border: 1px solid #e5e7eb;
   border-radius: 6px;
 }
+
+.btn-cancel {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #fecaca;
+}

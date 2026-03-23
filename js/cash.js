@@ -116,16 +116,20 @@ async function loadEntries() {
   data.forEach(e => {
 
     const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${new Date(e.created_at).toLocaleDateString()}</td>
-      <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
-      <td>${Number(e.amount).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      })}</td>
-      <td>${e.description || ""}</td>
-    `;
+tr.innerHTML = `
+  <td>${new Date(e.created_at).toLocaleDateString()}</td>
+  <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
+  <td>${Number(e.amount).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  })}</td>
+  <td>${e.description || ""}</td>
+  <td>
+    <button class="btn-cancel" onclick="cancelEntry('${e.id}')">
+      Cancelar
+    </button>
+  </td>
+`;
 
     tbody.appendChild(tr);
 
@@ -191,6 +195,28 @@ document.addEventListener("input", (e) => {
 document.addEventListener("change", (e) => {
   if (e.target.id === "filter-type") applyFilters();
 });
+
+async function cancelEntry(id) {
+
+  const confirmacao = confirm("Deseja cancelar este lançamento?");
+  if (!confirmacao) return;
+
+  try {
+
+    // 👉 FUTURO: endpoint real
+    // await apiRequest(`/api/v1/cash/${id}`, 'PATCH', { status: 'cancelled' });
+
+    alert("Cancelamento simulado (backend ainda não implementado)");
+
+    // reload lista
+    await loadEntries();
+
+  } catch (err) {
+    alert("Erro ao cancelar");
+    console.error(err);
+  }
+}
+
 
 window.CashModule = {
 init,
