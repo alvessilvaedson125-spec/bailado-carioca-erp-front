@@ -245,7 +245,7 @@ async function cancelCashEntry(id) {
 
     alert("Movimentação cancelada");
 
-    loadCash(); // recarrega lista
+   window.loadCashEntries();// recarrega lista
 
   } catch (err) {
     console.error(err);
