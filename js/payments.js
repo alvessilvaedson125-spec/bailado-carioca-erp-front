@@ -77,8 +77,9 @@ try {
   const tbody = document.getElementById("payments-body");
   tbody.innerHTML = "";
 
-  data.data.forEach(p => {
+ const LIMIT = 5;
 
+data.data.forEach((p, index) => {
     const tr = document.createElement("tr");
 
     
@@ -106,36 +107,20 @@ try {
     </td>
     `;
 
-    tbody.appendChild(tr);
-  });
-
-  function setupPaymentsToggle() {
-  const rows = document.querySelectorAll('#payments-body tr');
-  const btn = document.getElementById('toggle-payments');
-
-  if (!btn || rows.length === 0) return;
-
-  const LIMIT = 6;
-  let expanded = false;
-
-  function updateView() {
-    rows.forEach((row, index) => {
-      row.style.display = (!expanded && index >= LIMIT) ? 'none' : '';
-    });
-
-    btn.textContent = expanded ? 'Mostrar menos' : 'Mostrar mais';
-  }
-
-  btn.addEventListener('click', () => {
-    expanded = !expanded;
-    updateView();
-  });
-
-  updateView();
+   if (index >= LIMIT) {
+  tr.style.display = 'none';
 }
 
+tbody.appendChild(tr);
+  });
+
+  
+
   // 🔥 NOVO: sincroniza summary com filtro
+  setupPaymentsToggle();
+  
   await loadFinancialSummary(month, year);
+
 }
 async function markAsPaid(id, button) {
   try {
