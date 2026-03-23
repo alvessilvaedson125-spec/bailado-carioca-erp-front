@@ -1,5 +1,5 @@
-const API_BASE = window.API_BASE || "/api/v1";
 
+const API_BASE = "https://bailado-carioca-escola-api.alvessilvaedson125.workers.dev/api/v1";
 (function(){
 
 let cashEntries = [];
@@ -221,29 +221,35 @@ async function cancelEntry(id) {
 }
 
 async function cancelCashEntry(id) {
-  if (!confirm("Tem certeza que deseja cancelar este lançamento?")) return;
+  if (!confirm("Cancelar esta movimentação?")) return;
 
   try {
     const res = await fetch(`${API_BASE}/cash`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("bc_token")
+        "Authorization": `Bearer ${localStorage.getItem("bc_token")}`
       },
       body: JSON.stringify({ id })
     });
 
-    const data = await res.json();
-
-    if (data.success) {
-      await loadEntries(); // recarrega lista
-    } else {
-      alert("Erro ao cancelar");
+    if (!res.ok) {
+      throw new Error("Erro na requisição");
     }
+
+    // ⚠️ evita quebrar se não vier JSON
+    let data = {};
+    try {
+      data = await res.json();
+    } catch (e) {}
+
+    alert("Movimentação cancelada");
+
+    loadCash(); // recarrega lista
 
   } catch (err) {
     console.error(err);
-    alert("Erro na requisição");
+    alert("Erro ao cancelar");
   }
 }
 
