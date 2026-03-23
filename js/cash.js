@@ -233,7 +233,7 @@ async function cancelCashEntry(id) {
     const data = await res.json();
 
     if (data.success) {
-      loadCashEntries(); // recarrega lista
+      await loadEntries(); // recarrega lista
     } else {
       alert("Erro ao cancelar");
     }
@@ -249,5 +249,7 @@ init,
 createEntry,
 loadEntries
 };
+
+window.cancelCashEntry = cancelCashEntry;
 
 })();
