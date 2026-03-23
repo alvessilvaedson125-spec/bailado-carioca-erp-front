@@ -9,12 +9,12 @@
 .payments-header h1 {
   font-size: 24px;
   font-weight: 600;
+  margin-bottom: 4px;
 }
 
 .payments-header p {
   font-size: 13px;
   color: #6b7280;
-  margin-top: 4px;
 }
 
 /* =========================
@@ -37,23 +37,29 @@
 
 .payments-filters h3 {
   font-size: 14px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 /* inputs */
 
 .form-row {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 12px;
 }
 
 .form-row input {
-  height: 36px;
-  padding: 6px 10px;
+  height: 38px;
+  padding: 0 12px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
-  min-width: 80px;
+  font-size: 14px;
+  min-width: 90px;
+}
+
+.form-row button {
+  height: 38px;
+  padding: 0 14px;
 }
 
 /* =========================
@@ -68,40 +74,29 @@
 
 .kpi {
   flex: 1;
-  padding: 20px;
+  padding: 18px 20px;
   border-radius: 12px;
   color: #ffffff;
 }
 
 .kpi span {
   font-size: 12px;
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 .kpi strong {
   display: block;
-  font-size: 22px;
+  font-size: 20px;
   margin-top: 6px;
   font-weight: 600;
 }
 
 /* cores */
 
-.kpi-blue {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-}
-
-.kpi-green {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-}
-
-.kpi-yellow {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.kpi-red {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-}
+.kpi-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.kpi-green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.kpi-yellow { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.kpi-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
 
 /* =========================
    CAIXA
@@ -113,8 +108,13 @@
 
 .cash-values {
   display: flex;
-  gap: 40px;
+  gap: 60px;
   margin-top: 10px;
+}
+
+.cash-values div {
+  display: flex;
+  flex-direction: column;
 }
 
 .cash-values span {
@@ -123,25 +123,29 @@
 }
 
 .cash-values strong {
-  display: block;
   font-size: 18px;
   margin-top: 4px;
 }
 
 /* =========================
-   TABELA (CORRIGIDA)
+   TABELA (VERSÃO FINAL)
 ========================= */
 
 .payments-table {
-  padding: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
 }
 
 .payments-table h3 {
   padding: 16px 20px;
   border-bottom: 1px solid #e5e7eb;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-/* estrutura */
+/* tabela base */
 
 .payments-table table {
   width: 100%;
@@ -159,16 +163,34 @@
   font-size: 11px;
   text-transform: uppercase;
   color: #6b7280;
-  padding: 16px 20px;
+  padding: 14px 20px;
   border-bottom: 1px solid #e5e7eb;
+}
+
+/* linhas */
+
+.payments-table tbody tr {
+  transition: background 0.2s;
+}
+
+.payments-table tbody tr:hover {
+  background: #f8fafc;
 }
 
 /* células */
 
 .payments-table td {
-  padding: 16px 20px;
+  padding: 14px 20px;
   font-size: 14px;
   border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+/* espaçamento REAL entre colunas */
+
+.payments-table td:not(:last-child),
+.payments-table th:not(:last-child) {
+  padding-right: 40px;
 }
 
 /* evitar quebra feia */
@@ -178,26 +200,19 @@
   white-space: nowrap;
 }
 
-/* zebra */
+/* zebra leve */
 
 .payments-table tbody tr:nth-child(even) {
-  background: #fafafa;
-}
-
-/* hover */
-
-.payments-table tbody tr:hover {
-  background: #f1f5f9;
-  transition: background 0.2s;
+  background: #fcfcfc;
 }
 
 /* =========================
-   STATUS (CORRIGIDO)
+   STATUS
 ========================= */
 
 .status {
   display: inline-block;
-  padding: 6px 12px;
+  padding: 5px 10px;
   font-size: 12px;
   border-radius: 999px;
   font-weight: 500;
@@ -224,57 +239,10 @@
 
 .payments-table td:last-child {
   text-align: right;
-  padding-right: 24px;
 }
 
-/* =========================
-   FIX FORÇADO TABELA (CRÍTICO)
-========================= */
-
-.payments-table table {
-  width: 100%;
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-}
-
-/* LINHAS */
-
-.payments-table tbody tr {
-  height: 56px;
-}
-
-/* CÉLULAS */
-
-.payments-table td {
-  padding: 16px 20px !important;
-  vertical-align: middle !important;
-  font-size: 14px;
-  line-height: 1.4;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-/* HEADER */
-
-.payments-table th {
-  padding: 16px 20px !important;
-  vertical-align: middle;
-}
-
-/* ESPAÇO ENTRE COLUNAS (CRÍTICO) */
-
-.payments-table td:not(:last-child),
-.payments-table th:not(:last-child) {
-  padding-right: 32px !important;
-}
-
-/* RESPIRO VISUAL */
-
-.payments-table tbody tr + tr {
-  border-top: 8px solid transparent;
-}
-
-/* HOVER MELHORADO */
-
-.payments-table tbody tr:hover {
-  background: #f8fafc;
+.payments-table button {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
 }
