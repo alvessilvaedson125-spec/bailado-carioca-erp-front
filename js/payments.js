@@ -230,6 +230,7 @@ async function init() {
 }
 
 function setupPaymentsToggle() {
+  const countEl = document.getElementById('payments-count');
   const rows = document.querySelectorAll('#payments-body tr');
   const btn = document.getElementById('toggle-payments');
 
@@ -250,6 +251,12 @@ function setupPaymentsToggle() {
     });
 
    btn.textContent = expanded ? 'Mostrar menos ▲' : 'Mostrar mais ▼';
+
+   if (countEl) {
+  const visible = expanded ? rows.length : Math.min(LIMIT, rows.length);
+  countEl.textContent = `Mostrando ${visible} de ${rows.length}`;
+}
+  
   }
 
   btn.onclick = () => {

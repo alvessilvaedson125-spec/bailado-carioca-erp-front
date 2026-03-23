@@ -384,3 +384,9 @@
 .btn-secondary:hover {
   background: var(--primary-hover);
 }
+
+.payments-info {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
