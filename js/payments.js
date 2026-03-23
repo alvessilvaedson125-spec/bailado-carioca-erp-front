@@ -109,6 +109,31 @@ try {
     tbody.appendChild(tr);
   });
 
+  function setupPaymentsToggle() {
+  const rows = document.querySelectorAll('#payments-body tr');
+  const btn = document.getElementById('toggle-payments');
+
+  if (!btn || rows.length === 0) return;
+
+  const LIMIT = 6;
+  let expanded = false;
+
+  function updateView() {
+    rows.forEach((row, index) => {
+      row.style.display = (!expanded && index >= LIMIT) ? 'none' : '';
+    });
+
+    btn.textContent = expanded ? 'Mostrar menos' : 'Mostrar mais';
+  }
+
+  btn.addEventListener('click', () => {
+    expanded = !expanded;
+    updateView();
+  });
+
+  updateView();
+}
+
   // 🔥 NOVO: sincroniza summary com filtro
   await loadFinancialSummary(month, year);
 }
@@ -217,6 +242,31 @@ async function init() {
   await loadPayments();
   await loadFinancialSummary();
   await loadCashflow();
+}
+
+function setupPaymentsToggle() {
+  const rows = document.querySelectorAll('#payments-body tr');
+  const btn = document.getElementById('toggle-payments');
+
+  if (!btn || rows.length === 0) return;
+
+  const LIMIT = 6;
+  let expanded = false;
+
+  function updateView() {
+    rows.forEach((row, index) => {
+      row.style.display = (!expanded && index >= LIMIT) ? 'none' : '';
+    });
+
+    btn.textContent = expanded ? 'Mostrar menos' : 'Mostrar mais';
+  }
+
+  btn.onclick = () => {
+    expanded = !expanded;
+    updateView();
+  };
+
+  updateView();
 }
 
 window.PaymentsModule = {

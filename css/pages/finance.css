@@ -363,3 +363,22 @@
 .payments-table td:nth-child(3) {
   white-space: nowrap;
 }
+
+.payments-footer {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #d1d5db;
+}
