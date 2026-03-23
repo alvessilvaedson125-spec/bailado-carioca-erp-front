@@ -18,7 +18,7 @@ const type = document.getElementById("cash-type").value;
     const date = document.getElementById("cash-date").value;
 
     await apiRequest(
-      '/api/v1/cash',
+      `${API_BASE}/cash`,
       'POST',
       {
         type,
@@ -128,9 +128,9 @@ data.forEach(e => {
     })}</td>
     <td>${e.description || ""}</td>
     <td>
-      <button class="btn-cancel" onclick="cancelCashEntry('${e.id}')"
-        Cancelar
-      </button>
+      <button class="btn-cancel" onclick="cancelCashEntry('${e.id}')">
+  Cancelar
+</button>
     </td>
   `;
 
@@ -224,8 +224,8 @@ async function cancelCashEntry(id) {
   if (!confirm("Cancelar esta movimentação?")) return;
 
   try {
-    const res = await fetch(`${API_BASE}/cash`, {
-      method: "PATCH",
+   const res = await fetch(`${API_BASE}/cash/cancel`, {
+     method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem("bc_token")}`
