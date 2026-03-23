@@ -246,3 +246,17 @@
   padding: 0 12px;
   font-size: 13px;
 }
+
+/* =========================
+   AJUSTE FINO COLUNAS
+========================= */
+
+.payments-table .col-value {
+  min-width: 110px;
+  font-weight: 500;
+}
+
+.payments-table .col-competence {
+  min-width: 90px;
+  color: #374151;
+}

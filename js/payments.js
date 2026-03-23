@@ -85,8 +85,13 @@ try {
     tr.innerHTML = `
       <td>${p.student_name}</td>
       <td>${p.class_name ?? "-"}</td>
-     <td>R$ ${Number(p.final_amount).toFixed(2)}</td>
-      <td>${p.competence_month}/${p.competence_year}</td>
+     <td class="col-value">
+  R$ ${Number(p.final_amount).toFixed(2)}
+</td>
+
+<td class="col-competence">
+  ${String(p.competence_month).padStart(2, '0')}/${p.competence_year}
+</td>
      <td>${renderStatus(p.computed_status)}</td>
       <td>
       ${p.computed_status !== 'paid' ? `
