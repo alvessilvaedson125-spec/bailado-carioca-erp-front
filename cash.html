@@ -46,11 +46,24 @@
   </div>
 </div>
 
-<br>
+<div style="margin-top: 16px;"></div>
 
 <div class="card">
   <h3>Movimentações</h3>
 
+  <div class="cash-filters">
+    <select id="filter-type">
+      <option value="">Todos</option>
+      <option value="in">Entrada</option>
+      <option value="out">Saída</option>
+    </select>
+
+    <input
+      type="text"
+      id="filter-text"
+      placeholder="Buscar descrição..."
+    >
+  </div>
   <table class="cash-table">
     <thead>
       <tr>

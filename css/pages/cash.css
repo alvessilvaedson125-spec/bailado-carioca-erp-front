@@ -75,3 +75,16 @@
 #cash-out {
   color: #dc2626;
 }
+
+.cash-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cash-filters input,
+.cash-filters select {
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}

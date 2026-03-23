@@ -1,6 +1,7 @@
 (function(){
 
 let cashEntries = [];
+let allEntries = [];
 
 async function createEntry(){
    
@@ -54,6 +55,7 @@ async function loadEntries() {
   // 🔥 BUSCA DADOS DA API (FALTAVA ISSO)
   const res = await apiRequest('/api/v1/cash');
   const data = res.data || [];
+  allEntries = data;
 
   let totalIn = 0;
   let totalOut = 0;
@@ -140,6 +142,54 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.location.hash.includes("cash") || document.getElementById("cash-body")) {
     loadEntries();
   }
+});
+
+function applyFilters() {
+
+  const type = document.getElementById("filter-type")?.value;
+  const text = document.getElementById("filter-text")?.value.toLowerCase();
+
+  const tbody = document.getElementById("cash-body");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  const filtered = allEntries.filter(e => {
+
+    const matchType = !type || e.type === type;
+
+    const matchText =
+      !text ||
+      (e.description || "").toLowerCase().includes(text);
+
+    return matchType && matchText;
+  });
+
+  filtered.forEach(e => {
+
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${new Date(e.created_at).toLocaleDateString()}</td>
+      <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
+      <td>${Number(e.amount).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      })}</td>
+      <td>${e.description || ""}</td>
+    `;
+
+    tbody.appendChild(tr);
+
+  });
+}
+
+document.addEventListener("input", (e) => {
+  if (e.target.id === "filter-text") applyFilters();
+});
+
+document.addEventListener("change", (e) => {
+  if (e.target.id === "filter-type") applyFilters();
 });
 
 window.CashModule = {
