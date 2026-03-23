@@ -44,3 +44,34 @@
 .cash-out {
   color: #dc2626;
 }
+
+.cash-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.kpi span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.kpi strong {
+  font-size: 18px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* cores */
+#cash-balance {
+  color: #2563eb;
+}
+
+#cash-in {
+  color: #16a34a;
+}
+
+#cash-out {
+  color: #dc2626;
+}
