@@ -125,7 +125,7 @@ tr.innerHTML = `
   })}</td>
   <td>${e.description || ""}</td>
   <td>
-    <button class="btn-cancel" onclick="cancelEntry('${e.id}')">
+    <button class="btn-cancel" onclick="cancelCashEntry(${e.id})">
       Cancelar
     </button>
   </td>
@@ -217,6 +217,32 @@ async function cancelEntry(id) {
   }
 }
 
+async function cancelCashEntry(id) {
+  if (!confirm("Tem certeza que deseja cancelar este lançamento?")) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/cash`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("bc_token")
+      },
+      body: JSON.stringify({ id })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      loadCashEntries(); // recarrega lista
+    } else {
+      alert("Erro ao cancelar");
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Erro na requisição");
+  }
+}
 
 window.CashModule = {
 init,
