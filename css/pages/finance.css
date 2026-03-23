@@ -226,3 +226,55 @@
   text-align: right;
   padding-right: 24px;
 }
+
+/* =========================
+   FIX FORÇADO TABELA (CRÍTICO)
+========================= */
+
+.payments-table table {
+  width: 100%;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+/* LINHAS */
+
+.payments-table tbody tr {
+  height: 56px;
+}
+
+/* CÉLULAS */
+
+.payments-table td {
+  padding: 16px 20px !important;
+  vertical-align: middle !important;
+  font-size: 14px;
+  line-height: 1.4;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* HEADER */
+
+.payments-table th {
+  padding: 16px 20px !important;
+  vertical-align: middle;
+}
+
+/* ESPAÇO ENTRE COLUNAS (CRÍTICO) */
+
+.payments-table td:not(:last-child),
+.payments-table th:not(:last-child) {
+  padding-right: 32px !important;
+}
+
+/* RESPIRO VISUAL */
+
+.payments-table tbody tr + tr {
+  border-top: 8px solid transparent;
+}
+
+/* HOVER MELHORADO */
+
+.payments-table tbody tr:hover {
+  background: #f8fafc;
+}
