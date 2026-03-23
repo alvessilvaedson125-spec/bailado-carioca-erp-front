@@ -1,153 +1,108 @@
-<div class="page"></div>
+<div class="page">
 
-
-<div class="page-header">
-
-  <div class="page-section"></div>
-  <div>
-    <h1>Pagamentos</h1>
-    <p>Gestão de mensalidades e fluxo financeiro</p>
+  <!-- HEADER -->
+  <div class="payments-header">
+    <div>
+      <h1>Pagamentos</h1>
+      <p>Gestão de mensalidades e fluxo financeiro</p>
+    </div>
   </div>
-</div>
 
-<!-- ========================= -->
-<!-- GERADOR DE MENSALIDADES -->
-<!-- ========================= -->
+  <!-- GERAR + FILTRAR -->
+  <div class="payments-filters">
 
-<div class="card">
+    <div class="card">
+      <h3>Gerar mensalidades</h3>
 
-<div class="card-title">Gerar mensalidades</div>
+      <div class="form-row">
+        <label>Mês</label>
+        <input type="number" id="competence-month" min="1" max="12">
 
-<div class="form-row">
+        <label>Ano</label>
+        <input type="number" id="competence-year">
 
-<label>Mês</label>
-<input type="number" id="competence-month" min="1" max="12">
+        <button onclick="PaymentsModule.generatePayments()">Gerar</button>
+      </div>
+    </div>
 
-<label>Ano</label>
-<input type="number" id="competence-year">
+    <div class="card">
+      <h3>Filtrar pagamentos</h3>
 
-<button onclick="PaymentsModule.generatePayments()"></button>
-</div>
+      <div class="form-row">
+        <label>Mês</label>
+        <input type="number" id="filter-month" min="1" max="12">
 
-</div>
+        <label>Ano</label>
+        <input type="number" id="filter-year">
 
+        <button onclick="PaymentsModule.loadPayments()">Filtrar</button>
+      </div>
+    </div>
 
+  </div>
 
-<!-- ========================= -->
-<!-- FILTROS -->
-<!-- ========================= -->
+  <!-- RESUMO -->
+  <div class="payments-summary">
 
-<div class="card">
-
-<h3>Filtrar pagamentos</h3>
-
-<div class="form-row">
-
-<label>Mês</label>
-<input type="number" id="filter-month" min="1" max="12">
-
-<label>Ano</label>
-<input type="number" id="filter-year">
-
-<button onclick="PaymentsModule.loadPayments()"></button>
-</div>
-
-
-</div>
-
-
-
-<!-- ========================= -->
-<!-- DASHBOARD FINANCEIRO -->
-<!-- ========================= -->
-
-<div class="card">
-
-  <div class="summary-grid">
-
-    <div class="summary-item">
+    <div>
       <span>Total esperado</span>
       <strong id="total-expected">R$ 0</strong>
     </div>
 
-    <div class="summary-item">
+    <div>
       <span>Recebido</span>
       <strong id="total-paid">R$ 0</strong>
     </div>
 
-    <div class="summary-item">
+    <div>
       <span>Pendente</span>
       <strong id="total-pending">R$ 0</strong>
     </div>
 
-    <div class="summary-item">
+    <div>
       <span>Vencido</span>
       <strong id="total-overdue">R$ 0</strong>
     </div>
 
   </div>
 
-</div>
+  <!-- CAIXA -->
+  <div class="card">
+    <h3>Caixa</h3>
 
-<!-- ========================= -->
-<!-- CAIXA (FLUXO) -->
-<!-- ========================= -->
+    <div class="cash-values">
+      <div>
+        <span>Hoje</span>
+        <strong id="cash-today">R$ 0</strong>
+      </div>
 
-<div class="card">
-
-  <h3>Caixa</h3>
-
-  <div class="summary-grid">
-
-    <div class="summary-item">
-      <span>Hoje</span>
-      <strong id="cash-today">R$ 0</strong>
+      <div>
+        <span>Mês</span>
+        <strong id="cash-month">R$ 0</strong>
+      </div>
     </div>
+  </div>
 
-    <div class="summary-item">
-      <span>Mês</span>
-      <strong id="cash-month">R$ 0</strong>
-    </div>
+  <!-- TABELA -->
+  <div class="card">
+
+    <h3>Lista de pagamentos</h3>
+
+    <table id="payments-table">
+      <thead>
+        <tr>
+          <th>Aluno</th>
+          <th>Turma</th>
+          <th>Valor</th>
+          <th>Competência</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+
+      <tbody id="payments-body"></tbody>
+    </table>
 
   </div>
 
 </div>
-
-
-<!-- ========================= -->
-<!-- LISTA DE PAGAMENTOS -->
-<!-- ========================= -->
-
-<div class="card">
-
-<h3>Lista de pagamentos</h3>
-
-<table id="payments-table">
-
-<thead>
-
-<tr>
-<th>Aluno</th>
-<th>Turma</th>
-<th>Valor</th>
-<th>Competência</th>
-<th>Status</th>
-<th>Ações</th>
-</tr>
-
-</thead>
-
-<tbody id="payments-body"></tbody>
-
-
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-
-
