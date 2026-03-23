@@ -128,7 +128,7 @@ data.forEach(e => {
     })}</td>
     <td>${e.description || ""}</td>
     <td>
-      <button class="btn-cancel" onclick="cancelCashEntry(${e.id})">
+      <button class="btn-cancel" onclick="cancelCashEntry('${e.id}')"
         Cancelar
       </button>
     </td>
