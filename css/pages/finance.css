@@ -371,14 +371,16 @@
 }
 
 .btn-secondary {
-  background: #e5e7eb;
+  background: var(--primary);
+  color: white;
   border: none;
-  padding: 8px 14px;
+  padding: 10px 16px;
   border-radius: 8px;
   font-size: 13px;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 .btn-secondary:hover {
-  background: #d1d5db;
+  background: var(--primary-hover);
 }

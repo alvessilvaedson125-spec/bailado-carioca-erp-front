@@ -250,8 +250,14 @@ function setupPaymentsToggle() {
 
   if (!btn || rows.length === 0) return;
 
-  const LIMIT = 6;
+  const LIMIT = 5;
   let expanded = false;
+
+  // 👉 ESCONDE BOTÃO SE NÃO PRECISAR
+  if (rows.length <= LIMIT) {
+    btn.style.display = "none";
+    return;
+  }
 
   function updateView() {
     rows.forEach((row, index) => {
