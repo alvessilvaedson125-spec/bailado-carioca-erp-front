@@ -12,16 +12,3 @@ body {
   color: #1f2937;
   min-height: 100vh;
 }
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f4f6f9;
-  color: #1f2937;
-  min-height: 100vh;
-}
