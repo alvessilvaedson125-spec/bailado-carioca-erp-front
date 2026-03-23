@@ -390,3 +390,8 @@
   color: #6b7280;
   margin-bottom: 10px;
 }
+
+.payments-table tbody tr:hover {
+  background: #f9fafb;
+  transition: 0.15s;
+}
