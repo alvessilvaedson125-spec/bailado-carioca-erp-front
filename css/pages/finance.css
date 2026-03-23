@@ -285,3 +285,60 @@
   min-width: 90px;
   color: #374151;
 }
+
+/* =========================
+   FIX FORÇADO TABELA
+   (override seguro)
+========================= */
+
+.page .payments-table table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+/* RESET GLOBAL CONFLITOS */
+.page .payments-table td,
+.page .payments-table th {
+  white-space: normal !important;
+  padding: 12px 16px !important;
+}
+
+/* REMOVE espaçamento quebrado antigo */
+.page .payments-table td:not(:last-child),
+.page .payments-table th:not(:last-child) {
+  padding-right: 16px !important;
+}
+
+/* CONTROLE REAL DE COLUNAS */
+.page .payments-table th:nth-child(1),
+.page .payments-table td:nth-child(1) { width: 22%; }
+
+.page .payments-table th:nth-child(2),
+.page .payments-table td:nth-child(2) { width: 18%; }
+
+.page .payments-table th:nth-child(3),
+.page .payments-table td:nth-child(3) { width: 12%; }
+
+.page .payments-table th:nth-child(4),
+.page .payments-table td:nth-child(4) { width: 14%; }
+
+.page .payments-table th:nth-child(5),
+.page .payments-table td:nth-child(5) { width: 14%; }
+
+.page .payments-table th:nth-child(6),
+.page .payments-table td:nth-child(6) {
+  width: 20%;
+  text-align: right;
+}
+
+/* STATUS */
+.page .payments-table .status {
+  min-width: 90px;
+  display: inline-flex;
+  justify-content: center;
+}
+
+/* BOTÃO */
+.page .payments-table td:last-child {
+  text-align: right;
+}
