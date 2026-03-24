@@ -90,53 +90,7 @@
   cursor: pointer;
 }
 
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
 
-  background: rgba(0,0,0,0.5);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  z-index: 9999;
-}
-
-.modal.hidden {
-  display: none;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  width: 100%;
-  max-width: 600px;
-}
-
-
-.modal-header {
-  margin-bottom: 16px;
-}
-
-.modal-header h2 {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.modal-body {
-  margin-bottom: 20px;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
 
 .input-group {
   margin-bottom: 12px;
@@ -183,16 +137,6 @@ button {
   cursor: pointer;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
 
 .form-group.full-width {
   grid-column: span 2;
@@ -243,17 +187,7 @@ button {
   animation: slideIn 0.3s ease;
 }
 
-.toast.success {
-  background: #22c55e;
-}
 
-.toast.error {
-  background: #ef4444;
-}
-
-.toast.warning {
-  background: #f59e0b;
-}
 
 @keyframes slideIn {
   from {
