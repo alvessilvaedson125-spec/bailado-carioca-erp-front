@@ -55,13 +55,13 @@ async function loadEntries() {
   tbody.innerHTML = "";
 
   // 🔥 BUSCA DADOS DA API (FALTAVA ISSO)
-  const res = await apiRequest('/api/v1/cash');
+  const res = await apiRequest(`${API_BASE}/cash`);
  const rawData = res.data || [];
 
 // 🔥 FILTRA CANCELADOS
 const data = rawData.filter(e => e.status !== "cancelled");
 
-allEntries = data;
+
   allEntries = data;
 
   let totalIn = 0;
