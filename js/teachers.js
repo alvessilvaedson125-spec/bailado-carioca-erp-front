@@ -110,9 +110,9 @@ function renderTeachers(){
 
       <td>
 
-        <button class="btn-edit" onclick="TeachersModule.editTeacher('${t.id}')">
-          Editar
-        </button>
+        <button class="btn-primary" onclick="TeachersModule.editTeacher('${t.id}')">
+  Editar
+</button>
 
         <button class="btn-secondary" onclick="TeachersModule.deleteTeacher('${t.id}')">
           Excluir
@@ -129,10 +129,10 @@ function renderTeachers(){
 function formatStatus(status){
 
   if(status === "active"){
-    return `<span style="color:green;">Ativo</span>`
+   return `<span class="status-active">Ativo</span>`
   }
 
-  return `<span style="color:#999;">Inativo</span>`
+ return `<span class="status-inactive">Inativo</span>`
 }
 
 function clearSearch(){

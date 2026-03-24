@@ -254,3 +254,16 @@ button:not([class]) {
   flex-direction: column;
   gap: 20px;
 }
+
+/* =========================
+   STATUS
+========================= */
+
+.status-active {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.status-inactive {
+  color: #9ca3af;
+}
