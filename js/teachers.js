@@ -21,20 +21,24 @@ function bindEvents(){
 
 async function loadTeachers(){
 
-  try{
+ try{
 
-    const res = await apiRequest("/api/v1/teachers")
+  const res = await apiRequest("/api/v1/teachers")
 
-    teachersCache = res.data || res.results || []
-
-    applyFilters()
-
-  }catch(err){
-
-    console.error(err)
-    alert("Erro ao carregar professores")
-
+  if (!res.success) {
+    throw new Error(res.message || "Erro ao carregar professores")
   }
+
+  teachersCache = res.data || []
+
+  applyFilters()
+
+}catch(err){
+
+  console.error(err)
+  alert("Erro ao carregar professores")
+
+}
 
 }
 
