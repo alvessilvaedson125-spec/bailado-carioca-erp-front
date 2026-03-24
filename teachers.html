@@ -2,18 +2,29 @@
 
 <div class="page-header">
 
-<input
-type="text"
-id="teacherSearch"
-placeholder="Buscar professor..."
->
+  <div style="display:flex; gap:10px; align-items:center;">
 
-<button
-class="btn-primary"
-onclick="newTeacher()"
->
-Novo Professor
-</button>
+    <input
+      type="text"
+      id="teacherSearch"
+      placeholder="Buscar professor..."
+    >
+
+    <button
+      class="btn-secondary"
+      onclick="TeachersModule.clearSearch()"
+    >
+      Limpar
+    </button>
+
+  </div>
+
+  <button
+    class="btn-primary"
+    onclick="newTeacher()"
+  >
+    Novo Professor
+  </button>
 
 </div>
 

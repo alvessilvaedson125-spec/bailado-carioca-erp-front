@@ -1,221 +1,242 @@
 (function(){
 
 let teachersCache = []
+let filteredTeachers = []
 
 async function init(){
+  console.log("Teachers module iniciado")
 
-console.log("Teachers module iniciado")
+  bindEvents()
 
-await loadTeachers()
+  await loadTeachers()
+}
 
+function bindEvents(){
+  const searchInput = document.getElementById("teacherSearch")
+
+  if(searchInput){
+    searchInput.addEventListener("input", applyFilters)
+  }
 }
 
 async function loadTeachers(){
 
-try{
+  try{
 
-const res = await apiRequest("/api/v1/teachers")
+    const res = await apiRequest("/api/v1/teachers")
 
-teachersCache = res.data || res.results || []
+    teachersCache = res.data || res.results || []
 
-renderTeachers()
+    applyFilters()
 
-}catch(err){
+  }catch(err){
 
-console.error(err)
+    console.error(err)
+    alert("Erro ao carregar professores")
 
-alert("Erro ao carregar professores")
+  }
 
 }
+
+function applyFilters(){
+
+  const search = document.getElementById("teacherSearch")?.value.toLowerCase() || ""
+
+  filteredTeachers = teachersCache.filter(t => {
+
+    return (
+      t.name?.toLowerCase().includes(search) ||
+      t.email?.toLowerCase().includes(search) ||
+      t.phone?.toLowerCase().includes(search)
+    )
+
+  })
+
+  renderTeachers()
 
 }
 
 function renderTeachers(){
 
-const table = document.getElementById("teachersTable")
+  const table = document.getElementById("teachersTable")
 
-if(!table) return
+  if(!table) return
 
-if(teachersCache.length === 0){
+  if(filteredTeachers.length === 0){
 
-table.innerHTML = `
-<tr>
-<td colspan="5">Nenhum professor encontrado</td>
-</tr>
-`
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center; padding:20px; color:#666;">
+          Nenhum professor encontrado
+        </td>
+      </tr>
+    `
 
-return
+    return
+  }
+
+  table.innerHTML = filteredTeachers.map(t => `
+
+    <tr>
+
+      <td>${t.name}</td>
+      <td>${t.email ?? "-"}</td>
+      <td>${t.phone ?? "-"}</td>
+      <td>${formatStatus(t.status)}</td>
+
+      <td>
+
+        <button class="btn-edit" onclick="TeachersModule.editTeacher('${t.id}')">
+          Editar
+        </button>
+
+        <button class="btn-secondary" onclick="TeachersModule.deleteTeacher('${t.id}')">
+          Excluir
+        </button>
+
+      </td>
+
+    </tr>
+
+  `).join("")
 
 }
 
-table.innerHTML = teachersCache.map(t => `
+function formatStatus(status){
 
-<tr>
+  if(status === "active"){
+    return `<span style="color:green;">Ativo</span>`
+  }
 
-<td>${t.name}</td>
-<td>${t.email ?? "-"}</td>
-<td>${t.phone ?? "-"}</td>
-<td>${t.status}</td>
+  return `<span style="color:#999;">Inativo</span>`
+}
 
-<td>
+function clearSearch(){
 
-<button onclick="TeachersModule.editTeacher('${t.id}')">
-Editar
-</button>
+  const input = document.getElementById("teacherSearch")
 
-<button onclick="TeachersModule.deleteTeacher('${t.id}')">
-Excluir
-</button>
+  if(input){
+    input.value = ""
+  }
 
-</td>
-
-</tr>
-
-`).join("")
-
+  applyFilters()
 }
 
 function newTeacher(){
 
-document.getElementById("editTeacherId").value = ""
+  document.getElementById("editTeacherId").value = ""
 
-document.getElementById("editTeacherName").value = ""
-document.getElementById("editTeacherEmail").value = ""
-document.getElementById("editTeacherPhone").value = ""
-document.getElementById("editTeacherStatus").value = "active"
+  document.getElementById("editTeacherName").value = ""
+  document.getElementById("editTeacherEmail").value = ""
+  document.getElementById("editTeacherPhone").value = ""
+  document.getElementById("editTeacherStatus").value = "active"
 
-document.querySelector("#teacherModal h3").innerText = "Novo Professor"
+  document.querySelector("#teacherModal h3").innerText = "Novo Professor"
 
-document.getElementById("teacherModal").classList.remove("hidden")
+  document.getElementById("teacherModal").classList.remove("hidden")
 
 }
 
 function closeTeacherModal(){
-
-document.getElementById("teacherModal").classList.add("hidden")
-
+  document.getElementById("teacherModal").classList.add("hidden")
 }
 
 async function saveTeacher(){
 
-const id = document.getElementById("editTeacherId").value
+  const id = document.getElementById("editTeacherId").value
 
-const name = document.getElementById("editTeacherName").value
-const email = document.getElementById("editTeacherEmail").value
-const phone = document.getElementById("editTeacherPhone").value
-const status = document.getElementById("editTeacherStatus").value
+  const name = document.getElementById("editTeacherName").value.trim()
+  const email = document.getElementById("editTeacherEmail").value.trim()
+  const phone = document.getElementById("editTeacherPhone").value.trim()
+  const status = document.getElementById("editTeacherStatus").value
 
-try{
+  // ✅ VALIDAÇÃO PROFISSIONAL
+  if(!name){
+    alert("Nome é obrigatório")
+    return
+  }
 
-let res
+  try{
 
-if(id){
+    let res
 
-res = await apiRequest(
-`/api/v1/teachers/${id}`,
-"PUT",
-{
-name,
-email,
-phone,
-status
-}
-)
+    if(id){
 
-}else{
+      res = await apiRequest(
+        `/api/v1/teachers/${id}`,
+        "PUT",
+        { name, email, phone, status }
+      )
 
-res = await apiRequest(
-"/api/v1/teachers",
-"POST",
-{
-name,
-email,
-phone,
-status
-}
-)
+    }else{
 
-}
+      res = await apiRequest(
+        "/api/v1/teachers",
+        "POST",
+        { name, email, phone, status }
+      )
 
-if(!res.success){
-alert("Erro ao salvar professor")
-return
-}
+    }
 
-alert("Professor salvo com sucesso")
+    if(!res.success){
+      alert("Erro ao salvar professor")
+      return
+    }
 
-closeTeacherModal()
+    alert("Professor salvo com sucesso")
 
-await loadTeachers()
+    closeTeacherModal()
 
-}catch(err){
+    await loadTeachers()
 
-console.error(err)
+  }catch(err){
 
-alert("Erro na API")
+    console.error(err)
+    alert("Erro na API")
 
-}
-
-}
-
-function editTeacher(id){
-
-const teacher = teachersCache.find(t => t.id === id)
-
-if(!teacher) return
-
-document.getElementById("editTeacherId").value = teacher.id
-
-document.getElementById("editTeacherName").value = teacher.name ?? ""
-document.getElementById("editTeacherEmail").value = teacher.email ?? ""
-document.getElementById("editTeacherPhone").value = teacher.phone ?? ""
-document.getElementById("editTeacherStatus").value = teacher.status ?? "active"
-
-document.querySelector("#teacherModal h3").innerText = "Editar Professor"
-
-document.getElementById("teacherModal").classList.remove("hidden")
+  }
 
 }
 
 async function deleteTeacher(id){
 
-if(!confirm("Deseja realmente excluir este professor?")){
-return
-}
+  if(!confirm("Deseja realmente excluir este professor?")){
+    return
+  }
 
-try{
+  try{
 
-const res = await apiRequest(
-`/api/v1/teachers/${id}`,
-"DELETE"
-)
+    const res = await apiRequest(
+      `/api/v1/teachers/${id}`,
+      "DELETE"
+    )
 
-if(!res.success){
-alert("Erro ao excluir professor")
-return
-}
+    if(!res.success){
+      alert("Erro ao excluir professor")
+      return
+    }
 
-alert("Professor excluído")
+    alert("Professor excluído")
 
-await loadTeachers()
+    await loadTeachers()
 
-}catch(err){
+  }catch(err){
 
-console.error(err)
+    console.error(err)
+    alert("Erro na API")
 
-alert("Erro na API")
-
-}
+  }
 
 }
 
 window.TeachersModule = {
-init,
-loadTeachers,
-editTeacher,
-deleteTeacher,
-saveTeacher,
-newTeacher
+  init,
+  loadTeachers,
+  editTeacher,
+  deleteTeacher,
+  saveTeacher,
+  newTeacher,
+  clearSearch
 };
 
 })();
