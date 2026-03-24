@@ -202,3 +202,16 @@
   gap: 12px;
   margin-top: 24px;
 }
+
+/* ===== FIX BOTÃO NOVO PROFESSOR ===== */
+
+.page-header .btn-primary {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.page-header .btn-primary:hover {
+  background: #4338ca !important;
+}

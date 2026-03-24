@@ -8,6 +8,11 @@ async function init(){
 
   bindEvents()
 
+  const newBtn = document.getElementById("newTeacherBtn")
+  if(newBtn){
+    newBtn.disabled = false
+  }
+
   await loadTeachers()
 }
 
