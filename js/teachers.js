@@ -236,7 +236,6 @@ async function deleteTeacher(id){
 window.TeachersModule = {
   init,
   loadTeachers,
-  editTeacher,
   deleteTeacher,
   saveTeacher,
   newTeacher,
