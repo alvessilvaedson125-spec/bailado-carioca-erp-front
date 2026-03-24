@@ -224,8 +224,8 @@ async function cancelCashEntry(id) {
   if (!confirm("Cancelar esta movimentação?")) return;
 
   try {
-   const res = await fetch(`${API_BASE}/cash/cancel`, {
-     method: "POST",
+    const res = await fetch(`${API_BASE}/cash/cancel`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem("bc_token")}`
@@ -237,15 +237,14 @@ async function cancelCashEntry(id) {
       throw new Error("Erro na requisição");
     }
 
-    // ⚠️ evita quebrar se não vier JSON
-    let data = {};
     try {
-      data = await res.json();
+      await res.json();
     } catch (e) {}
 
     alert("Movimentação cancelada");
 
-   window.loadCashEntries();// recarrega lista
+    // ✅ CORRETO
+    await window.CashModule.loadEntries();
 
   } catch (err) {
     console.error(err);
