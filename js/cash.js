@@ -12,7 +12,8 @@ async function createEntry(){
   if (errorDiv) errorDiv.innerText = "";
 
   try {
-const type = document.getElementById("cash-type").value;
+let type = document.getElementById("cash-type").value;
+type = type === "Entrada" ? "in" : "out";
     const amount = document.getElementById("cash-amount").value;
     const description = document.getElementById("cash-description").value;
     const date = document.getElementById("cash-date").value;
@@ -55,7 +56,7 @@ async function loadEntries() {
   tbody.innerHTML = "";
 
   // 🔥 BUSCA DADOS DA API (FALTAVA ISSO)
-  const res = await apiRequest(`${API_BASE}/cash`);
+  const res = await apiRequest('/cash');
  const rawData = res.data || [];
 
 // 🔥 FILTRA CANCELADOS
