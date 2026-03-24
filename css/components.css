@@ -137,6 +137,32 @@ button:not([class]) {
   margin-top: 8px;
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.form-row label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.form-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+}
+
+.form-row input,
+.form-row select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
 .input-group {
   margin-bottom: 12px;
 }
