@@ -154,13 +154,6 @@ button:not([class]) {
   gap: 10px;
 }
 
-.form-row input,
-.form-row select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-}
 
 .input-group {
   margin-bottom: 12px;
