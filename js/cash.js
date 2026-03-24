@@ -27,6 +27,8 @@ await apiRequest(`/api/v1/cash`, 'POST',
 
     alert("Lançamento criado com sucesso");
 
+    clearForm();
+
     await loadEntries();
 
   } catch (err) {
@@ -36,6 +38,18 @@ await apiRequest(`/api/v1/cash`, 'POST',
       errorDiv.innerText = err.message || "Erro ao criar lançamento";
     }
   }
+}
+
+function clearForm() {
+  const dateEl = document.getElementById("cash-date");
+  const typeEl = document.getElementById("cash-type");
+  const amountEl = document.getElementById("cash-amount");
+  const descEl = document.getElementById("cash-description");
+
+  if (dateEl) dateEl.value = "";
+  if (typeEl) typeEl.value = "in"; // padrão
+  if (amountEl) amountEl.value = "";
+  if (descEl) descEl.value = "";
 }
 
 async function loadEntries() {
