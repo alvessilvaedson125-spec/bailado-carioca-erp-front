@@ -277,5 +277,6 @@ window.CashModule = {
 };
 
 window.cancelCashEntry = cancelCashEntry;
+window.clearForm = clearForm;
 
 })();
