@@ -13,9 +13,25 @@ async function createEntry(){
     let type = document.getElementById("cash-type").value;
     type = type === "Entrada" ? "in" : "out";
 
-    const amount = document.getElementById("cash-amount").value;
-    const description = document.getElementById("cash-description").value;
-    const date = document.getElementById("cash-date").value;
+   const amount = document.getElementById("cash-amount").value;
+const description = document.getElementById("cash-description").value;
+const date = document.getElementById("cash-date").value;
+
+// 🔒 VALIDAÇÃO
+if (!date) {
+  if (errorDiv) errorDiv.innerText = "Informe a data";
+  return;
+}
+
+if (!amount || Number(amount) <= 0) {
+  if (errorDiv) errorDiv.innerText = "Informe um valor válido";
+  return;
+}
+
+if (!description || description.trim() === "") {
+  if (errorDiv) errorDiv.innerText = "Informe a descrição";
+  return;
+}
 await apiRequest(`/api/v1/cash`, 'POST',
       {
         type,
