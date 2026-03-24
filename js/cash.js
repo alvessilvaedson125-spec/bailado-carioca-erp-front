@@ -177,16 +177,20 @@ function applyFilters() {
   filtered.forEach(e => {
 
     const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${new Date(e.created_at).toLocaleDateString()}</td>
-      <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
-      <td>${Number(e.amount).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      })}</td>
-      <td>${e.description || ""}</td>
-    `;
+tr.innerHTML = `
+  <td>${new Date(e.created_at).toLocaleDateString()}</td>
+  <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
+  <td>${Number(e.amount).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  })}</td>
+  <td>${e.description || ""}</td>
+  <td>
+    <button class="btn-cancel" onclick="cancelCashEntry('${e.id}')">
+      Cancelar
+    </button>
+  </td>
+`;
 
     tbody.appendChild(tr);
   });
