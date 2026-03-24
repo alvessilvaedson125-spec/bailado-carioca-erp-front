@@ -56,7 +56,12 @@ async function loadEntries() {
 
   // 🔥 BUSCA DADOS DA API (FALTAVA ISSO)
   const res = await apiRequest('/api/v1/cash');
-  const data = res.data || [];
+ const rawData = res.data || [];
+
+// 🔥 FILTRA CANCELADOS
+const data = rawData.filter(e => e.status !== "cancelled");
+
+allEntries = data;
   allEntries = data;
 
   let totalIn = 0;
