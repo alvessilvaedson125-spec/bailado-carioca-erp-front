@@ -56,7 +56,7 @@ async function loadEntries() {
   tbody.innerHTML = "";
 
   // 🔥 BUSCA DADOS DA API (FALTAVA ISSO)
-  const res = await apiRequest('/cash');
+ const res = await apiRequest('/api/v1/cash');
  const rawData = res.data || [];
 
 // 🔥 FILTRA CANCELADOS
