@@ -112,3 +112,20 @@
   border-radius: 6px;
 }
 
+/* =========================
+   CASH FORM (ESPECÍFICO)
+========================= */
+
+.cash-form .form-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 120px 1fr 120px 1fr 120px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.cash-form .form-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+}
+

@@ -138,10 +138,9 @@ button:not([class]) {
 }
 
 .form-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 12px;
-  align-items: end;
 }
 
 .form-row label {
