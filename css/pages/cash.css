@@ -103,3 +103,11 @@
 .btn-cancel:hover {
   background: #fecaca;
 }
+
+#clear-filters {
+  background: #eee;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+}

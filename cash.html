@@ -51,18 +51,24 @@
 <div class="card">
   <h3>Movimentações</h3>
 
-  <div class="cash-filters">
-    <select id="filter-type">
-      <option value="">Todos</option>
-      <option value="in">Entrada</option>
-      <option value="out">Saída</option>
-    </select>
+ <div class="cash-filters">
+  <select id="filter-type">
+    <option value="">Todos</option>
+    <option value="in">Entrada</option>
+    <option value="out">Saída</option>
+  </select>
 
-    <input
-      type="text"
-      id="filter-text"
-      placeholder="Buscar descrição..."
-    >
+  <input
+    type="text"
+    id="filter-text"
+    placeholder="Buscar descrição..."
+  >
+
+  <button id="clear-filters">
+    Limpar
+  </button>
+</div>
+
   </div>
   <table class="cash-table">
     <thead>

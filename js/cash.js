@@ -146,6 +146,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+document.addEventListener("click", (e) => {
+  if (e.target.id === "clear-filters") {
+    clearFilters();
+  }
+});
+
 // 🔍 FILTROS
 function applyFilters() {
 
@@ -223,6 +229,16 @@ async function cancelCashEntry(id) {
     console.error(err);
     alert("Erro ao cancelar");
   }
+}
+
+function clearFilters() {
+  const typeEl = document.getElementById("filter-type");
+  const textEl = document.getElementById("filter-text");
+
+  if (typeEl) typeEl.value = "";
+  if (textEl) textEl.value = "";
+
+  applyFilters();
 }
 
 // ✅ REGISTRO DO MÓDULO (CRÍTICO)
