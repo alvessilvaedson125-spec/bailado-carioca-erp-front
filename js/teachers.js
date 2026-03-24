@@ -12,12 +12,27 @@ async function init(){
 }
 
 function bindEvents(){
+
   const searchInput = document.getElementById("teacherSearch")
 
   if(searchInput){
     searchInput.addEventListener("input", applyFilters)
   }
+
+  // ✅ FECHAR MODAL AO CLICAR FORA (COLOCAR EXATAMENTE AQUI)
+  const modal = document.getElementById("teacherModal")
+
+  if(modal){
+    modal.addEventListener("click", function(e){
+      if(e.target.id === "teacherModal"){
+        closeTeacherModal()
+      }
+    })
+  }
+
 }
+
+
 
 async function loadTeachers(){
 
@@ -260,7 +275,8 @@ window.TeachersModule = {
   saveTeacher,
   newTeacher,
   clearSearch,
-  editTeacher
+  editTeacher,
+  closeTeacherModal
 };
 
 })();
