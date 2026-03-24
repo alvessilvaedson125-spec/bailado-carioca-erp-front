@@ -1,6 +1,6 @@
 (function(){
 
-  const BASE = window.API_BASE || (window.CONFIG && window.CONFIG.API_BASE);
+ 
 
 let allEntries = [];
 
@@ -16,9 +16,8 @@ async function createEntry(){
     const amount = document.getElementById("cash-amount").value;
     const description = document.getElementById("cash-description").value;
     const date = document.getElementById("cash-date").value;
-
-    await apiRequest(
-      `${BASE}/cash`,
+await apiRequest(
+  `/cash`,
       'POST',
       {
         type,
@@ -51,7 +50,7 @@ async function loadEntries() {
   try {
 
     // ✅ GET CORRETO
-   const res = await apiRequest(`${BASE}/cash`, 'GET');
+  const res = await apiRequest(`/cash`, 'GET');
 
     const rawData = res?.data || [];
 
@@ -203,7 +202,7 @@ async function cancelCashEntry(id) {
   if (!confirm("Cancelar esta movimentação?")) return;
 
   try {
-    const res = await fetch(`${BASE}/cash/cancel`, {
+   const res = await fetch(`https://bailado-carioca-escola-api.alvessilvaedson125.workers.dev/cash/cancel`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
