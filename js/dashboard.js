@@ -4,14 +4,21 @@ let cashData = [];
 (function(){
 
 async function init() {
-
+if (!document.getElementById("financeChart")) {
+  return;
+}
     // =============================
     // MÉTRICAS (LOADING)
     // =============================
-    document.getElementById("metric-students").innerText = "...";
-    document.getElementById("metric-classes").innerText = "...";
-    document.getElementById("metric-enrollments").innerText = "...";
-    document.getElementById("metric-payments").innerText = "...";
+   const studentsEl = document.getElementById("metric-students");
+const classesEl = document.getElementById("metric-classes");
+const enrollmentsEl = document.getElementById("metric-enrollments");
+const paymentsEl = document.getElementById("metric-payments");
+
+if (studentsEl) studentsEl.innerText = "...";
+if (classesEl) classesEl.innerText = "...";
+if (enrollmentsEl) enrollmentsEl.innerText = "...";
+if (paymentsEl) paymentsEl.innerText = "...";
 
     // DRE placeholders (caso existam)
     const receitaEl = document.getElementById("dre-receita");
@@ -96,7 +103,8 @@ function calcGrowth(data) {
   return ((last - prev) / prev) * 100;
 }
 
-
+let receitaGrowth = 0;
+let despesaGrowth = 0;
 
         if (receitaEl) {
   receitaEl.innerText =
