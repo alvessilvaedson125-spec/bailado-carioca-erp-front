@@ -1,66 +1,54 @@
-const API_URL = "https://bailado-carioca-escola-api.alvessilvaedson125.workers.dev"
+const API_URL = "https://bailado-carioca-escola-api.alvessilvaedson125.workers.dev/api/v1";
 
 async function apiRequest(endpoint, method = "GET", body = null) {
 
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("bc_token");
 
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 10000)
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
 
   const options = {
     method,
     headers: {
       "Content-Type": "application/json",
     },
-    signal: controller.signala
-  }
+    signal: controller.signal // ✅ CORRIGIDO
+  };
 
   if (token) {
-    options.headers["Authorization"] = "Bearer " + token
+    options.headers["Authorization"] = "Bearer " + token;
   }
 
   if (body) {
-    options.body = JSON.stringify(body)
+    options.body = JSON.stringify(body);
   }
 
-  let response
-  let data
+  let response;
+  let data;
 
   try {
-    response = await fetch(API_URL + endpoint, options)
+    response = await fetch(API_URL + endpoint, options);
   } catch (error) {
-    clearTimeout(timeout)
-    throw new Error("Erro de conexão com a API")
+    clearTimeout(timeout);
+    throw new Error("Erro de conexão com a API");
   }
 
-  clearTimeout(timeout)
+  clearTimeout(timeout);
 
   try {
-    data = await response.json()
+    data = await response.json();
   } catch {
-    throw new Error("Resposta inválida da API")
+    throw new Error("Resposta inválida da API");
   }
 
   if (response.status === 401) {
-  localStorage.removeItem("token")
-  throw new Error("UNAUTHORIZED")
-}
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message || `Erro ${response.status} na API`
-    )
+    localStorage.removeItem("bc_token");
+    throw new Error("UNAUTHORIZED");
   }
 
-  return data
-}
+  if (!response.ok) {
+    throw new Error(data?.message || `Erro ${response.status} na API`);
+  }
 
-async function fetchList(endpoint) {
-  const res = await apiRequest(endpoint)
-
-  if (!res.success) {
-  throw new Error(res.message || "Erro ao carregar dados")
-}
-
-  return res.data || []
+  return data;
 }

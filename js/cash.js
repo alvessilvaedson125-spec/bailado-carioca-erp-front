@@ -1,5 +1,11 @@
 
-const API_BASE = "https://bailado-carioca-escola-api.alvessilvaedson125.workers.dev/api/v1";
+await apiRequest('/cash', 'POST', {
+  type,
+  amount: Number(amount),
+  description,
+  date
+});
+
 (function(){
 
 let cashEntries = [];
@@ -56,7 +62,7 @@ async function loadEntries() {
   tbody.innerHTML = "";
 
   // 🔥 BUSCA DADOS DA API (FALTAVA ISSO)
- const res = await apiRequest('/api/v1/cash');
+ await apiRequest('/cash/cancel', 'POST', { id });
  const rawData = res.data || [];
 
 // 🔥 FILTRA CANCELADOS
