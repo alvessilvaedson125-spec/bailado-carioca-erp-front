@@ -1,11 +1,18 @@
+
+/* ========================================
+   COMPONENT SYSTEM (LOCKED)
+   NÃO usar seletores globais aqui
+   Apenas classes (.btn, .modal, etc)
+======================================== */
+
+
 /* =========================
    RESET / BASE
 ========================= */
 
-button {
-  background: none;
-  border: none;
-  font: inherit;
+/* PROTEÇÃO CONTRA CSS GLOBAL ACIDENTAL */
+button:not([class]) {
+  all: unset;
   cursor: pointer;
 }
 
