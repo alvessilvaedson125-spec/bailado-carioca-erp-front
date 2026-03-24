@@ -1,25 +1,16 @@
-
-await apiRequest('/cash', 'POST', {
-  type,
-  amount: Number(amount),
-  description,
-  date
-});
-
 (function(){
 
-let cashEntries = [];
 let allEntries = [];
 
 async function createEntry(){
-   
 
   const errorDiv = document.getElementById("cash-error");
   if (errorDiv) errorDiv.innerText = "";
 
   try {
-let type = document.getElementById("cash-type").value;
-type = type === "Entrada" ? "in" : "out";
+    let type = document.getElementById("cash-type").value;
+    type = type === "Entrada" ? "in" : "out";
+
     const amount = document.getElementById("cash-amount").value;
     const description = document.getElementById("cash-description").value;
     const date = document.getElementById("cash-date").value;
@@ -35,23 +26,17 @@ type = type === "Entrada" ? "in" : "out";
       }
     );
 
-    if (errorDiv) errorDiv.innerText = "";
-
     alert("Lançamento criado com sucesso");
 
     await loadEntries();
 
   } catch (err) {
-
     console.error("ERRO:", err);
 
     if (errorDiv) {
       errorDiv.innerText = err.message || "Erro ao criar lançamento";
     }
-
   }
-
- 
 }
 
 async function loadEntries() {
@@ -61,108 +46,108 @@ async function loadEntries() {
 
   tbody.innerHTML = "";
 
-  // 🔥 BUSCA DADOS DA API (FALTAVA ISSO)
- await apiRequest('/cash/cancel', 'POST', { id });
- const rawData = res.data || [];
+  try {
 
-// 🔥 FILTRA CANCELADOS
-const data = rawData.filter(e => e.status !== "cancelled");
+    // ✅ GET CORRETO
+    const res = await apiRequest(`${API_BASE}/cash`, 'GET');
 
+    const rawData = res?.data || [];
 
-  allEntries = data;
+    // ✅ REMOVE CANCELADOS
+    const data = rawData.filter(e => e.status !== "cancelled");
 
-  let totalIn = 0;
-  let totalOut = 0;
-  let saldo = 0;
+    allEntries = data;
 
-  // 🔥 CÁLCULO
-  data.forEach(e => {
+    let totalIn = 0;
+    let totalOut = 0;
+    let saldo = 0;
 
-    const amount = Number(e.amount);
+    data.forEach(e => {
+      const amount = Number(e.amount);
 
-    if (e.type === "in") {
-      totalIn += amount;
-      saldo += amount;
-    } else if (e.type === "out") {
-      totalOut += amount;
-      saldo -= amount;
+      if (e.type === "in") {
+        totalIn += amount;
+        saldo += amount;
+      } else if (e.type === "out") {
+        totalOut += amount;
+        saldo -= amount;
+      }
+    });
+
+    // 🔢 ATUALIZA CARDS
+    const inEl = document.getElementById("cash-in");
+    const outEl = document.getElementById("cash-out");
+    const balanceEl = document.getElementById("cash-balance");
+
+    if (inEl) {
+      inEl.innerText = totalIn.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
     }
 
-  });
+    if (outEl) {
+      outEl.innerText = totalOut.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
 
-  // 🔥 ELEMENTOS
-  const inEl = document.getElementById("cash-in");
-  const outEl = document.getElementById("cash-out");
-  const balanceEl = document.getElementById("cash-balance");
+    if (balanceEl) {
+      const valorFormatado = saldo.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
 
-  // 🔥 ENTRADAS
-  if (inEl) {
-    inEl.innerText = "Entradas: " + totalIn.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
+      balanceEl.innerText = valorFormatado;
+      balanceEl.style.color = saldo >= 0 ? "green" : "red";
+    }
+
+    // 📋 TABELA
+    data.forEach(e => {
+
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${new Date(e.created_at).toLocaleDateString()}</td>
+        <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
+        <td>${Number(e.amount).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        })}</td>
+        <td>${e.description || ""}</td>
+        <td>
+          <button class="btn-cancel" onclick="cancelCashEntry('${e.id}')">
+            Cancelar
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
     });
+
+  } catch (err) {
+    console.error("Erro ao carregar caixa:", err);
+
+    const errorMsg = document.getElementById("cash-error");
+    if (errorMsg) {
+      errorMsg.innerText = "Erro ao carregar dados";
+    }
   }
-
-  // 🔥 SAÍDAS
-  if (outEl) {
-    outEl.innerText = "Saídas: " + totalOut.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
-  }
-
-  // 🔥 SALDO
-  if (balanceEl) {
-
-    const valorFormatado = saldo.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
-
-    balanceEl.innerText = "Saldo atual: " + valorFormatado;
-
-    balanceEl.style.color = saldo >= 0 ? "green" : "red";
-  }
-
-  console.log("LISTA CASH:", data);
-
-  // 🔥 TABELA
-data.forEach(e => {
-
-  const tr = document.createElement("tr");
-
-  tr.innerHTML = `
-    <td>${new Date(e.created_at).toLocaleDateString()}</td>
-    <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
-    <td>${Number(e.amount).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    })}</td>
-    <td>${e.description || ""}</td>
-    <td>
-      <button class="btn-cancel" onclick="cancelCashEntry('${e.id}')">
-  Cancelar
-</button>
-    </td>
-  `;
-
-    tbody.appendChild(tr);
-
-  });
-
 }
+
 async function init(){
-
-await loadEntries();
-
+  await loadEntries();
 }
 
+// 🔁 AUTO LOAD
 document.addEventListener("DOMContentLoaded", () => {
   if (window.location.hash.includes("cash") || document.getElementById("cash-body")) {
     loadEntries();
   }
 });
 
+// 🔍 FILTROS
 function applyFilters() {
 
   const type = document.getElementById("filter-type")?.value;
@@ -199,10 +184,10 @@ function applyFilters() {
     `;
 
     tbody.appendChild(tr);
-
   });
 }
 
+// 🎯 LISTENERS
 document.addEventListener("input", (e) => {
   if (e.target.id === "filter-text") applyFilters();
 });
@@ -211,27 +196,7 @@ document.addEventListener("change", (e) => {
   if (e.target.id === "filter-type") applyFilters();
 });
 
-async function cancelEntry(id) {
-
-  const confirmacao = confirm("Deseja cancelar este lançamento?");
-  if (!confirmacao) return;
-
-  try {
-
-    // 👉 FUTURO: endpoint real
-    // await apiRequest(`/api/v1/cash/${id}`, 'PATCH', { status: 'cancelled' });
-
-    alert("Cancelamento simulado (backend ainda não implementado)");
-
-    // reload lista
-    await loadEntries();
-
-  } catch (err) {
-    alert("Erro ao cancelar");
-    console.error(err);
-  }
-}
-
+// ❌ CANCELAR
 async function cancelCashEntry(id) {
   if (!confirm("Cancelar esta movimentação?")) return;
 
@@ -249,13 +214,10 @@ async function cancelCashEntry(id) {
       throw new Error("Erro na requisição");
     }
 
-    try {
-      await res.json();
-    } catch (e) {}
+    try { await res.json(); } catch (e) {}
 
     alert("Movimentação cancelada");
 
-    // ✅ CORRETO
     await window.CashModule.loadEntries();
 
   } catch (err) {
@@ -264,10 +226,11 @@ async function cancelCashEntry(id) {
   }
 }
 
+// ✅ REGISTRO DO MÓDULO (CRÍTICO)
 window.CashModule = {
-init,
-createEntry,
-loadEntries
+  init,
+  createEntry,
+  loadEntries
 };
 
 window.cancelCashEntry = cancelCashEntry;
