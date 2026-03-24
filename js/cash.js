@@ -174,6 +174,16 @@ function applyFilters() {
     return matchType && matchText;
   });
 
+  if (filtered.length === 0) {
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="5" style="text-align:center; padding:16px; color:#888;">
+        Nenhuma movimentação encontrada
+      </td>
+    </tr>
+  `;
+  return;
+}
   filtered.forEach(e => {
 
     const tr = document.createElement("tr");
