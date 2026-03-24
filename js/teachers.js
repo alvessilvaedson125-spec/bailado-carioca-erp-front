@@ -233,13 +233,34 @@ async function deleteTeacher(id){
 
 }
 
+function editTeacher(id){
+
+  const teacher = teachersCache.find(t => t.id === id)
+
+  if(!teacher){
+    alert("Professor não encontrado")
+    return
+  }
+
+  document.getElementById("editTeacherId").value = teacher.id
+  document.getElementById("editTeacherName").value = teacher.name || ""
+  document.getElementById("editTeacherEmail").value = teacher.email || ""
+  document.getElementById("editTeacherPhone").value = teacher.phone || ""
+  document.getElementById("editTeacherStatus").value = teacher.status || "active"
+
+  document.querySelector("#teacherModal h3").innerText = "Editar Professor"
+
+  document.getElementById("teacherModal").classList.remove("hidden")
+}
+
 window.TeachersModule = {
   init,
   loadTeachers,
   deleteTeacher,
   saveTeacher,
   newTeacher,
-  clearSearch
+  clearSearch,
+  editTeacher
 };
 
 })();
