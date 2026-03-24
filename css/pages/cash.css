@@ -137,3 +137,25 @@
   gap: 10px;
 }
 
+.cash-form .form-row {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+}
+
+.cash-form .form-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+}
+
+.cash-form .form-group.descricao {
+  flex: 1;
+}
+
+.cash-form .form-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: end;
+}
+
