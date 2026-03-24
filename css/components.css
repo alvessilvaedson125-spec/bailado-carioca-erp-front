@@ -131,6 +131,12 @@ button:not([class]) {
   box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
 }
 
+.form-error {
+  color: #dc2626;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
 .input-group {
   margin-bottom: 12px;
 }
@@ -267,3 +273,4 @@ button:not([class]) {
 .status-inactive {
   color: #9ca3af;
 }
+
