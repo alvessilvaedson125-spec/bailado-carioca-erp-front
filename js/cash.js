@@ -1,5 +1,7 @@
 (function(){
 
+  const BASE = window.API_BASE || (window.CONFIG && window.CONFIG.API_BASE);
+
 let allEntries = [];
 
 async function createEntry(){
@@ -16,7 +18,7 @@ async function createEntry(){
     const date = document.getElementById("cash-date").value;
 
     await apiRequest(
-      `${API_BASE}/cash`,
+      `${BASE}/cash`,
       'POST',
       {
         type,
@@ -49,7 +51,7 @@ async function loadEntries() {
   try {
 
     // ✅ GET CORRETO
-    const res = await apiRequest(`${API_BASE}/cash`, 'GET');
+   const res = await apiRequest(`${BASE}/cash`, 'GET');
 
     const rawData = res?.data || [];
 
@@ -201,7 +203,7 @@ async function cancelCashEntry(id) {
   if (!confirm("Cancelar esta movimentação?")) return;
 
   try {
-    const res = await fetch(`${API_BASE}/cash/cancel`, {
+    const res = await fetch(`${BASE}/cash/cancel`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
