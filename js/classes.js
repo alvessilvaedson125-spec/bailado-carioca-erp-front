@@ -5,6 +5,32 @@ let unitsCache = []
 let teachersCache = []
 
 
+function createTeacherSelect(value = "") {
+  const wrapper = document.createElement("div");
+  wrapper.style.display = "flex";
+  wrapper.style.gap = "8px";
+  wrapper.style.marginBottom = "8px";
+
+  const select = document.createElement("select");
+  select.className = "editClassTeacher";
+
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.innerText = "Remover";
+  removeBtn.className = "btn-danger";
+
+  removeBtn.onclick = () => {
+    wrapper.remove();
+  };
+
+  wrapper.appendChild(select);
+  wrapper.appendChild(removeBtn);
+
+  return { wrapper, select };
+}
+
+
+
 function getSelectedTeachers() {
   const selects = document.querySelectorAll(".editClassTeacher");
   return Array.from(selects)
@@ -171,7 +197,6 @@ async function loadTeachersForClasses(){
     alert("Erro ao carregar professores")
   }
 }
-
 async function editClass(id){
 
   await loadUnitsForClasses()
@@ -185,23 +210,23 @@ async function editClass(id){
   const container = document.getElementById("teachersContainer");
   container.innerHTML = "";
 
-  // 🔥 CORRETO (string → array)
-const teacherIds =
-  cls.teacher_ids
-    ? cls.teacher_ids.split(",")
-    : (cls.teacher_id ? [cls.teacher_id] : []);
+  const teacherIds =
+    cls.teacher_ids
+      ? cls.teacher_ids.split(",")
+      : (cls.teacher_id ? [cls.teacher_id] : []);
 
-  // 🔥 cria selects primeiro
-  teacherIds.forEach(tid => {
-    const select = document.createElement("select");
-    select.className = "editClassTeacher";
-    container.appendChild(select);
-  });
+  if (teacherIds.length === 0) {
+    const { wrapper } = createTeacherSelect();
+    container.appendChild(wrapper);
+  } else {
+    teacherIds.forEach(() => {
+      const { wrapper } = createTeacherSelect();
+      container.appendChild(wrapper);
+    });
+  }
 
-  // 🔥 depois popula todos de uma vez
   await loadTeachersForClasses();
 
-  // 🔥 agora aplica valores corretamente
   const selects = document.querySelectorAll(".editClassTeacher");
 
   selects.forEach((select, index) => {
@@ -215,9 +240,7 @@ const teacherIds =
   const modal = document.getElementById("classModal")
   modal.classList.remove("hidden")
   modal.classList.add("active")
-
 }
-
 async function newClass(){
 
   await loadUnitsForClasses()
@@ -228,13 +251,9 @@ async function newClass(){
   const container = document.getElementById("teachersContainer");
   container.innerHTML = "";
 
-  // 🔥 cria o primeiro select
-  const select = document.createElement("select");
-  select.className = "editClassTeacher";
+  const { wrapper } = createTeacherSelect();
+  container.appendChild(wrapper);
 
-  container.appendChild(select);
-
-  // 🔥 agora popula corretamente
   await loadTeachersForClasses();
 
   document.getElementById("editClassUnit").value = ""
@@ -249,7 +268,6 @@ async function newClass(){
   const modal = document.getElementById("classModal")
   modal.classList.remove("hidden")
   modal.classList.add("active")
-
 }
 
 function setupClassModal(){
@@ -351,25 +369,20 @@ document.addEventListener("click", async (e) => {
   // botão adicionar professor
   if (e.target.id === "addTeacherBtn") {
 
-    const container = document.getElementById("teachersContainer");
+  const container = document.getElementById("teachersContainer");
 
-    const select = document.createElement("select");
-    select.className = "editClassTeacher";
+  const { wrapper, select } = createTeacherSelect();
+  container.appendChild(wrapper);
 
-    container.appendChild(select);
+  const res = await apiRequest("/api/v1/teachers");
+  const teachers = res.data || [];
 
-    // agora sim pode usar await
-    const res = await apiRequest("/api/v1/teachers");
-    const teachers = res.data || [];
+  select.innerHTML = `<option value="">Selecione o professor</option>`;
 
-    select.innerHTML = `<option value="">Selecione o professor</option>`;
-
-    teachers.forEach(t => {
-      select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
-    });
-
-  }
-
+  teachers.forEach(t => {
+    select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+  });
+}
 });
 
 
