@@ -43,14 +43,15 @@ function createTeacherSelect(value = "") {
 function getSelectedTeachers() {
   const selects = document.querySelectorAll(".editClassTeacher");
 
-  const values = Array.from(selects)
-    .map(s => s.value)
-    .filter(v => v);
+  const unique = new Set();
 
-  // 🔥 remove duplicados
-  const unique = [...new Set(values)];
+  selects.forEach(select => {
+    if (select.value) {
+      unique.add(select.value);
+    }
+  });
 
-  return unique;
+  return Array.from(unique);
 }
 
 
