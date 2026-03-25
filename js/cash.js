@@ -6,6 +6,14 @@ let allEntries = [];
 let visibleItems = 5;
 let currentEntries = [];
 
+
+function formatDate(dateString) {
+  if (!dateString) return "";
+
+  const [year, month, day] = dateString.split("-");
+  return `${day}/${month}/${year}`;
+}
+
 async function createEntry(){
 
   const errorDiv = document.getElementById("cash-error");
@@ -316,12 +324,6 @@ btn.id = "show-more-btn";
 btn.className = "btn-secondary";
 btn.style.marginTop = "10px";
 
-function formatDate(dateString) {
-  if (!dateString) return "";
-
-  const [year, month, day] = dateString.split("-");
-  return `${day}/${month}/${year}`;
-}
 
 container.appendChild(btn);
 
