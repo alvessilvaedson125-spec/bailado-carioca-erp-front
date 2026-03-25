@@ -301,9 +301,29 @@ tr.innerHTML = `
 <td>${formatDate(enrollment.created_at)}</td>
 
 <td>
+
   <button class="btn-edit">
     ✏️ <span>Editar</span>
   </button>
+
+  ${
+    enrollment.status === "active"
+      ? `<button class="btn-warning btn-pause">⏸ Pausar</button>`
+      : ""
+  }
+
+  ${
+    enrollment.status === "paused"
+      ? `<button class="btn-success btn-resume">▶ Reativar</button>`
+      : ""
+  }
+
+  ${
+    enrollment.status !== "cancelled"
+      ? `<button class="btn-danger btn-cancel">✖ Cancelar</button>`
+      : ""
+  }
+
 </td>
 `
 
@@ -327,6 +347,28 @@ document.getElementById("editEnrollmentStatus").value = enrollment.status || "ac
 document.getElementById("enrollmentModal").classList.remove("hidden")
 
 }
+}
+
+const pauseBtn = tr.querySelector(".btn-pause")
+const resumeBtn = tr.querySelector(".btn-resume")
+const cancelBtn = tr.querySelector(".btn-cancel")
+
+if(pauseBtn){
+  pauseBtn.onclick = async () => {
+    await updateEnrollmentStatus(enrollment.id, "paused")
+  }
+}
+
+if(resumeBtn){
+  resumeBtn.onclick = async () => {
+    await updateEnrollmentStatus(enrollment.id, "active")
+  }
+}
+
+if(cancelBtn){
+  cancelBtn.onclick = async () => {
+    await updateEnrollmentStatus(enrollment.id, "cancelled")
+  }
 }
 
 tbody.appendChild(tr)
@@ -408,6 +450,30 @@ function filterEnrollments() {
   );
 
   renderEnrollments(filtered);
+}
+
+async function updateEnrollmentStatus(id, status){
+
+  try{
+
+    const res = await apiRequest(
+      `/api/v1/enrollments/${id}`,
+      "PUT",
+      { status }
+    )
+
+    if(!res || !res.success){
+      alert("Erro ao atualizar status")
+      return
+    }
+
+    await loadEnrollments()
+
+  }catch(err){
+    console.error(err)
+    alert("Erro na API")
+  }
+
 }
 
 window.EnrollmentsModule = {
