@@ -226,14 +226,18 @@ async function loadTeachersForClasses(){
 
   // 🔥 CORREÇÃO AQUI
   let teacherIds = [];
+if (Array.isArray(cls.teacher_ids)) {
+  teacherIds = cls.teacher_ids;
 
-  if (Array.isArray(cls.teacher_ids)) {
-    teacherIds = cls.teacher_ids;
-  } else if (typeof cls.teacher_ids === "string") {
-    teacherIds = cls.teacher_ids.split(",");
-  } else if (cls.teacher_id) {
-    teacherIds = [cls.teacher_id];
-  }
+} else if (typeof cls.teacher_ids === "string") {
+  teacherIds = cls.teacher_ids
+    .split(",")
+    .map(id => id.trim())
+    .filter(id => id !== "");
+
+} else if (cls.teacher_id) {
+  teacherIds = [cls.teacher_id];
+}
 
   if (teacherIds.length === 0) {
     const { wrapper } = createTeacherSelect();
