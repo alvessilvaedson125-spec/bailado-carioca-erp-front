@@ -10,8 +10,11 @@ let currentEntries = [];
 function formatDate(dateString) {
   if (!dateString) return "";
 
-  const [year, month, day] = dateString.split("-");
-  return `${day}/${month}/${year}`;
+  const date = new Date(dateString);
+
+  if (isNaN(date)) return "";
+
+  return date.toLocaleDateString("pt-BR");
 }
 
 async function createEntry(){
@@ -292,7 +295,7 @@ function renderTable(data) {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${formatDate(e.date)}</td>
+      <td>${formatDate(e.date || e.created_at)}</td>
       <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
       <td>${Number(e.amount).toLocaleString("pt-BR", {
         style: "currency",
