@@ -78,7 +78,9 @@ tr.innerHTML = `
 <td>${cls.name ?? ""}</td>
 <td>${safe(
  (cls.teacher_names || "-")
-    ? cls.teacher_names.join(", ")
+    ?Array.isArray(cls.teacher_names)
+  ? cls.teacher_names.join(", ")
+  : (cls.teacher_names || "-")
     : (cls.teacher_names || cls.teacher_name)
 )}</td>
 <td>${safe(cls.unit_name)}</td>
