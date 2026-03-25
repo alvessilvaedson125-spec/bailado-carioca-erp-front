@@ -65,7 +65,7 @@ function clearForm() {
   const descEl = document.getElementById("cash-description");
 
   if (dateEl) dateEl.value = "";
-  if (typeEl) typeEl.value = "in"; // padrão
+  if (typeEl) typeEl.value = ""; 
   if (amountEl) amountEl.value = "";
   if (descEl) descEl.value = "";
 }
