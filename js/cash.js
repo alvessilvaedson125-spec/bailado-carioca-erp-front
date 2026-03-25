@@ -3,6 +3,8 @@
  
 
 let allEntries = [];
+let visibleItems = 5;
+let currentEntries = [];
 
 async function createEntry(){
 
@@ -84,24 +86,25 @@ async function loadEntries() {
 
     // ✅ REMOVE CANCELADOS
     const data = rawData.filter(e => e.status !== "cancelled");
+let totalIn = 0;
+let totalOut = 0;
+let saldo = 0;
+    
+data.forEach(e => {
+  const amount = Number(e.amount);
 
-    allEntries = data;
+  if (e.type === "in") {
+    totalIn += amount;
+    saldo += amount;
+  } else {
+    totalOut += amount;
+    saldo -= amount;
+  }
+});
 
-    let totalIn = 0;
-    let totalOut = 0;
-    let saldo = 0;
-
-    data.forEach(e => {
-      const amount = Number(e.amount);
-
-      if (e.type === "in") {
-        totalIn += amount;
-        saldo += amount;
-      } else if (e.type === "out") {
-        totalOut += amount;
-        saldo -= amount;
-      }
-    });
+    currentEntries = data;
+visibleItems = 5;
+renderTable(data);
 
     // 🔢 ATUALIZA CARDS
     const inEl = document.getElementById("cash-in");
@@ -132,28 +135,7 @@ async function loadEntries() {
       balanceEl.style.color = saldo >= 0 ? "green" : "red";
     }
 
-    // 📋 TABELA
-    data.forEach(e => {
-
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td>${new Date(e.created_at).toLocaleDateString()}</td>
-        <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
-        <td>${Number(e.amount).toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL"
-        })}</td>
-        <td>${e.description || ""}</td>
-        <td>
-          <button class="btn-cancel" onclick="cancelCashEntry('${e.id}')">
-            Cancelar
-          </button>
-        </td>
-      `;
-
-      tbody.appendChild(tr);
-    });
+    
 
   } catch (err) {
     console.error("Erro ao carregar caixa:", err);
@@ -214,26 +196,9 @@ function applyFilters() {
   `;
   return;
 }
-  filtered.forEach(e => {
-
-    const tr = document.createElement("tr");
-tr.innerHTML = `
-  <td>${new Date(e.created_at).toLocaleDateString()}</td>
-  <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
-  <td>${Number(e.amount).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL"
-  })}</td>
-  <td>${e.description || ""}</td>
-  <td>
-    <button class="btn-cancel" onclick="cancelCashEntry('${e.id}')">
-      Cancelar
-    </button>
-  </td>
-`;
-
-    tbody.appendChild(tr);
-  });
+ currentEntries = filtered;
+visibleItems = 5;
+renderTable(filtered);
 }
 
 // 🎯 LISTENERS
@@ -291,6 +256,78 @@ window.CashModule = {
   createEntry,
   loadEntries
 };
+
+function renderTable(data) {
+  const tbody = document.getElementById("cash-body");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  const sliced = data.slice(0, visibleItems);
+
+  if (sliced.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center; padding:16px; color:#888;">
+          Nenhuma movimentação encontrada
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  sliced.forEach(e => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${new Date(e.created_at).toLocaleDateString()}</td>
+      <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
+      <td>${Number(e.amount).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      })}</td>
+      <td>${e.description || ""}</td>
+      <td>
+        <button class="btn-cancel" onclick="cancelCashEntry('${e.id}')">
+          Cancelar
+        </button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  renderShowMoreButton(data.length);
+}
+
+function renderShowMoreButton(total) {
+ 
+ const container = document.getElementById("cash-show-more-container");
+if (!container) return;
+
+container.innerHTML = "";
+
+let btn = document.createElement("button");
+btn.id = "show-more-btn";
+btn.className = "btn-secondary";
+btn.style.marginTop = "10px";
+
+container.appendChild(btn);
+
+  if (visibleItems >= total) {
+   btn.innerText = `Mostrar menos (${visibleItems}/${total})`;
+    btn.onclick = () => {
+      visibleItems = 5;
+      renderTable(currentEntries);
+    };
+  } else {
+   btn.innerText = `Mostrar mais (${visibleItems}/${total})`;
+    btn.onclick = () => {
+      visibleItems += 5;
+      renderTable(currentEntries);
+    };
+  }
+}
 
 window.cancelCashEntry = cancelCashEntry;
 window.clearForm = clearForm;
