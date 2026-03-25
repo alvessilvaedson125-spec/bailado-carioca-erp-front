@@ -77,7 +77,7 @@ const tr = document.createElement("tr")
 tr.innerHTML = `
 <td>${cls.name ?? ""}</td>
 <td>${safe(
-  Array.isArray(cls.teacher_names)
+ (cls.teacher_names || "-")
     ? cls.teacher_names.join(", ")
     : (cls.teacher_names || cls.teacher_name)
 )}</td>
@@ -183,11 +183,11 @@ async function editClass(id){
   const container = document.getElementById("teachersContainer");
   container.innerHTML = "";
 
-  // 🔥 tratamento seguro (NUNCA quebra)
-  const teacherIds =
-    (cls.teacher_ids && cls.teacher_ids.length > 0)
-      ? cls.teacher_ids
-      : (cls.teacher_id ? [cls.teacher_id] : []);
+  // 🔥 CORRETO (string → array)
+const teacherIds =
+  cls.teacher_ids
+    ? cls.teacher_ids.split(",")
+    : (cls.teacher_id ? [cls.teacher_id] : []);
 
   // 🔥 cria selects primeiro
   teacherIds.forEach(tid => {
@@ -282,71 +282,58 @@ function closeClassModal(){
   modal.classList.remove("active")
   modal.classList.add("hidden")
 }
-
 async function saveClass(){
 
-const id = document.getElementById("editClassId").value
-const teacher_ids = getSelectedTeachers();
-const unit_id = document.getElementById("editClassUnit").value
+  const id = document.getElementById("editClassId").value
+  const teachers = getSelectedTeachers(); // 🔥 nome correto
+  const unit_id = document.getElementById("editClassUnit").value
 
-const name = document.getElementById("editClassName").value
-const day_of_week = document.getElementById("editClassDay").value
-const start_time = document.getElementById("editClassTime").value
+  const name = document.getElementById("editClassName").value
+  const day_of_week = document.getElementById("editClassDay").value
+  const start_time = document.getElementById("editClassTime").value
 
-if(!name){ alert("Informe o nome da turma"); return }
-if (teacher_ids.length === 0) {
-  alert("Selecione pelo menos um professor");
-  return;
-}
-if(!unit_id){ alert("Selecione a unidade"); return }
-if(!day_of_week){ alert("Selecione o dia da semana"); return }
-if(!start_time){ alert("Informe o horário"); return }
+  if(!name){ alert("Informe o nome da turma"); return }
+  if (teachers.length === 0) {
+    alert("Selecione pelo menos um professor");
+    return;
+  }
+  if(!unit_id){ alert("Selecione a unidade"); return }
+  if(!day_of_week){ alert("Selecione o dia da semana"); return }
+  if(!start_time){ alert("Informe o horário"); return }
 
-try{
+  try{
 
-let res
+    let res
 
-if(id){
+    const payload = {
+      name,
+      teachers, // 🔥 CORRETO
+      unit_id,
+      day_of_week,
+      start_time
+    }
 
-res = await apiRequest(`/api/v1/classes/${id}`,"PUT",
-{
-  name,
-  teacher_id: teacher_ids[0], // compatibilidade
-  teacher_ids,
-  unit_id,
-  day_of_week,
-  start_time
-})
+    if(id){
+      res = await apiRequest(`/api/v1/classes/${id}`,"PUT", payload)
+    }else{
+      res = await apiRequest("/api/v1/classes","POST", payload)
+    }
 
-}else{
+    if(!res.success){
+      alert("Erro ao salvar turma")
+      return
+    }
 
-res = await apiRequest("/api/v1/classes","POST",
-{
-  name,
-  teacher_id: teacher_ids[0], // compatibilidade
-  teacher_ids,
-  unit_id,
-  day_of_week,
-  start_time
-})
+    alert("Turma salva com sucesso")
 
-}
+    closeClassModal()
 
-if(!res.success){
-alert("Erro ao salvar turma")
-return
-}
+    await loadClasses()
 
-alert("Turma salva com sucesso")
-
-closeClassModal()
-
-await loadClasses()
-
-}catch(err){
-console.error(err)
-alert("Erro na API")
-}
+  }catch(err){
+    console.error(err)
+    alert("Erro na API")
+  }
 
 }
 
