@@ -13,7 +13,7 @@ async function createEntry(){
 
   try {
     let type = document.getElementById("cash-type").value;
-    type = type === "Entrada" ? "in" : "out";
+    
 
    const amount = document.getElementById("cash-amount").value;
 const description = document.getElementById("cash-description").value;
@@ -86,6 +86,9 @@ async function loadEntries() {
 
     // ✅ REMOVE CANCELADOS
     const data = rawData.filter(e => e.status !== "cancelled");
+
+    allEntries = data;
+
 let totalIn = 0;
 let totalOut = 0;
 let saldo = 0;
@@ -266,16 +269,17 @@ function renderTable(data) {
   const sliced = data.slice(0, visibleItems);
 
   if (sliced.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="5" style="text-align:center; padding:16px; color:#888;">
-          Nenhuma movimentação encontrada
-        </td>
-      </tr>
-    `;
-    return;
-  }
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="5" style="text-align:center; padding:16px; color:#888;">
+        Nenhuma movimentação encontrada
+      </td>
+    </tr>
+  `;
 
+  renderShowMoreButton(0); // 🔥 ADICIONE ISSO
+  return;
+}
   sliced.forEach(e => {
     const tr = document.createElement("tr");
 
