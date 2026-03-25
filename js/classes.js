@@ -5,6 +5,15 @@ let unitsCache = []
 let teachersCache = []
 
 
+function getSelectedTeachers() {
+  const selects = document.querySelectorAll(".editClassTeacher");
+  return Array.from(selects)
+    .map(s => s.value)
+    .filter(v => v);
+}
+
+
+
 function safe(value){
   return value ?? "-"
 }
@@ -67,7 +76,11 @@ const tr = document.createElement("tr")
 
 tr.innerHTML = `
 <td>${cls.name ?? ""}</td>
-<td>${safe(cls.teacher_name)}</td>
+<td>${safe(
+  Array.isArray(cls.teacher_names)
+    ? cls.teacher_names.join(", ")
+    : (cls.teacher_names || cls.teacher_name)
+)}</td>
 <td>${safe(cls.unit_name)}</td>
 <td>${safe(cls.day_of_week)}</td>
 <td>${safe(cls.start_time)}</td>
@@ -135,66 +148,105 @@ alert("Erro ao carregar unidades")
 }
 
 async function loadTeachersForClasses(){
+  try {
 
-const res = await apiRequest("/api/v1/teachers")
+    const res = await apiRequest("/api/v1/teachers")
 
-teachersCache = res.data || []
+    teachersCache = res.data || []
 
-const select = document.getElementById("editClassTeacher")
+    const selects = document.querySelectorAll(".editClassTeacher");
 
-if(!select) return
+    selects.forEach(select => {
+      select.innerHTML = `<option value="">Selecione o professor</option>`;
 
-select.innerHTML = `<option value="">Selecione o professor</option>`
+      teachersCache.forEach(t => {
+        select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+      });
+    });
 
-teachersCache.forEach(t => {
-select.innerHTML += `<option value="${t.id}">${t.name}</option>`
-})
-
+  } catch(err){
+    console.error("Erro ao carregar professores", err)
+    alert("Erro ao carregar professores")
+  }
 }
 
 async function editClass(id){
 
-await loadTeachersForClasses()
-await loadUnitsForClasses()
+  await loadUnitsForClasses()
 
-const cls = classesCache.find(c => c.id === id)
-if(!cls) return
+  const cls = classesCache.find(c => c.id === id)
+  if(!cls) return
 
-document.getElementById("editClassId").value = cls.id
-document.getElementById("editClassName").value = cls.name ?? ""
-document.getElementById("editClassTeacher").value = cls.teacher_id ?? ""
-document.getElementById("editClassUnit").value = cls.unit_id ?? ""
-document.getElementById("editClassDay").value = cls.day_of_week ?? ""
-document.getElementById("editClassTime").value = cls.start_time ?? ""
+  document.getElementById("editClassId").value = cls.id
+  document.getElementById("editClassName").value = cls.name ?? ""
 
-const modal = document.getElementById("classModal")
-modal.classList.remove("hidden")
-modal.classList.add("active")
+  const container = document.getElementById("teachersContainer");
+  container.innerHTML = "";
+
+  // 🔥 tratamento seguro (NUNCA quebra)
+  const teacherIds =
+    (cls.teacher_ids && cls.teacher_ids.length > 0)
+      ? cls.teacher_ids
+      : (cls.teacher_id ? [cls.teacher_id] : []);
+
+  // 🔥 cria selects primeiro
+  teacherIds.forEach(tid => {
+    const select = document.createElement("select");
+    select.className = "editClassTeacher";
+    container.appendChild(select);
+  });
+
+  // 🔥 depois popula todos de uma vez
+  await loadTeachersForClasses();
+
+  // 🔥 agora aplica valores corretamente
+  const selects = document.querySelectorAll(".editClassTeacher");
+
+  selects.forEach((select, index) => {
+    select.value = teacherIds[index] ?? "";
+  });
+
+  document.getElementById("editClassUnit").value = cls.unit_id ?? ""
+  document.getElementById("editClassDay").value = cls.day_of_week ?? ""
+  document.getElementById("editClassTime").value = cls.start_time ?? ""
+
+  const modal = document.getElementById("classModal")
+  modal.classList.remove("hidden")
+  modal.classList.add("active")
 
 }
 
 async function newClass(){
 
-await loadTeachersForClasses()
-await loadUnitsForClasses()
+  await loadUnitsForClasses()
 
-document.getElementById("editClassId").value = ""
+  document.getElementById("editClassId").value = ""
+  document.getElementById("editClassName").value = ""
 
-document.getElementById("editClassName").value = ""
-document.getElementById("editClassTeacher").value = ""
-document.getElementById("editClassUnit").value = ""
-document.getElementById("editClassDay").value = ""
-document.getElementById("editClassTime").value = ""
+  const container = document.getElementById("teachersContainer");
+  container.innerHTML = "";
 
-const title = document.querySelector("#classModal h2");
-if (title) {
-  title.innerText = "Nova turma";
-}
+  // 🔥 cria o primeiro select
+  const select = document.createElement("select");
+  select.className = "editClassTeacher";
 
-const modal = document.getElementById("classModal")
-modal.classList.remove("hidden")
-modal.classList.add("active")
+  container.appendChild(select);
 
+  // 🔥 agora popula corretamente
+  await loadTeachersForClasses();
+
+  document.getElementById("editClassUnit").value = ""
+  document.getElementById("editClassDay").value = ""
+  document.getElementById("editClassTime").value = ""
+
+  const title = document.querySelector("#classModal h2");
+  if (title) {
+    title.innerText = "Nova turma";
+  }
+
+  const modal = document.getElementById("classModal")
+  modal.classList.remove("hidden")
+  modal.classList.add("active")
 
 }
 
@@ -234,7 +286,7 @@ function closeClassModal(){
 async function saveClass(){
 
 const id = document.getElementById("editClassId").value
-const teacher_id = document.getElementById("editClassTeacher").value
+const teacher_ids = getSelectedTeachers();
 const unit_id = document.getElementById("editClassUnit").value
 
 const name = document.getElementById("editClassName").value
@@ -242,7 +294,10 @@ const day_of_week = document.getElementById("editClassDay").value
 const start_time = document.getElementById("editClassTime").value
 
 if(!name){ alert("Informe o nome da turma"); return }
-if(!teacher_id){ alert("Selecione um professor"); return }
+if (teacher_ids.length === 0) {
+  alert("Selecione pelo menos um professor");
+  return;
+}
 if(!unit_id){ alert("Selecione a unidade"); return }
 if(!day_of_week){ alert("Selecione o dia da semana"); return }
 if(!start_time){ alert("Informe o horário"); return }
@@ -254,12 +309,26 @@ let res
 if(id){
 
 res = await apiRequest(`/api/v1/classes/${id}`,"PUT",
-{name,teacher_id,unit_id,day_of_week,start_time})
+{
+  name,
+  teacher_id: teacher_ids[0], // compatibilidade
+  teacher_ids,
+  unit_id,
+  day_of_week,
+  start_time
+})
 
 }else{
 
 res = await apiRequest("/api/v1/classes","POST",
-{name,teacher_id,unit_id,day_of_week,start_time})
+{
+  name,
+  teacher_id: teacher_ids[0], // compatibilidade
+  teacher_ids,
+  unit_id,
+  day_of_week,
+  start_time
+})
 
 }
 
@@ -281,11 +350,37 @@ alert("Erro na API")
 
 }
 
-document.addEventListener("click", (e) => {
+document.addEventListener("click", async (e) => {
+
+  // botão nova turma
   const btn = e.target.closest("#newClassBtn");
   if (btn) {
     newClass();
+    return;
   }
+
+  // botão adicionar professor
+  if (e.target.id === "addTeacherBtn") {
+
+    const container = document.getElementById("teachersContainer");
+
+    const select = document.createElement("select");
+    select.className = "editClassTeacher";
+
+    container.appendChild(select);
+
+    // agora sim pode usar await
+    const res = await apiRequest("/api/v1/teachers");
+    const teachers = res.data || [];
+
+    select.innerHTML = `<option value="">Selecione o professor</option>`;
+
+    teachers.forEach(t => {
+      select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+    });
+
+  }
+
 });
 
 
