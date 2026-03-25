@@ -47,77 +47,32 @@
     </div>
 
     <!-- GRID PRINCIPAL -->
-    <div class="finance-grid">
+  <div class="finance-grid">
 
-      <!-- ============================= -->
-      <!-- RECEITA -->
-      <!-- ============================= -->
-      <div class="finance-block receita">
+  <!-- RECEITA -->
+  <div class="finance-card">
+    <h3>Receita</h3>
+    <p>Esperado: <strong id="dre-recebido"></strong></p>
+    <p>Recebido: <strong id="dre-projetado"></strong></p>
+    <p>Projetado: <strong id="dre-atrasado"></strong></p>
+  </div>
 
-        <h4>Receita</h4>
+  <!-- INADIMPLÊNCIA -->
+  <div class="finance-card">
+    <h3>Inadimplência</h3>
+    <p>Atrasado: <strong id="dre-inadimplencia"></strong></p>
+    <p>Taxa: <strong id="dre-inadimplencia-percent"></strong></p>
+  </div>
 
-        <div class="finance-item">
-          <span>Esperado</span>
-          <strong id="dre-receita">R$ 0,00</strong>
-        </div>
+  <!-- CAIXA -->
+  <div class="finance-card">
+    <h3>Caixa</h3>
+    <p>Entradas: <strong id="dre-entradas"></strong></p>
+    <p>Saídas: <strong id="dre-saidas"></strong></p>
+    <p>Saldo: <strong id="dre-saldo"></strong></p>
+  </div>
 
-        <div class="finance-item">
-          <span>Recebido</span>
-          <strong id="dre-recebido">R$ 0,00</strong>
-        </div>
-
-        <div class="finance-item">
-          <span>Projetado</span>
-          <strong id="dre-projetado">R$ 0,00</strong>
-        </div>
-
-      </div>
-
-      <!-- ============================= -->
-      <!-- INADIMPLÊNCIA -->
-      <!-- ============================= -->
-      <div class="finance-block risco">
-
-        <h4>Inadimplência</h4>
-
-        <div class="finance-item">
-          <span>Atrasado</span>
-          <strong id="dre-atrasado" class="negative">R$ 0,00</strong>
-        </div>
-
-        <div class="finance-item">
-          <span>Taxa</span>
-          <strong id="dre-inadimplencia">0%</strong>
-        </div>
-
-      </div>
-
-      <!-- ============================= -->
-      <!-- CAIXA -->
-      <!-- ============================= -->
-      <div class="finance-block caixa">
-
-        <h4>Caixa</h4>
-
-        <div class="finance-item">
-          <span>Entradas</span>
-          <strong id="dre-entradas" class="positive">R$ 0,00</strong>
-        </div>
-
-        <div class="finance-item">
-          <span>Saídas</span>
-          <strong id="dre-saidas" class="negative">R$ 0,00</strong>
-        </div>
-
-        <div class="finance-item">
-          <span>Saldo</span>
-          <strong id="dre-resultado" class="highlight">R$ 0,00</strong>
-        </div>
-
-      </div>
-
-    </div>
-
+</div>
     <!-- ============================= -->
     <!-- GRÁFICO -->
     <!-- ============================= -->
