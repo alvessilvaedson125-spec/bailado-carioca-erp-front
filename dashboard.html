@@ -4,7 +4,7 @@
   <div class="page-header">
     <div>
       <h2>Dashboard</h2>
-      <p>Visão geral do sistema</p>
+      <p>Visão financeira e operacional</p>
     </div>
   </div>
 
@@ -20,7 +20,7 @@
     <div class="metric-card">
       <div class="metric-title">Turmas</div>
       <div class="metric-value" id="metric-classes">0</div>
-      <div class="metric-sub">Ativas no sistema</div>
+      <div class="metric-sub">Ativas</div>
     </div>
 
     <div class="metric-card">
@@ -32,48 +32,99 @@
     <div class="metric-card">
       <div class="metric-title">Pagamentos</div>
       <div class="metric-value" id="metric-payments">0</div>
-      <div class="metric-sub">Registros financeiros</div>
+      <div class="metric-sub">Registros</div>
     </div>
 
   </div>
 
-  <!-- DRE -->
+  <!-- ============================= -->
+  <!-- FINANCEIRO COMPLETO -->
+  <!-- ============================= -->
   <div class="card finance-card">
 
-  <div class="card-header">
-    <h3>Financeiro</h3>
-  </div>
+    <div class="card-header">
+      <h3>Financeiro</h3>
+    </div>
 
-  <div class="finance-layout">
+    <!-- GRID PRINCIPAL -->
+    <div class="finance-grid">
 
-    <!-- DRE -->
-    <div class="dre-grid">
+      <!-- ============================= -->
+      <!-- RECEITA -->
+      <!-- ============================= -->
+      <div class="finance-block receita">
 
-  <div class="dre-item receita">
-    <span>Receitas</span>
-    <strong class="value positive" id="dre-receita">R$ 0,00</strong>
-  </div>
+        <h4>Receita</h4>
 
-  <div class="dre-item despesa">
-    <span>Despesas</span>
-    <strong class="value negative" id="dre-despesa">R$ 0,00</strong>
-  </div>
+        <div class="finance-item">
+          <span>Esperado</span>
+          <strong id="dre-receita">R$ 0,00</strong>
+        </div>
 
-  <div class="dre-item resultado">
-    <span>Resultado</span>
-    <strong class="value highlight" id="dre-resultado">R$ 0,00</strong>
-  </div>
+        <div class="finance-item">
+          <span>Recebido</span>
+          <strong id="dre-recebido">R$ 0,00</strong>
+        </div>
 
-</div>
+        <div class="finance-item">
+          <span>Projetado</span>
+          <strong id="dre-projetado">R$ 0,00</strong>
+        </div>
 
+      </div>
+
+      <!-- ============================= -->
+      <!-- INADIMPLÊNCIA -->
+      <!-- ============================= -->
+      <div class="finance-block risco">
+
+        <h4>Inadimplência</h4>
+
+        <div class="finance-item">
+          <span>Atrasado</span>
+          <strong id="dre-atrasado" class="negative">R$ 0,00</strong>
+        </div>
+
+        <div class="finance-item">
+          <span>Taxa</span>
+          <strong id="dre-inadimplencia">0%</strong>
+        </div>
+
+      </div>
+
+      <!-- ============================= -->
+      <!-- CAIXA -->
+      <!-- ============================= -->
+      <div class="finance-block caixa">
+
+        <h4>Caixa</h4>
+
+        <div class="finance-item">
+          <span>Entradas</span>
+          <strong id="dre-entradas" class="positive">R$ 0,00</strong>
+        </div>
+
+        <div class="finance-item">
+          <span>Saídas</span>
+          <strong id="dre-saidas" class="negative">R$ 0,00</strong>
+        </div>
+
+        <div class="finance-item">
+          <span>Saldo</span>
+          <strong id="dre-resultado" class="highlight">R$ 0,00</strong>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ============================= -->
     <!-- GRÁFICO -->
+    <!-- ============================= -->
     <div class="chart-container">
       <canvas id="financeChart"></canvas>
     </div>
 
   </div>
 
-</div>
-
-  
 </div>
