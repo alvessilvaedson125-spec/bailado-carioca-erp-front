@@ -305,24 +305,29 @@ tr.innerHTML = `
   <button class="btn-edit">
     ✏️ <span>Editar</span>
   </button>
+${
+  enrollment.status === "active"
+    ? `<button class="btn-warning btn-pause">⏸ Pausar</button>`
+    : ""
+}
 
-  ${
-    enrollment.status === "active"
-      ? `<button class="btn-warning btn-pause">⏸ Pausar</button>`
-      : ""
-  }
+${
+  enrollment.status === "paused"
+    ? `<button class="btn-success btn-resume">▶ Reativar</button>`
+    : ""
+}
 
-  ${
-    enrollment.status === "paused"
-      ? `<button class="btn-success btn-resume">▶ Reativar</button>`
-      : ""
-  }
+${
+  enrollment.status === "cancelled"
+    ? `<button class="btn-success btn-reactivate">↩ Reativar</button>`
+    : ""
+}
 
-  ${
-    enrollment.status !== "cancelled"
-      ? `<button class="btn-danger btn-cancel">✖ Cancelar</button>`
-      : ""
-  }
+${
+  enrollment.status !== "cancelled"
+    ? `<button class="btn-danger btn-cancel">✖ Cancelar</button>`
+    : ""
+}
 
 </td>
 `
@@ -356,6 +361,14 @@ const cancelBtn = tr.querySelector(".btn-cancel")
 if(pauseBtn){
   pauseBtn.onclick = async () => {
     await updateEnrollmentStatus(enrollment.id, "paused")
+  }
+}
+
+const reactivateBtn = tr.querySelector(".btn-reactivate")
+
+if(reactivateBtn){
+  reactivateBtn.onclick = async () => {
+    await updateEnrollmentStatus(enrollment.id, "active")
   }
 }
 
