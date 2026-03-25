@@ -177,7 +177,6 @@ console.error("Erro turmas", err)
 /* =========================
    SAVE
 ========================= */
-
 async function saveEnrollment(){
 
 const studentId = document.getElementById("editEnrollmentStudent").value
@@ -190,6 +189,18 @@ const status = document.getElementById("editEnrollmentStatus").value
 
 if(!studentId || !classId){
 alert("Selecione aluno e turma")
+return
+}
+
+// 🚨 BLOQUEIO DE DUPLICIDADE
+const duplicate = enrollmentsCache.find(e =>
+e.student_id === studentId &&
+e.class_id === classId &&
+e.id !== editingEnrollmentId
+)
+
+if(duplicate){
+alert("Este aluno já está matriculado nesta turma")
 return
 }
 
@@ -275,7 +286,15 @@ tr.innerHTML = `
 
 <td>
   <span class="status-badge ${enrollment.status}">
-    ${enrollment.status === "active" ? "Ativo" : "Inativo"}
+    ${
+      enrollment.status === "active"
+        ? "Ativo"
+        : enrollment.status === "paused"
+        ? "Pausado"
+        : enrollment.status === "cancelled"
+        ? "Cancelado"
+        : "-"
+    }
   </span>
 </td>
 
