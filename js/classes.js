@@ -21,6 +21,16 @@ function createTeacherSelect(value = "") {
 
   removeBtn.onclick = () => {
     wrapper.remove();
+
+    // 🔥 garante que nunca fique vazio
+    const all = document.querySelectorAll(".editClassTeacher");
+
+    if (all.length === 0) {
+      const container = document.getElementById("teachersContainer");
+      const { wrapper } = createTeacherSelect();
+      container.appendChild(wrapper);
+      loadTeachersForClasses();
+    }
   };
 
   wrapper.appendChild(select);
@@ -30,14 +40,18 @@ function createTeacherSelect(value = "") {
 }
 
 
-
 function getSelectedTeachers() {
   const selects = document.querySelectorAll(".editClassTeacher");
-  return Array.from(selects)
+
+  const values = Array.from(selects)
     .map(s => s.value)
     .filter(v => v);
-}
 
+  // 🔥 remove duplicados
+  const unique = [...new Set(values)];
+
+  return unique;
+}
 
 
 function safe(value){
@@ -196,8 +210,7 @@ async function loadTeachersForClasses(){
     console.error("Erro ao carregar professores", err)
     alert("Erro ao carregar professores")
   }
-}
-async function editClass(id){
+}async function editClass(id){
 
   await loadUnitsForClasses()
 
@@ -210,10 +223,16 @@ async function editClass(id){
   const container = document.getElementById("teachersContainer");
   container.innerHTML = "";
 
-  const teacherIds =
-    cls.teacher_ids
-      ? cls.teacher_ids.split(",")
-      : (cls.teacher_id ? [cls.teacher_id] : []);
+  // 🔥 CORREÇÃO AQUI
+  let teacherIds = [];
+
+  if (Array.isArray(cls.teacher_ids)) {
+    teacherIds = cls.teacher_ids;
+  } else if (typeof cls.teacher_ids === "string") {
+    teacherIds = cls.teacher_ids.split(",");
+  } else if (cls.teacher_id) {
+    teacherIds = [cls.teacher_id];
+  }
 
   if (teacherIds.length === 0) {
     const { wrapper } = createTeacherSelect();
