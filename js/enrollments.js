@@ -87,13 +87,18 @@ async function loadEnrollments(){
 
   try {
 
-    const res = await apiRequest("/enrollments")
+    const res = await apiRequest("/api/v1/enrollments") // ✅ CORRIGIDO
+
+    if(!res || !res.success){
+      console.error("Erro API enrollments:", res)
+      renderEnrollments([])
+      return
+    }
 
     enrollmentsCache = res.data || []
 
     const selectedStudentId = localStorage.getItem("selectedStudentId")
 
-    // 🔥 CORREÇÃO: normalização de tipo
     if(selectedStudentId){
 
       const studentId = Number(selectedStudentId)
@@ -113,11 +118,14 @@ async function loadEnrollments(){
     }
 
   } catch (err) {
+
     console.error("Erro ao carregar matrículas:", err)
+
+    renderEnrollments([]) // 🔒 evita travamento
+
   }
 
 }
-
 /* =========================
    FORM DATA
 ========================= */
