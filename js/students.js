@@ -1,6 +1,7 @@
 (function(){
 
 let studentsCache = [];
+let enrollmentsMap = {}; // studentId → true/false (tem matrícula ativa)
 
 async function init(){
 
@@ -20,10 +21,10 @@ async function init(){
 
   setupModal();
 
-  await loadStudents();
+  await loadData(); // 🔥 NOVO: carrega tudo sincronizado
 }
 
-async function loadStudents(){
+async function loadData(){
 
   const tableBody = document.querySelector("#studentsTable tbody");
   if(!tableBody) return;
@@ -32,14 +33,20 @@ async function loadStudents(){
 
   try{
 
-    const res = await apiRequest("/api/v1/students");
+    // 🔥 CARREGAMENTO PARALELO (sem mudar backend)
+    const [studentsRes, enrollmentsRes] = await Promise.all([
+      apiRequest("/api/v1/students"),
+      apiRequest("/api/v1/enrollments")
+    ]);
 
-    if(!res.success){
+    if(!studentsRes.success){
       tableBody.innerHTML = "<tr><td colspan='4'>Erro ao carregar alunos</td></tr>";
       return;
     }
 
-    studentsCache = res.data || [];
+    studentsCache = studentsRes.data || [];
+
+    buildEnrollmentsMap(enrollmentsRes);
 
     renderStudents(studentsCache);
 
@@ -50,6 +57,30 @@ async function loadStudents(){
 
   }
 
+}
+
+function buildEnrollmentsMap(res){
+
+  enrollmentsMap = {};
+
+  if(!res || !res.success || !res.data){
+    console.warn("Enrollments indisponível — mantendo estado neutro");
+    return;
+  }
+
+  res.data.forEach(enrollment => {
+
+    const studentId = Number(enrollment.student_id);
+
+    if(enrollment.status === "active"){
+      enrollmentsMap[studentId] = true;
+    }
+
+  });
+
+}
+function isStudentActive(studentId){
+  return !!enrollmentsMap[Number(studentId)];
 }
 
 function renderStudents(list){
@@ -68,6 +99,12 @@ function renderStudents(list){
 
     const tr = document.createElement("tr");
 
+    const isActive = isStudentActive(student.id);
+
+    const statusBadge = isActive
+      ? `<span class="badge green">Ativo</span>`
+      : `<span class="badge gray">Inativo</span>`;
+
     tr.innerHTML = `
       <td>
         <div class="student-cell">
@@ -84,7 +121,7 @@ function renderStudents(list){
       <td>${student.email}</td>
 
       <td>
-        <span class="badge green">Ativo</span>
+        ${statusBadge}
       </td>
 
       <td>
@@ -110,7 +147,7 @@ function goToStudentEnrollments(studentId){
 
   localStorage.setItem("selectedStudentId", studentId);
 
-  // 🔥 FORÇA RELOAD LIMPO DO MÓDULO
+  // Mantido comportamento atual (não mexer no router agora)
   window.location.href = "/app/#/enrollments";
 
 }
@@ -228,7 +265,7 @@ async function saveStudent(){
     }
 
     closeModal();
-    await loadStudents();
+    await loadData(); // 🔥 IMPORTANTE: manter consistência
 
   }catch(err){
     console.error(err);
