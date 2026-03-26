@@ -10,14 +10,11 @@ async function checkAuth() {
     return false
   }
 }
-
 async function loadPage(page) {
 
-  if (!localStorage.getItem("token")) return
-
-  setActiveMenu(page)
-
   try {
+
+    const content = document.getElementById("content")
 
     content.innerHTML = "<p>Carregando...</p>"
 
@@ -34,12 +31,49 @@ async function loadPage(page) {
 
     content.innerHTML = html
 
-    initModule(page)
+    // 🔥 ESPERA O BROWSER PROCESSAR O HTML + SCRIPTS
+   await waitForModule(page)
+initModule(page)
 
-  } catch {
-    content.innerHTML = "<h2>Erro ao carregar página</h2>"
+  } catch (err) {
+    console.error(err)
+    document.getElementById("content").innerHTML = "<h2>Erro ao carregar página</h2>"
   }
+
 }
+
+async function waitForModule(page){
+
+  const moduleMap = {
+    dashboard: "DashboardModule",
+    students: "StudentsModule",
+    classes: "ClassesModule",
+    units: "UnitsModule",
+    teachers: "TeachersModule",
+    enrollments: "EnrollmentsModule",
+    payments: "PaymentsModule",
+    cash: "CashModule"
+  }
+
+  const moduleName = moduleMap[page]
+
+  if(!moduleName) return
+
+  let attempts = 0
+  const maxAttempts = 50 // ~500ms
+
+  while(!window[moduleName] && attempts < maxAttempts){
+    await new Promise(r => setTimeout(r, 10))
+    attempts++
+  }
+
+  if(!window[moduleName]){
+    console.error(`Módulo ${moduleName} não carregou`)
+  }
+
+}
+
+
 
 function initModule(page) {
 
