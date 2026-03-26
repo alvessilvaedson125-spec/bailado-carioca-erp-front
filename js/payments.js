@@ -1,38 +1,42 @@
 (function(){
 
+function safeSetText(id, value){
+  const el = document.getElementById(id);
+  if(el) el.innerText = value;
+}
+
 async function generatePayments() {
 
   const month =
-    document.getElementById("competence-month").value ||
+    document.getElementById("competence-month")?.value ||
     new Date().getMonth() + 1;
 
   const year =
-    document.getElementById("competence-year").value ||
+    document.getElementById("competence-year")?.value ||
     new Date().getFullYear();
 
   try {
 
-  const data = await apiRequest(
-    "/api/v1/payments/generate",
-    "POST",
-    {
-      competence_month: Number(month),
-      competence_year: Number(year)
+    const data = await apiRequest(
+      "/api/v1/payments/generate",
+      "POST",
+      {
+        competence_month: Number(month),
+        competence_year: Number(year)
+      }
+    );
+
+    if (data.generated === 0) {
+      Toast.warning(`Nenhuma nova mensalidade (${data.skipped})`);
+    } else {
+      Toast.success(`${data.generated} geradas (${data.skipped} ignoradas)`);
     }
-  );
 
-  if (data.generated === 0) {
-  Toast.warning(`Nenhuma nova mensalidade gerada (${data.skipped} já existiam)`);
-} else {
-  Toast.success(`${data.generated} mensalidades geradas (${data.skipped} ignoradas)`);
-}
-  await loadPayments();
-  await loadFinancialSummary();
+    await loadPayments();
 
-} catch (err) {
-  Toast.error(err.message);
-}
-
+  } catch (err) {
+    Toast.error(err.message);
+  }
 }
 
 function renderStatus(status){
@@ -46,13 +50,15 @@ function renderStatus(status){
   }
 
   return "<span class='status status-pending'>Pendente</span>"
-
 }
 
 async function loadPayments() {
 
-  const month = document.getElementById("filter-month").value;
-  const year = document.getElementById("filter-year").value;
+  const tbody = document.getElementById("payments-body");
+  if(!tbody) return; // 🔒 proteção
+
+  const month = document.getElementById("filter-month")?.value;
+  const year = document.getElementById("filter-year")?.value;
 
   let url = "/api/v1/payments";
 
@@ -65,85 +71,76 @@ async function loadPayments() {
     url += "?" + params.join("&");
   }
 
-  let data;
+  let res;
 
-try {
-  data = await apiRequest(url);
-} catch (err) {
-  alert(err.message);
-  return;
-}
+  try {
+    res = await apiRequest(url);
+  } catch (err) {
+    console.error(err);
+    return;
+  }
 
-  const tbody = document.getElementById("payments-body");
+  const data = res.data || [];
+
   tbody.innerHTML = "";
 
- const LIMIT = 5;
+  const LIMIT = 5;
 
-data.data.forEach((p, index) => {
+  data.forEach((p, index) => {
+
     const tr = document.createElement("tr");
 
-    
     tr.innerHTML = `
       <td>${p.student_name}</td>
       <td>${p.class_name ?? "-"}</td>
-     <td class="col-value">
-  R$ ${Number(p.final_amount).toFixed(2)}
-</td>
-
-<td class="col-competence">
-  ${String(p.competence_month).padStart(2, '0')}/${p.competence_year}
-</td>
-     <td>${renderStatus(p.computed_status)}</td>
+      <td class="col-value">R$ ${Number(p.final_amount).toFixed(2)}</td>
+      <td>${String(p.competence_month).padStart(2, '0')}/${p.competence_year}</td>
+      <td>${renderStatus(p.computed_status)}</td>
       <td>
-      ${p.computed_status !== 'paid' ? `
-        <button onclick="PaymentsModule.markAsPaid('${p.id}', this)">
-          Marcar pago
-        </button>
-      ` : `
-        <span style="color: green; font-weight: bold;">
-          ✓ Pago
-        </span>
-      `}
-    </td>
+        ${
+          p.computed_status !== 'paid'
+          ? `<button onclick="PaymentsModule.markAsPaid('${p.id}', this)">Marcar pago</button>`
+          : `<span style="color: green;">✓ Pago</span>`
+        }
+      </td>
     `;
 
-   if (index >= LIMIT) {
-  tr.style.display = 'none';
-}
+    if(index >= LIMIT){
+      tr.style.display = 'none';
+    }
 
-tbody.appendChild(tr);
+    tbody.appendChild(tr);
   });
 
-  
-
-  // 🔥 NOVO: sincroniza summary com filtro
   setupPaymentsToggle();
-  
-  await loadFinancialSummary(month, year);
 
+  await loadFinancialSummary(month, year);
+  await loadCashflow();
 }
+
 async function markAsPaid(id, button) {
+
   try {
+
     button.disabled = true;
     button.innerText = "Processando...";
-    button.style.opacity = "0.6";
 
     await apiRequest(`/api/v1/payments/${id}`, 'PATCH');
 
-button.innerText = "Pago";
-button.style.opacity = "1";
-
-await loadPayments();
+    await loadPayments();
 
   } catch (error) {
-  console.error(error);
-  alert(error.message);
-  button.disabled = false;
-  button.innerText = "Marcar pago";
-}
+
+    console.error(error);
+
+    button.disabled = false;
+    button.innerText = "Marcar pago";
+
+  }
 }
 
 async function loadFinancialSummary(month, year) {
+
   try {
 
     let url = '/api/v1/payments/summary';
@@ -160,118 +157,104 @@ async function loadFinancialSummary(month, year) {
     const res = await apiRequest(url);
     const data = res.data;
 
-    document.getElementById('total-expected').innerText =
-      `R$ ${data.total_expected}`;
-
-    document.getElementById('total-paid').innerText =
-      `R$ ${data.total_paid}`;
-
-    document.getElementById('total-pending').innerText =
-      `R$ ${data.total_pending}`;
-
-    document.getElementById('total-overdue').innerText =
-      `R$ ${data.total_overdue}`;
+    // 🔒 SAFE
+    safeSetText('total-expected', `R$ ${data.total_expected}`);
+    safeSetText('total-paid', `R$ ${data.total_paid}`);
+    safeSetText('total-pending', `R$ ${data.total_pending}`);
+    safeSetText('total-overdue', `R$ ${data.total_overdue}`);
 
   } catch (error) {
-    console.error('Erro ao carregar resumo financeiro', error);
+    console.error(error);
   }
 }
 
 async function loadCashflow(){
 
-try{
+  try{
 
-const res = await apiRequest("/api/v1/payments");
-const list = res.data || [];
+    const res = await apiRequest("/api/v1/payments");
+    const list = res.data || [];
 
-const today = new Date();
+    const today = new Date();
 
-let todayTotal = 0;
-let monthTotal = 0;
+    let todayTotal = 0;
+    let monthTotal = 0;
 
-list.forEach(p => {
+    list.forEach(p => {
 
-if(p.computed_status !== "paid") return;
+      if(p.computed_status !== "paid") return;
 
-const paidDate = new Date(p.updated_at || p.created_at);
+      const paidDate = new Date(p.updated_at || p.created_at);
 
-const isToday =
-paidDate.getDate() === today.getDate() &&
-paidDate.getMonth() === today.getMonth() &&
-paidDate.getFullYear() === today.getFullYear();
+      const isToday =
+        paidDate.toDateString() === today.toDateString();
 
-const isThisMonth =
-paidDate.getMonth() === today.getMonth() &&
-paidDate.getFullYear() === today.getFullYear();
+      const isThisMonth =
+        paidDate.getMonth() === today.getMonth() &&
+        paidDate.getFullYear() === today.getFullYear();
 
-if(isToday){
-todayTotal += Number(p.final_amount || 0);
+      if(isToday){
+        todayTotal += Number(p.final_amount || 0);
+      }
+
+      if(isThisMonth){
+        monthTotal += Number(p.final_amount || 0);
+      }
+
+    });
+
+    // 🔒 SAFE
+    safeSetText("cash-today", "R$ " + todayTotal.toFixed(2));
+    safeSetText("cash-month", "R$ " + monthTotal.toFixed(2));
+
+  }catch(err){
+    console.error("Erro no caixa", err);
+  }
+
 }
 
-if(isThisMonth){
-monthTotal += Number(p.final_amount || 0);
-}
+async function init(){
 
-});
+  console.log("Payments module iniciado");
 
-document.getElementById("cash-today").innerText = "R$ " + todayTotal.toFixed(2)
-document.getElementById("cash-month").innerText = "R$ " + monthTotal.toFixed(2)
-
-}catch(err){
-console.error("Erro no caixa", err);
-}
-
-}
-
-async function init() {
-  await loadPayments();
-  await loadFinancialSummary();
-  await loadCashflow();
+  await loadPayments(); // 🔒 já controla DOM
 }
 
 function setupPaymentsToggle() {
-  const countEl = document.getElementById('payments-count');
-  const rows = document.querySelectorAll('#payments-body tr');
+
   const btn = document.getElementById('toggle-payments');
+  const rows = document.querySelectorAll('#payments-body tr');
 
   if (!btn || rows.length === 0) return;
 
   const LIMIT = 5;
   let expanded = false;
 
-  // 👉 ESCONDE BOTÃO SE NÃO PRECISAR
   if (rows.length <= LIMIT) {
     btn.style.display = "none";
     return;
   }
 
-  function updateView() {
+  function update() {
     rows.forEach((row, index) => {
       row.style.display = (!expanded && index >= LIMIT) ? 'none' : '';
     });
 
-   btn.textContent = expanded ? 'Mostrar menos ▲' : 'Mostrar mais ▼';
-
-   if (countEl) {
-  const visible = expanded ? rows.length : Math.min(LIMIT, rows.length);
-  countEl.textContent = `Mostrando ${visible} de ${rows.length}`;
-}
-  
+    btn.textContent = expanded ? 'Mostrar menos ▲' : 'Mostrar mais ▼';
   }
 
   btn.onclick = () => {
     expanded = !expanded;
-    updateView();
+    update();
   };
 
-  updateView();
+  update();
 }
 
 window.PaymentsModule = {
   init,
   generatePayments,
   loadPayments,
-  loadFinancialSummary,
   markAsPaid
 };
 

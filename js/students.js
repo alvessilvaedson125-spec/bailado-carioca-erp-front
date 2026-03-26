@@ -8,8 +8,6 @@ async function init(){
 
   await checkAuth();
 
-  await new Promise(resolve => setTimeout(resolve, 50));
-
   const search = document.getElementById("searchStudents");
   if(search){
     search.addEventListener("input", filterStudents);
@@ -70,71 +68,60 @@ function renderStudents(list){
 
     const tr = document.createElement("tr");
 
-    // ALUNO
-    const tdName = document.createElement("td");
+    tr.innerHTML = `
+      <td>
+        <div class="student-cell">
+          <div class="student-avatar">
+            ${getInitials(student.name)}
+          </div>
+          <div>
+            <strong>${student.name}</strong>
+            <div class="student-meta">${student.phone || ""}</div>
+          </div>
+        </div>
+      </td>
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "student-cell";
+      <td>${student.email}</td>
 
-    const avatar = document.createElement("div");
-    avatar.className = "student-avatar";
-    avatar.textContent = student.name
-      .split(" ")
-      .map(n => n[0])
-      .slice(0,2)
-      .join("")
-      .toUpperCase();
+      <td>
+        <span class="badge green">Ativo</span>
+      </td>
 
-    const name = document.createElement("div");
-    name.innerHTML = `
-      <strong>${student.name}</strong>
-      <div class="student-meta">${student.phone || ""}</div>
+      <td>
+        <button class="btn-edit">✏️ Editar</button>
+        <button class="btn-secondary">👁 Ver</button>
+      </td>
     `;
 
-    wrapper.appendChild(avatar);
-    wrapper.appendChild(name);
-    tdName.appendChild(wrapper);
+    const editBtn = tr.querySelector(".btn-edit");
+    const viewBtn = tr.querySelector(".btn-secondary");
 
-    // EMAIL
-    const tdEmail = document.createElement("td");
-    tdEmail.textContent = student.email;
-
-    // STATUS (preparado para futuro)
-    const tdStatus = document.createElement("td");
-    tdStatus.innerHTML = `
-      <span class="badge green">
-        Ativo
-      </span>
-    `;
-
-    // AÇÕES
-    const tdActions = document.createElement("td");
-
-    const editBtn = document.createElement("button");
-    editBtn.className = "btn-edit";
-    editBtn.innerHTML = "✏️ Editar";
     editBtn.onclick = () => editStudent(student.id);
 
-    const viewBtn = document.createElement("button");
-    viewBtn.className = "btn-secondary";
-    viewBtn.innerHTML = "👁 Ver";
-    viewBtn.onclick = () => {
-  localStorage.setItem("selectedStudentId", student.id);
-  window.location.hash = "/enrollments";
-};
-
-    tdActions.appendChild(editBtn);
-    tdActions.appendChild(viewBtn);
-
-    tr.appendChild(tdName);
-    tr.appendChild(tdEmail);
-    tr.appendChild(tdStatus);
-    tr.appendChild(tdActions);
+    viewBtn.onclick = () => goToStudentEnrollments(student.id);
 
     tableBody.appendChild(tr);
 
   });
 
+}
+
+function goToStudentEnrollments(studentId){
+
+  localStorage.setItem("selectedStudentId", studentId);
+
+  // 🔥 FORÇA RELOAD LIMPO DO MÓDULO
+  window.location.href = "/app/#/enrollments";
+
+}
+
+function getInitials(name){
+  return name
+    .split(" ")
+    .map(n => n[0])
+    .slice(0,2)
+    .join("")
+    .toUpperCase();
 }
 
 function filterStudents(){
@@ -182,6 +169,7 @@ function newStudent(){
 
   document.getElementById("modalTitle").innerText = "Novo aluno";
   document.getElementById("studentModal").classList.remove("hidden");
+
 }
 
 function setupModal(){
@@ -220,60 +208,37 @@ async function saveStudent(){
   const phone = document.getElementById("editStudentPhone").value;
 
   if(!name.trim() || !email.trim()){
-    showError("Nome e email são obrigatórios");
-    return;
-  }
-
-  if(!/^\S+@\S+\.\S+$/.test(email)){
-    showError("Email inválido");
+    alert("Nome e email obrigatórios");
     return;
   }
 
   try{
 
-    let res;
+    const endpoint = id
+      ? `/api/v1/students/${id}`
+      : "/api/v1/students";
 
-    if(id){
-      res = await apiRequest(`/api/v1/students/${id}`,"PUT",{name,email,phone});
-    }else{
-      res = await apiRequest("/api/v1/students","POST",{name,email,phone});
-    }
+    const method = id ? "PUT" : "POST";
+
+    const res = await apiRequest(endpoint,method,{name,email,phone});
 
     if(!res.success){
-      showError("Erro ao salvar aluno");
+      alert("Erro ao salvar");
       return;
-    }
-
-    if(window.Toast){
-      Toast.success("Aluno salvo com sucesso");
     }
 
     closeModal();
     await loadStudents();
 
   }catch(err){
-
     console.error(err);
-    showError("Erro na API");
-
+    alert("Erro na API");
   }
 
-}
-
-function showError(msg){
-  if(window.Toast){
-    Toast.error(msg);
-  } else {
-    console.error(msg);
-  }
 }
 
 window.StudentsModule = {
-  init,
-  loadStudents,
-  editStudent,
-  saveStudent,
-  newStudent
+  init
 };
 
 })();

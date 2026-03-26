@@ -87,41 +87,42 @@ async function loadEnrollments(){
 
   try {
 
-    const res = await apiRequest("/api/v1/enrollments") // ✅ CORRIGIDO
+    const res = await apiRequest("/api/v1/enrollments");
 
     if(!res || !res.success){
-      console.error("Erro API enrollments:", res)
-      renderEnrollments([])
-      return
+      renderEnrollments([]);
+      return;
     }
 
-    enrollmentsCache = res.data || []
+    enrollmentsCache = res.data || [];
 
-    const selectedStudentId = localStorage.getItem("selectedStudentId")
+    const selectedStudentId = localStorage.getItem("selectedStudentId");
 
     if(selectedStudentId){
 
-      const studentId = Number(selectedStudentId)
+      const studentId = Number(selectedStudentId);
 
-      const filtered = enrollmentsCache.filter(e => 
+      const filtered = enrollmentsCache.filter(e =>
         Number(e.student_id) === studentId
-      )
+      );
 
-      renderEnrollments(filtered)
+      renderEnrollments(filtered);
 
-      localStorage.removeItem("selectedStudentId")
+      // 🔥 IMPORTANTE: limpa só depois de usar
+      setTimeout(() => {
+        localStorage.removeItem("selectedStudentId");
+      }, 0);
 
     } else {
 
-      renderEnrollments()
+      renderEnrollments();
 
     }
 
   } catch (err) {
 
-    console.error("Erro ao carregar matrículas:", err)
-
-    renderEnrollments([]) // 🔒 evita travamento
+    console.error(err);
+    renderEnrollments([]);
 
   }
 
