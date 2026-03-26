@@ -102,8 +102,23 @@ return
 
 enrollmentsCache = res.data || []
 
-renderEnrollments()
+// 🔥 FILTRO AUTOMÁTICO POR ALUNO
+const selectedStudentId = localStorage.getItem("selectedStudentId")
 
+if(selectedStudentId){
+
+  const filtered = enrollmentsCache.filter(e => 
+    e.student_id === selectedStudentId
+  )
+
+  renderEnrollments(filtered)
+
+  // limpa para não travar navegação futura
+  localStorage.removeItem("selectedStudentId")
+
+}else{
+  renderEnrollments()
+}
 }catch(err){
 
 console.error(err)

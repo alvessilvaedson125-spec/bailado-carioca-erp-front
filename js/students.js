@@ -119,8 +119,9 @@ function renderStudents(list){
     viewBtn.className = "btn-secondary";
     viewBtn.innerHTML = "👁 Ver";
     viewBtn.onclick = () => {
-      window.location.hash = `/enrollments?student=${student.id}`;
-    };
+  localStorage.setItem("selectedStudentId", student.id);
+  window.location.hash = "/enrollments";
+};
 
     tdActions.appendChild(editBtn);
     tdActions.appendChild(viewBtn);
