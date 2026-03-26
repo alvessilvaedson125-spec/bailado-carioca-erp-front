@@ -141,9 +141,9 @@
 .finance-chart {
   background: #ffffff;
   border-radius: 12px;
-  padding: 18px;
+  padding: 16px;
   border: 1px solid #e5e7eb;
-  height: 200px;
+  height: 160px;
 }
 
 .finance-chart canvas {

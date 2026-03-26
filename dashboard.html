@@ -37,31 +37,25 @@
 
   </div>
 
-  <!-- ============================= -->
   <!-- FINANCEIRO -->
-  <!-- ============================= -->
-
   <div class="finance-section">
 
-    <!-- GRID DE CARDS -->
+    <!-- CARDS -->
     <div class="finance-grid">
 
-      <!-- RECEITA -->
       <div class="finance-card receita">
         <h3>Receita</h3>
-        <p>Esperado: <strong id="dre-recebido"></strong></p>
-        <p>Recebido: <strong id="dre-projetado"></strong></p>
-        <p>Projetado: <strong id="dre-atrasado"></strong></p>
+        <p>Esperado: <strong id="dre-esperado"></strong></p>
+        <p>Recebido: <strong id="dre-recebido"></strong></p>
+        <p>Projetado: <strong id="dre-projetado"></strong></p>
       </div>
 
-      <!-- INADIMPLÊNCIA -->
       <div class="finance-card inadimplencia">
         <h3>Inadimplência</h3>
-        <p>Atrasado: <strong id="dre-inadimplencia"></strong></p>
+        <p>Atrasado: <strong id="dre-atrasado"></strong></p>
         <p>Taxa: <strong id="dre-inadimplencia-percent"></strong></p>
       </div>
 
-      <!-- CAIXA -->
       <div class="finance-card caixa">
         <h3>Caixa</h3>
         <p>Entradas: <strong id="dre-entradas"></strong></p>
@@ -71,23 +65,30 @@
 
     </div>
 
-    <!-- ============================= -->
     <!-- GRÁFICO + RESUMO -->
-    <!-- ============================= -->
-
     <div class="finance-bottom">
 
-      <!-- GRÁFICO -->
+      <!-- GRÁFICO PROFISSIONAL -->
       <div class="finance-chart">
         <canvas id="financeChart"></canvas>
       </div>
 
-      <!-- RESUMO LATERAL -->
+      <!-- RESUMO (SEM DUPLICAR IDS) -->
       <div class="finance-summary">
-        <h4>Resumo</h4>
-        <p>Recebido: <strong id="dre-recebido"></strong></p>
-        <p>Projetado: <strong id="dre-projetado"></strong></p>
-        <p>Inadimplência: <strong id="dre-inadimplencia"></strong></p>
+        <h4>Resumo Financeiro</h4>
+
+        <p>Recebido:
+          <strong id="summary-recebido"></strong>
+        </p>
+
+        <p>Projetado:
+          <strong id="summary-projetado"></strong>
+        </p>
+
+        <p>Inadimplência:
+          <strong id="summary-inadimplencia"></strong>
+        </p>
+
       </div>
 
     </div>

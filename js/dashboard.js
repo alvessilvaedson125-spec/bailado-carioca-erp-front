@@ -7,9 +7,6 @@ async function init() {
 
   const el = (id) => document.getElementById(id);
 
-  // =============================
-  // ELEMENTOS
-  // =============================
   const studentsEl = el("metric-students");
   const classesEl = el("metric-classes");
   const enrollmentsEl = el("metric-enrollments");
@@ -20,7 +17,7 @@ async function init() {
   const projetadoEl = el("dre-projetado");
 
   const atrasadoEl = el("dre-atrasado");
-  const inadimplenciaPercentEl = el("dre-inadimplencia-percent");
+  const inadPercentEl = el("dre-inadimplencia-percent");
 
   const entradasEl = el("dre-entradas");
   const saidasEl = el("dre-saidas");
@@ -42,17 +39,11 @@ async function init() {
 
     cashData = cash.data || [];
 
-    // =============================
-    // MÉTRICAS
-    // =============================
     if (students.success) studentsEl.innerText = students.data.length;
     if (classes.success) classesEl.innerText = classes.data.length;
     if (enrollments.success) enrollmentsEl.innerText = enrollments.data.length;
     if (payments.success) paymentsEl.innerText = payments.data.length;
 
-    // =============================
-    // FINANCEIRO
-    // =============================
     let esperado = 0;
     let recebido = 0;
     let pendente = 0;
@@ -60,27 +51,19 @@ async function init() {
 
     const today = new Date();
 
-    if (payments.success) {
-      payments.data.forEach(p => {
+    payments.data.forEach(p => {
 
-        const value = Number(p.final_amount || 0);
-        esperado += value;
+      const value = Number(p.final_amount || 0);
+      esperado += value;
 
-        if (p.status === "paid") {
-          recebido += value;
-        }
+      if (p.status === "paid") recebido += value;
 
-        if (p.status === "pending") {
-          const due = new Date(p.due_date);
-          if (due < today) {
-            atrasado += value;
-          } else {
-            pendente += value;
-          }
-        }
-
-      });
-    }
+      if (p.status === "pending") {
+        const due = new Date(p.due_date);
+        if (due < today) atrasado += value;
+        else pendente += value;
+      }
+    });
 
     const projetado = recebido + pendente;
 
@@ -88,9 +71,6 @@ async function init() {
       ? (atrasado / esperado) * 100
       : 0;
 
-    // =============================
-    // CAIXA
-    // =============================
     let entradas = 0;
     let saidas = 0;
 
@@ -102,43 +82,33 @@ async function init() {
 
     const saldo = entradas - saidas;
 
-    // =============================
-    // FORMAT
-    // =============================
     const f = (v) =>
       v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-    // =============================
-    // UI PRINCIPAL
-    // =============================
-    if (esperadoEl) esperadoEl.innerText = f(esperado);
-    if (recebidoEl) recebidoEl.innerText = f(recebido);
-    if (projetadoEl) projetadoEl.innerText = f(projetado);
+    esperadoEl.innerText = f(esperado);
+    recebidoEl.innerText = f(recebido);
+    projetadoEl.innerText = f(projetado);
 
-    if (atrasadoEl) atrasadoEl.innerText = f(atrasado);
-    if (inadimplenciaPercentEl) inadimplenciaPercentEl.innerText = inadPercent.toFixed(1) + "%";
+    atrasadoEl.innerText = f(atrasado);
+    inadPercentEl.innerText = inadPercent.toFixed(1) + "%";
 
-    if (entradasEl) entradasEl.innerText = f(entradas);
-    if (saidasEl) saidasEl.innerText = f(saidas);
-    if (saldoEl) saldoEl.innerText = f(saldo);
+    entradasEl.innerText = f(entradas);
+    saidasEl.innerText = f(saidas);
+    saldoEl.innerText = f(saldo);
 
-    // =============================
-    // SUMMARY
-    // =============================
-    if (summaryRecebido) summaryRecebido.innerText = f(recebido);
-    if (summaryProjetado) summaryProjetado.innerText = f(projetado);
-    if (summaryInad) summaryInad.innerText = inadPercent.toFixed(1) + "%";
+    // ✅ SUMMARY FIX
+    summaryRecebido.innerText = f(recebido);
+    summaryProjetado.innerText = f(projetado);
+    summaryInad.innerText = inadPercent.toFixed(1) + "%";
 
-    // =============================
-    // CHART PROFISSIONAL
-    // =============================
     renderChart(payments.data);
 
   } catch (e) {
     console.error("Erro dashboard:", e);
   }
 }
-  function renderChart(payments = []) {
+
+function renderChart(payments = []) {
 
   const ctx = document.getElementById("financeChart");
   if (!ctx) return;
@@ -147,22 +117,16 @@ async function init() {
 
   payments.forEach(p => {
 
-    const date = new Date(p.created_at);
-    const key = date.toISOString().slice(0, 7);
+    const key = `${p.competence_year}-${String(p.competence_month).padStart(2, "0")}`;
 
     if (!monthly[key]) {
-      monthly[key] = {
-        esperado: 0,
-        recebido: 0
-      };
+      monthly[key] = { esperado: 0, recebido: 0 };
     }
 
     const v = Number(p.final_amount || 0);
-    monthly[key].esperado += v;
 
-    if (p.status === "paid") {
-      monthly[key].recebido += v;
-    }
+    monthly[key].esperado += v;
+    if (p.status === "paid") monthly[key].recebido += v;
 
   });
 
@@ -179,22 +143,32 @@ async function init() {
         {
           label: "Esperado",
           data: esperado,
-          backgroundColor: "#3b82f6"
+          backgroundColor: "#3b82f6",
+          barThickness: 20
         },
         {
           label: "Recebido",
           data: recebido,
-          backgroundColor: "#22c55e"
+          backgroundColor: "#22c55e",
+          barThickness: 20
         }
       ]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: true
+        }
+      }
     }
   });
 }
 
-  window.DashboardModule = { init };
+window.DashboardModule = { init };
 
 })();
