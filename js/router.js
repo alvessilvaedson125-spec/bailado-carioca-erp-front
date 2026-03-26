@@ -4,7 +4,6 @@ async function checkAuth() {
   try {
     await apiRequest("/api/v1/auth/me")
     return true
-
   } catch {
     localStorage.removeItem("token")
     window.location.href = "index.html"
@@ -14,9 +13,7 @@ async function checkAuth() {
 
 async function loadPage(page) {
 
- if (!localStorage.getItem("token")) {
-  return // 🚫 NÃO redireciona aqui
-}
+  if (!localStorage.getItem("token")) return
 
   setActiveMenu(page)
 
@@ -25,10 +22,10 @@ async function loadPage(page) {
     content.innerHTML = "<p>Carregando...</p>"
 
     const response = await fetch("/" + page, {
-  cache: "no-store"
-})
-   
-if (!response.ok) {
+      cache: "no-store"
+    })
+
+    if (!response.ok) {
       content.innerHTML = "<h2>Página não encontrada</h2>"
       return
     }
@@ -40,14 +37,11 @@ if (!response.ok) {
     initModule(page)
 
   } catch {
-
     content.innerHTML = "<h2>Erro ao carregar página</h2>"
-
   }
-
 }
 
-function initModule(page){
+function initModule(page) {
 
   const modules = {
     dashboard: window.DashboardModule,
@@ -62,13 +56,11 @@ function initModule(page){
 
   const module = modules[page]
 
-  if(module && typeof module.init === "function"){
+  if (module && typeof module.init === "function") {
     module.init()
   } else {
     console.warn("Módulo não encontrado ou sem init:", page)
-    content.innerHTML += "<p>Erro ao carregar módulo</p>"
   }
-
 }
 
 let isLoading = false
@@ -83,44 +75,56 @@ function setupNavigation() {
 
       if (isLoading) return
 
-      isLoading = true
-
       const page = link.dataset.page
 
-      loadPage(page).finally(() => {
-        isLoading = false
-      })
+      // 👉 ATUALIZA URL (AGORA CONTROLADO)
+      window.location.hash = page
 
     })
 
   })
+}
 
+function setActiveMenu(page) {
+
+  const items = document.querySelectorAll(".sidebar li")
+
+  items.forEach(li => li.classList.remove("active"))
+
+  const target = document.querySelector(`.sidebar li[data-page="${page}"]`)
+
+  if (target) target.classList.add("active")
+}
+
+function getPageFromHash() {
+  const hash = window.location.hash.replace("#", "")
+  return hash || "dashboard"
+}
+
+function handleRouteChange() {
+
+  if (isLoading) return
+
+  isLoading = true
+
+  const page = getPageFromHash()
+
+  loadPage(page).finally(() => {
+    isLoading = false
+  })
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
 
   const ok = await checkAuth()
-
   if (!ok) return
 
   setupNavigation()
 
-  loadPage("dashboard")
+  // 👉 escuta mudança de rota
+  window.addEventListener("hashchange", handleRouteChange)
+
+  // 👉 carrega rota inicial correta
+  handleRouteChange()
 
 })
-
-function setActiveMenu(page){
-
-  const items = document.querySelectorAll(".sidebar li")
-
-  items.forEach(li => {
-    li.classList.remove("active")
-  })
-
-  const target = document.querySelector(`.sidebar li[data-page="${page}"]`)
-
-  if(target){
-    target.classList.add("active")
-  }
-
-}
