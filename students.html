@@ -1,5 +1,4 @@
 <div class="page-header">
-
   <div>
     <h1>Alunos</h1>
     <p>Gerencie os alunos da escola</p>
@@ -8,41 +7,31 @@
   <button id="newStudentBtn" class="btn-primary btn-lg">
     + Novo aluno
   </button>
-
 </div>
 
 <div class="card search-card">
-
-<div class="search-box-modern">
-
-  <span class="search-icon">🔍</span>
-
-  <input 
-    type="text"
-    id="searchStudents"
-    placeholder="Buscar por nome ou email..."
-  >
-
-</div>
-
+  <div class="search-box-modern">
+    <span class="search-icon">🔍</span>
+    <input 
+      type="text"
+      id="searchStudents"
+      placeholder="Buscar por nome ou email..."
+    >
+  </div>
 </div>
 
 <div class="card">
-
-<table id="studentsTable">
-
-<thead>
-<tr>
-<th>Nome</th>
-<th>Email</th>
-<th style="width:120px;">Ações</th>
-</tr>
-</thead>
-
-<tbody></tbody>
-
-</table>
-
+  <table id="studentsTable">
+    <thead>
+      <tr>
+        <th>Aluno</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th style="width:180px;">Ações</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <div id="studentModal" class="modal hidden">

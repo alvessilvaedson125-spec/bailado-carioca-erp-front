@@ -1,58 +1,54 @@
 (function(){
 
-let studentsCache = []
+let studentsCache = [];
 
 async function init(){
 
-  console.log("Students module iniciado")
+  console.log("Students module iniciado");
 
-  await checkAuth()
+  await checkAuth();
 
-  // 🔥 AGUARDA O HTML EXISTIR
-  await new Promise(resolve => setTimeout(resolve, 50))
+  await new Promise(resolve => setTimeout(resolve, 50));
 
-  const search = document.getElementById("searchStudents")
-
+  const search = document.getElementById("searchStudents");
   if(search){
-    search.addEventListener("input", filterStudents)
+    search.addEventListener("input", filterStudents);
   }
 
-  const newBtn = document.getElementById("newStudentBtn")
-
+  const newBtn = document.getElementById("newStudentBtn");
   if(newBtn){
-    newBtn.onclick = newStudent
+    newBtn.onclick = newStudent;
   }
 
-  setupModal()
+  setupModal();
 
-  await loadStudents()
+  await loadStudents();
 }
 
 async function loadStudents(){
 
-  const tableBody = document.querySelector("#studentsTable tbody")
+  const tableBody = document.querySelector("#studentsTable tbody");
+  if(!tableBody) return;
 
-  if(!tableBody) return
-
-  tableBody.innerHTML = "<tr><td colspan='3'>Carregando...</td></tr>"
+  tableBody.innerHTML = "<tr><td colspan='4'>Carregando...</td></tr>";
 
   try{
 
-    const res = await apiRequest("/api/v1/students")
+    const res = await apiRequest("/api/v1/students");
 
     if(!res.success){
-      tableBody.innerHTML = "<tr><td colspan='3'>Erro ao carregar alunos</td></tr>"
-      return
+      tableBody.innerHTML = "<tr><td colspan='4'>Erro ao carregar alunos</td></tr>";
+      return;
     }
 
-    studentsCache = res.data || []
+    studentsCache = res.data || [];
 
-    renderStudents(studentsCache)
+    renderStudents(studentsCache);
 
   }catch(err){
 
-    console.error(err)
-    tableBody.innerHTML = "<tr><td colspan='3'>Erro na API</td></tr>"
+    console.error(err);
+    tableBody.innerHTML = "<tr><td colspan='4'>Erro na API</td></tr>";
 
   }
 
@@ -60,240 +56,216 @@ async function loadStudents(){
 
 function renderStudents(list){
 
-  const tableBody = document.querySelector("#studentsTable tbody")
-  if(!tableBody) return
+  const tableBody = document.querySelector("#studentsTable tbody");
+  if(!tableBody) return;
 
-  tableBody.innerHTML = ""
+  tableBody.innerHTML = "";
 
   if(list.length === 0){
-    tableBody.innerHTML = "<tr><td colspan='3'>Nenhum aluno encontrado</td></tr>"
-    return
+    tableBody.innerHTML = "<tr><td colspan='4'>Nenhum aluno encontrado</td></tr>";
+    return;
   }
 
   list.forEach(student => {
 
-    const tr = document.createElement("tr")
+    const tr = document.createElement("tr");
 
-// Nome
-const tdName = document.createElement("td")
+    // ALUNO
+    const tdName = document.createElement("td");
 
-const wrapper = document.createElement("div")
-wrapper.className = "student-cell"
+    const wrapper = document.createElement("div");
+    wrapper.className = "student-cell";
 
-// avatar (iniciais)
-const avatar = document.createElement("div")
-avatar.className = "student-avatar"
-avatar.textContent = student.name
-  .split(" ")
-  .map(n => n[0])
-  .slice(0,2)
-  .join("")
-  .toUpperCase()
+    const avatar = document.createElement("div");
+    avatar.className = "student-avatar";
+    avatar.textContent = student.name
+      .split(" ")
+      .map(n => n[0])
+      .slice(0,2)
+      .join("")
+      .toUpperCase();
 
-// nome
-const name = document.createElement("span")
-name.textContent = student.name
+    const name = document.createElement("div");
+    name.innerHTML = `
+      <strong>${student.name}</strong>
+      <div class="student-meta">${student.phone || ""}</div>
+    `;
 
-wrapper.appendChild(avatar)
-wrapper.appendChild(name)
+    wrapper.appendChild(avatar);
+    wrapper.appendChild(name);
+    tdName.appendChild(wrapper);
 
-tdName.appendChild(wrapper)
-// Email
-const tdEmail = document.createElement("td")
-tdEmail.textContent = student.email
+    // EMAIL
+    const tdEmail = document.createElement("td");
+    tdEmail.textContent = student.email;
 
-// Ações
-const tdActions = document.createElement("td")
+    // STATUS (preparado para futuro)
+    const tdStatus = document.createElement("td");
+    tdStatus.innerHTML = `
+      <span class="badge green">
+        Ativo
+      </span>
+    `;
 
-const btn = document.createElement("button")
-btn.className = "btn-edit"
+    // AÇÕES
+    const tdActions = document.createElement("td");
 
-// 🔥 conteúdo mais profissional
-btn.innerHTML = "✏️ <span>Editar</span>"
+    const editBtn = document.createElement("button");
+    editBtn.className = "btn-edit";
+    editBtn.innerHTML = "✏️ Editar";
+    editBtn.onclick = () => editStudent(student.id);
 
-btn.onclick = () => StudentsModule.editStudent(student.id)
+    const viewBtn = document.createElement("button");
+    viewBtn.className = "btn-secondary";
+    viewBtn.innerHTML = "👁 Ver";
+    viewBtn.onclick = () => {
+      window.location.hash = `/enrollments?student=${student.id}`;
+    };
 
-tdActions.appendChild(btn)
+    tdActions.appendChild(editBtn);
+    tdActions.appendChild(viewBtn);
 
-// Monta linha
-tr.appendChild(tdName)
-tr.appendChild(tdEmail)
-tr.appendChild(tdActions)
+    tr.appendChild(tdName);
+    tr.appendChild(tdEmail);
+    tr.appendChild(tdStatus);
+    tr.appendChild(tdActions);
 
-    tableBody.appendChild(tr)
+    tableBody.appendChild(tr);
 
-  })
+  });
 
 }
 
 function filterStudents(){
 
-  const search = document.getElementById("searchStudents")
-  if(!search) return
+  const search = document.getElementById("searchStudents");
+  if(!search) return;
 
-  const term = search.value.toLowerCase()
+  const term = search.value.toLowerCase();
 
   if(term === ""){
-    renderStudents(studentsCache)
-    return
+    renderStudents(studentsCache);
+    return;
   }
 
   const filtered = studentsCache.filter(student =>
     student.name.toLowerCase().includes(term) ||
     student.email.toLowerCase().includes(term)
-  )
+  );
 
-  renderStudents(filtered)
+  renderStudents(filtered);
 
 }
 
 function editStudent(id){
 
-  const student = studentsCache.find(s => s.id === id)
-  if(!student) return
+  const student = studentsCache.find(s => s.id === id);
+  if(!student) return;
 
-  document.getElementById("editStudentId").value = student.id
-  document.getElementById("editStudentName").value = student.name
-  document.getElementById("editStudentEmail").value = student.email
-  document.getElementById("editStudentPhone").value = student.phone || ""
+  document.getElementById("editStudentId").value = student.id;
+  document.getElementById("editStudentName").value = student.name;
+  document.getElementById("editStudentEmail").value = student.email;
+  document.getElementById("editStudentPhone").value = student.phone || "";
 
-  document.getElementById("modalTitle").innerText = "Editar aluno"
-  document.getElementById("studentModal").classList.remove("hidden")
+  document.getElementById("modalTitle").innerText = "Editar aluno";
+  document.getElementById("studentModal").classList.remove("hidden");
 
 }
 
 function newStudent(){
 
-  const idInput = document.getElementById("editStudentId")
-  const nameInput = document.getElementById("editStudentName")
-  const emailInput = document.getElementById("editStudentEmail")
-  const phoneInput = document.getElementById("editStudentPhone")
-  const modal = document.getElementById("studentModal")
- const title = document.getElementById("modalTitle")
+  document.getElementById("editStudentId").value = "";
+  document.getElementById("editStudentName").value = "";
+  document.getElementById("editStudentEmail").value = "";
+  document.getElementById("editStudentPhone").value = "";
 
-  // 🔴 GUARDA DE SEGURANÇA
-  if(!idInput || !nameInput || !emailInput || !phoneInput || !modal || !title){
-    console.error("Modal não está disponível no DOM")
-    return
-  }
-
-  // limpa campos
-  idInput.value = ""
-  nameInput.value = ""
-  emailInput.value = ""
-  phoneInput.value = ""
-
-  // título
-  title.innerText = "Novo aluno"
-
-  // abre modal
-  modal.classList.remove("hidden")
+  document.getElementById("modalTitle").innerText = "Novo aluno";
+  document.getElementById("studentModal").classList.remove("hidden");
 }
 
 function setupModal(){
 
-  const cancelBtn = document.getElementById("cancelStudentBtn")
-  const saveBtn = document.getElementById("saveStudentBtn")
-  const modal = document.getElementById("studentModal")
+  const cancelBtn = document.getElementById("cancelStudentBtn");
+  const saveBtn = document.getElementById("saveStudentBtn");
+  const modal = document.getElementById("studentModal");
 
   if(cancelBtn){
-    cancelBtn.onclick = closeModal
+    cancelBtn.onclick = closeModal;
   }
 
   if(saveBtn){
-    saveBtn.onclick = saveStudent
-  }
-
-  const emailInput = document.getElementById("editStudentEmail")
-
-  if(emailInput){
-    emailInput.addEventListener("keydown",(e)=>{
-      if(e.key === "Enter"){
-        saveStudent()
-      }
-    })
+    saveBtn.onclick = saveStudent;
   }
 
   if(modal){
     modal.addEventListener("click",(e)=>{
       if(e.target === modal){
-        closeModal()
+        closeModal();
       }
-    })
+    });
   }
 
 }
 
 function closeModal(){
-  document.getElementById("studentModal").classList.add("hidden")
+  document.getElementById("studentModal").classList.add("hidden");
 }
 
 async function saveStudent(){
 
-  const id = document.getElementById("editStudentId").value
-  const name = document.getElementById("editStudentName").value
-  const email = document.getElementById("editStudentEmail").value
-  const phone = document.getElementById("editStudentPhone").value
+  const id = document.getElementById("editStudentId").value;
+  const name = document.getElementById("editStudentName").value;
+  const email = document.getElementById("editStudentEmail").value;
+  const phone = document.getElementById("editStudentPhone").value;
 
   if(!name.trim() || !email.trim()){
-  showError("Nome e email são obrigatórios")
-  return
-}
+    showError("Nome e email são obrigatórios");
+    return;
+  }
 
-if(!email.includes("@")){
-  showError("Email inválido")
-  return
-}
+  if(!/^\S+@\S+\.\S+$/.test(email)){
+    showError("Email inválido");
+    return;
+  }
 
   try{
 
-    let res
+    let res;
 
     if(id){
-
-      res = await apiRequest(
-        `/api/v1/students/${id}`,
-        "PUT",
-        {name,email,phone}
-      )
-
+      res = await apiRequest(`/api/v1/students/${id}`,"PUT",{name,email,phone});
     }else{
-
-      res = await apiRequest(
-        "/api/v1/students",
-        "POST",
-        {name,email,phone}
-      )
-
+      res = await apiRequest("/api/v1/students","POST",{name,email,phone});
     }
 
     if(!res.success){
-      showError("Erro ao salvar aluno")
-      return
+      showError("Erro ao salvar aluno");
+      return;
     }
 
-    closeModal()
-    await loadStudents()
+    if(window.Toast){
+      Toast.success("Aluno salvo com sucesso");
+    }
+
+    closeModal();
+    await loadStudents();
 
   }catch(err){
 
-    console.error(err)
-    showError("Erro na API")
+    console.error(err);
+    showError("Erro na API");
 
   }
 
 }
 
-// 🔥 erro padrão UI
 function showError(msg){
   if(window.Toast){
-    Toast.error(msg)
+    Toast.error(msg);
   } else {
-    console.error(msg)
+    console.error(msg);
   }
-  
 }
-
 
 window.StudentsModule = {
   init,
@@ -303,6 +275,4 @@ window.StudentsModule = {
   newStudent
 };
 
-
 })();
-
