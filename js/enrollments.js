@@ -83,48 +83,38 @@ saveBtn.onclick = saveEnrollment
 /* =========================
    LOAD DATA
 ========================= */
-
 async function loadEnrollments(){
 
-const tbody = document.querySelector("#enrollmentsTable tbody")
-if(!tbody) return
+  try {
 
-tbody.innerHTML = `<tr><td colspan="6">Carregando...</td></tr>`
+    const res = await apiRequest("/enrollments")
 
-try{
+    enrollmentsCache = res.data || []
 
-const res = await apiRequest("/api/v1/enrollments")
+    const selectedStudentId = localStorage.getItem("selectedStudentId")
 
-if(!res.success){
-tbody.innerHTML = `<tr><td colspan="6">Erro ao carregar matrículas</td></tr>`
-return
-}
+    // 🔥 CORREÇÃO: normalização de tipo
+    if(selectedStudentId){
 
-enrollmentsCache = res.data || []
+      const studentId = Number(selectedStudentId)
 
-// 🔥 FILTRO AUTOMÁTICO POR ALUNO
-const selectedStudentId = localStorage.getItem("selectedStudentId")
+      const filtered = enrollmentsCache.filter(e => 
+        Number(e.student_id) === studentId
+      )
 
-if(selectedStudentId){
+      renderEnrollments(filtered)
 
-  const filtered = enrollmentsCache.filter(e => 
-    e.student_id === selectedStudentId
-  )
+      localStorage.removeItem("selectedStudentId")
 
-  renderEnrollments(filtered)
+    } else {
 
-  // limpa para não travar navegação futura
-  localStorage.removeItem("selectedStudentId")
+      renderEnrollments()
 
-}else{
-  renderEnrollments()
-}
-}catch(err){
+    }
 
-console.error(err)
-tbody.innerHTML = `<tr><td colspan="6">Erro na API</td></tr>`
-
-}
+  } catch (err) {
+    console.error("Erro ao carregar matrículas:", err)
+  }
 
 }
 
