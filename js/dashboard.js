@@ -1,3 +1,5 @@
+let financeChartInstance = null;
+
 let cashData = [];
 
 (function () {
@@ -29,6 +31,9 @@ async function init() {
   const summaryInad = el("summary-inadimplencia");
 
   const rankingContainer = el("ranking-classes");
+
+  const comparisonContainer = el("comparison-classes");
+
 
   try {
 
@@ -118,6 +123,10 @@ async function init() {
       renderRanking(byClass.data);
     }
 
+    if (byClass.success && comparisonContainer) {
+  renderComparison(byClass.data);
+}
+
   } catch (e) {
     console.error("Erro dashboard:", e);
   }
@@ -127,6 +136,9 @@ function renderChart(payments = []) {
   const ctx = document.getElementById("financeChart");
   if (!ctx) return;
 
+  if (financeChartInstance) {
+  financeChartInstance.destroy();
+}
   const monthly = {};
 
   payments.forEach(p => {
@@ -152,7 +164,7 @@ function renderChart(payments = []) {
   const esperado = labels.map(m => monthly[m].esperado);
   const recebido = labels.map(m => monthly[m].recebido);
 
-  new Chart(ctx, {
+  financeChartInstance = new Chart(ctx, {
     type: "bar",
     data: {
       labels,
@@ -199,7 +211,7 @@ function renderRanking(data = []) {
       currency: "BRL"
     });
 
-  const sorted = data.sort((a, b) => b.total_received - a.total_received);
+  const sorted = [...data].sort((a, b) => b.total_received - a.total_received);
 
   const max = sorted[0]?.total_received || 1;
 
@@ -223,6 +235,42 @@ function renderRanking(data = []) {
         </div>
 
         <small>${eficiencia.toFixed(0)}% de eficiência</small>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderComparison(data = []) {
+
+  const container = document.getElementById("comparison-classes");
+  if (!container) return;
+
+  const f = (v) =>
+    Number(v || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+
+  const sorted = [...data].sort((a, b) => b.total_received - a.total_received);
+
+  const max = sorted[0]?.total_received || 1;
+
+  container.innerHTML = sorted.map(c => {
+
+    const width = (c.total_received / max) * 100;
+
+    return `
+      <div class="comparison-item">
+        
+        <div class="comparison-header">
+          <span>${c.class_name}</span>
+          <strong>${f(c.total_received)}</strong>
+        </div>
+
+        <div class="comparison-bar">
+          <div class="comparison-fill" style="width:${width}%"></div>
+        </div>
+
       </div>
     `;
   }).join("");
