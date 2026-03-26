@@ -122,7 +122,6 @@ async function init() {
     console.error("Erro dashboard:", e);
   }
 }
-
 function renderChart(payments = []) {
 
   const ctx = document.getElementById("financeChart");
@@ -141,11 +140,14 @@ function renderChart(payments = []) {
     const v = Number(p.final_amount || 0);
 
     monthly[key].esperado += v;
-    if (p.status === "paid") monthly[key].recebido += v;
+
+    if (p.status === "paid") {
+      monthly[key].recebido += v;
+    }
 
   });
 
-  const labels = Object.keys(monthly).sort();
+  const labels = Object.keys(monthly).sort().slice(-6); // 🔥 últimos 6 meses
 
   const esperado = labels.map(m => monthly[m].esperado);
   const recebido = labels.map(m => monthly[m].recebido);
@@ -159,15 +161,13 @@ function renderChart(payments = []) {
           label: "Esperado",
           data: esperado,
           backgroundColor: "#3b82f6",
-          barPercentage: 0.5,       // 🔥 mais fino
-          categoryPercentage: 0.5
+          barThickness: 18 // 🔥 CONTROLE REAL
         },
         {
           label: "Recebido",
           data: recebido,
           backgroundColor: "#22c55e",
-          barPercentage: 0.5,
-          categoryPercentage: 0.5
+          barThickness: 18
         }
       ]
     },
@@ -176,18 +176,12 @@ function renderChart(payments = []) {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          labels: {
-            boxWidth: 12
-          }
+          labels: { boxWidth: 12 }
         }
       },
       scales: {
-        x: {
-          grid: { display: false }
-        },
-        y: {
-          beginAtZero: true
-        }
+        x: { grid: { display: false }},
+        y: { beginAtZero: true }
       }
     }
   });
@@ -207,19 +201,28 @@ function renderRanking(data = []) {
 
   const sorted = data.sort((a, b) => b.total_received - a.total_received);
 
+  const max = sorted[0]?.total_received || 1;
+
   container.innerHTML = sorted.map(c => {
 
     const eficiencia = c.total_expected > 0
       ? (c.total_received / c.total_expected) * 100
       : 0;
 
+    const width = (c.total_received / max) * 100;
+
     return `
       <div class="ranking-item">
-        <div class="ranking-name">${c.class_name}</div>
-        <div class="ranking-values">
-          <span>${f(c.total_received)}</span>
-          <small>${eficiencia.toFixed(0)}%</small>
+        <div class="ranking-header">
+          <span>${c.class_name}</span>
+          <strong>${f(c.total_received)}</strong>
         </div>
+
+        <div class="ranking-bar">
+          <div class="ranking-fill" style="width:${width}%"></div>
+        </div>
+
+        <small>${eficiencia.toFixed(0)}% de eficiência</small>
       </div>
     `;
   }).join("");
