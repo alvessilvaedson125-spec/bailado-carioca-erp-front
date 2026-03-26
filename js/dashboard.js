@@ -1,6 +1,7 @@
 let cashData = [];
 
 (function () {
+
 async function init() {
 
   if (!document.getElementById("financeChart")) return;
@@ -27,14 +28,24 @@ async function init() {
   const summaryProjetado = el("summary-projetado");
   const summaryInad = el("summary-inadimplencia");
 
+  const rankingContainer = el("ranking-classes");
+
   try {
 
-    const [students, classes, enrollments, payments, cash] = await Promise.all([
+    const [
+      students,
+      classes,
+      enrollments,
+      payments,
+      cash,
+      byClass
+    ] = await Promise.all([
       apiRequest("/api/v1/students"),
       apiRequest("/api/v1/classes"),
       apiRequest("/api/v1/enrollments"),
       apiRequest("/api/v1/payments"),
-      apiRequest("/api/v1/cash")
+      apiRequest("/api/v1/cash"),
+      apiRequest("/api/v1/payments/by-class") // 🔥 NOVO
     ]);
 
     cashData = cash.data || [];
@@ -96,12 +107,16 @@ async function init() {
     saidasEl.innerText = f(saidas);
     saldoEl.innerText = f(saldo);
 
-    // ✅ SUMMARY FIX
     summaryRecebido.innerText = f(recebido);
     summaryProjetado.innerText = f(projetado);
     summaryInad.innerText = inadPercent.toFixed(1) + "%";
 
     renderChart(payments.data);
+
+    // 🚀 NOVO: ranking por turma
+    if (byClass.success && rankingContainer) {
+      renderRanking(byClass.data);
+    }
 
   } catch (e) {
     console.error("Erro dashboard:", e);
@@ -144,19 +159,28 @@ function renderChart(payments = []) {
           label: "Esperado",
           data: esperado,
           backgroundColor: "#3b82f6",
-          barThickness: 20
+          barPercentage: 0.5,       // 🔥 mais fino
+          categoryPercentage: 0.5
         },
         {
           label: "Recebido",
           data: recebido,
           backgroundColor: "#22c55e",
-          barThickness: 20
+          barPercentage: 0.5,
+          categoryPercentage: 0.5
         }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            boxWidth: 12
+          }
+        }
+      },
       scales: {
         x: {
           grid: { display: false }
@@ -167,6 +191,38 @@ function renderChart(payments = []) {
       }
     }
   });
+}
+
+// 🚀 NOVO BLOCO
+function renderRanking(data = []) {
+
+  const container = document.getElementById("ranking-classes");
+  if (!container) return;
+
+  const f = (v) =>
+    Number(v || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+
+  const sorted = data.sort((a, b) => b.total_received - a.total_received);
+
+  container.innerHTML = sorted.map(c => {
+
+    const eficiencia = c.total_expected > 0
+      ? (c.total_received / c.total_expected) * 100
+      : 0;
+
+    return `
+      <div class="ranking-item">
+        <div class="ranking-name">${c.class_name}</div>
+        <div class="ranking-values">
+          <span>${f(c.total_received)}</span>
+          <small>${eficiencia.toFixed(0)}%</small>
+        </div>
+      </div>
+    `;
+  }).join("");
 }
 
 window.DashboardModule = { init };

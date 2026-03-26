@@ -132,8 +132,29 @@
 .finance-bottom {
   display: grid;
   grid-template-columns: 2fr 1fr;
+  grid-template-areas:
+    "chart summary"
+    "chart ranking";
   gap: 16px;
   align-items: stretch;
+}
+
+.finance-chart {
+  grid-area: chart;
+}
+
+.finance-summary {
+  grid-area: summary;
+}
+
+.finance-card.ranking {
+  grid-area: ranking;
+}
+
+.finance-card.ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* GRÁFICO */
@@ -183,6 +204,10 @@
 @media (max-width: 900px) {
   .finance-bottom {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "chart"
+      "summary"
+      "ranking";
   }
 }
 
