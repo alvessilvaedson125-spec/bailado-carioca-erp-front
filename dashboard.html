@@ -38,46 +38,58 @@
   </div>
 
   <!-- ============================= -->
-  <!-- FINANCEIRO COMPLETO -->
+  <!-- FINANCEIRO -->
   <!-- ============================= -->
-  <div class="card finance-card">
 
-    <div class="card-header">
-      <h3>Financeiro</h3>
+  <div class="finance-section">
+
+    <!-- GRID DE CARDS -->
+    <div class="finance-grid">
+
+      <!-- RECEITA -->
+      <div class="finance-card receita">
+        <h3>Receita</h3>
+        <p>Esperado: <strong id="dre-recebido"></strong></p>
+        <p>Recebido: <strong id="dre-projetado"></strong></p>
+        <p>Projetado: <strong id="dre-atrasado"></strong></p>
+      </div>
+
+      <!-- INADIMPLÊNCIA -->
+      <div class="finance-card inadimplencia">
+        <h3>Inadimplência</h3>
+        <p>Atrasado: <strong id="dre-inadimplencia"></strong></p>
+        <p>Taxa: <strong id="dre-inadimplencia-percent"></strong></p>
+      </div>
+
+      <!-- CAIXA -->
+      <div class="finance-card caixa">
+        <h3>Caixa</h3>
+        <p>Entradas: <strong id="dre-entradas"></strong></p>
+        <p>Saídas: <strong id="dre-saidas"></strong></p>
+        <p>Saldo: <strong id="dre-saldo"></strong></p>
+      </div>
+
     </div>
 
-    <!-- GRID PRINCIPAL -->
-  <div class="finance-grid">
-
-  <!-- RECEITA -->
-  <div class="finance-card">
-    <h3>Receita</h3>
-    <p>Esperado: <strong id="dre-recebido"></strong></p>
-    <p>Recebido: <strong id="dre-projetado"></strong></p>
-    <p>Projetado: <strong id="dre-atrasado"></strong></p>
-  </div>
-
-  <!-- INADIMPLÊNCIA -->
-  <div class="finance-card">
-    <h3>Inadimplência</h3>
-    <p>Atrasado: <strong id="dre-inadimplencia"></strong></p>
-    <p>Taxa: <strong id="dre-inadimplencia-percent"></strong></p>
-  </div>
-
-  <!-- CAIXA -->
-  <div class="finance-card">
-    <h3>Caixa</h3>
-    <p>Entradas: <strong id="dre-entradas"></strong></p>
-    <p>Saídas: <strong id="dre-saidas"></strong></p>
-    <p>Saldo: <strong id="dre-saldo"></strong></p>
-  </div>
-
-</div>
     <!-- ============================= -->
-    <!-- GRÁFICO -->
+    <!-- GRÁFICO + RESUMO -->
     <!-- ============================= -->
-    <div class="chart-container">
-      <canvas id="financeChart"></canvas>
+
+    <div class="finance-bottom">
+
+      <!-- GRÁFICO -->
+      <div class="finance-chart">
+        <canvas id="financeChart"></canvas>
+      </div>
+
+      <!-- RESUMO LATERAL -->
+      <div class="finance-summary">
+        <h4>Resumo</h4>
+        <p>Recebido: <strong id="dre-recebido"></strong></p>
+        <p>Projetado: <strong id="dre-projetado"></strong></p>
+        <p>Inadimplência: <strong id="dre-inadimplencia"></strong></p>
+      </div>
+
     </div>
 
   </div>

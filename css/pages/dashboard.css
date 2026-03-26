@@ -64,12 +64,14 @@
 }
 
 /* =========================
-   FINANCE SECTION (NOVO)
+   FINANCE SECTION
 ========================= */
 
 .finance-section {
   margin-top: 10px;
 }
+
+/* GRID CARDS */
 
 .finance-grid {
   display: grid;
@@ -84,7 +86,6 @@
   padding: 18px;
   border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
-  position: relative;
 }
 
 .finance-card:hover {
@@ -110,7 +111,7 @@
   color: #111827;
 }
 
-/* CORES POR BLOCO */
+/* IDENTIDADE VISUAL */
 
 .finance-card.receita {
   border-left: 4px solid #16a34a;
@@ -125,15 +126,24 @@
 }
 
 /* =========================
-   CHART (MELHORADO)
+   CHART + SUMMARY (NOVA ESTRUTURA)
 ========================= */
+
+.finance-bottom {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* GRÁFICO */
 
 .finance-chart {
   background: #ffffff;
   border-radius: 12px;
   padding: 18px;
   border: 1px solid #e5e7eb;
-  height: 280px;
+  height: 200px;
 }
 
 .finance-chart canvas {
@@ -141,9 +151,40 @@
   height: 100% !important;
 }
 
+/* RESUMO LATERAL */
+
+.finance-summary {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+}
+
+.finance-summary h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.finance-summary p {
+  font-size: 13px;
+  margin: 6px 0;
+  color: #374151;
+}
+
+.finance-summary strong {
+  color: #111827;
+}
+
 /* =========================
    RESPONSIVO
 ========================= */
+
+@media (max-width: 900px) {
+  .finance-bottom {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (max-width: 768px) {
   .metric-value {
@@ -155,6 +196,6 @@
   }
 
   .finance-chart {
-    height: 240px;
+    height: 220px;
   }
 }
