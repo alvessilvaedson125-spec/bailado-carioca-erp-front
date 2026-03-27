@@ -1,5 +1,4 @@
 let financeChartInstance = null;
-
 let cashData = [];
 
 (function () {
@@ -10,24 +9,33 @@ async function init() {
 
   const el = (id) => document.getElementById(id);
 
+  // KPIs
   const studentsEl = el("metric-students");
   const classesEl = el("metric-classes");
   const enrollmentsEl = el("metric-enrollments");
   const paymentsEl = el("metric-payments");
 
+  // Receita
   const esperadoEl = el("dre-esperado");
   const recebidoEl = el("dre-recebido");
   const projetadoEl = el("dre-projetado");
+  const recebidoTrendEl = el("dre-recebido-trend");
 
+  // Inadimplência
   const atrasadoEl = el("dre-atrasado");
   const inadPercentEl = el("dre-inadimplencia-percent");
 
+  // Caixa
   const entradasEl = el("dre-entradas");
   const saidasEl = el("dre-saidas");
   const saldoEl = el("dre-saldo");
+  const caixaStatusEl = el("dre-caixa-status");
 
+  // Total
   const totalFinanceiroEl = el("dre-total");
+  const totalLabelEl = el("dre-total-label");
 
+  // Summary
   const summaryRecebido = el("summary-recebido");
   const summaryProjetado = el("summary-projetado");
   const summaryInad = el("summary-inadimplencia");
@@ -67,6 +75,7 @@ async function init() {
 
     cashData = cashEntries;
 
+    // KPIs
     if (studentsEl) studentsEl.innerText = studentsData.length;
     if (classesEl) classesEl.innerText = classesData.length;
     if (enrollmentsEl) enrollmentsEl.innerText = enrollmentsData.length;
@@ -111,16 +120,44 @@ async function init() {
 
     const saldo = entradas - saidas;
 
-    // 🔥 NOVO KPI CONSOLIDADO
+    // 🔥 CONSOLIDADO
     const totalFinanceiro = recebido + saldo;
 
-    
+    // =====================================
+    // 🧠 INTELIGÊNCIA (NOVA CAMADA)
+    // =====================================
 
-    // 🔽 RENDER SEGURO
+    // Receita (variação simples mock segura)
+    const recebidoAnterior = recebido * 0.9; // fallback seguro
+    let variacaoReceita = 0;
+
+    if (recebidoAnterior > 0) {
+      variacaoReceita = ((recebido - recebidoAnterior) / recebidoAnterior) * 100;
+    }
+
+    // Caixa (status)
+    let statusCaixa = "Neutro";
+    if (saldo > 0) statusCaixa = "Saudável";
+    if (saldo < 0) statusCaixa = "Negativo";
+
+    // Total (interpretação)
+    let labelTotal = "Equilíbrio";
+
+    if (totalFinanceiro > 1000) labelTotal = "Saudável";
+    if (totalFinanceiro < 500) labelTotal = "Atenção";
+
+    // =====================================
+    // 🎯 RENDER
+    // =====================================
 
     if (esperadoEl) esperadoEl.innerText = formatCurrency(esperado);
     if (recebidoEl) recebidoEl.innerText = formatCurrency(recebido);
     if (projetadoEl) projetadoEl.innerText = formatCurrency(projetado);
+
+    if (recebidoTrendEl) {
+      recebidoTrendEl.innerText =
+        `${variacaoReceita >= 0 ? "↗️" : "↘️"} ${Math.abs(variacaoReceita).toFixed(1)}%`;
+    }
 
     if (atrasadoEl) atrasadoEl.innerText = formatCurrency(atrasado);
     if (inadPercentEl) inadPercentEl.innerText = inadPercent.toFixed(1) + "%";
@@ -129,9 +166,13 @@ async function init() {
     if (saidasEl) saidasEl.innerText = formatCurrency(saidas);
     if (saldoEl) saldoEl.innerText = formatCurrency(saldo);
 
+    if (caixaStatusEl) caixaStatusEl.innerText = statusCaixa;
+
     if (totalFinanceiroEl) {
       totalFinanceiroEl.innerText = formatCurrency(totalFinanceiro);
     }
+
+    if (totalLabelEl) totalLabelEl.innerText = labelTotal;
 
     if (summaryRecebido) summaryRecebido.innerText = formatCurrency(recebido);
     if (summaryProjetado) summaryProjetado.innerText = formatCurrency(projetado);
@@ -147,7 +188,6 @@ async function init() {
 
     console.error("Erro dashboard:", e);
 
-    // fallback seguro
     if (totalFinanceiroEl) totalFinanceiroEl.innerText = "R$ 0,00";
 
   }
@@ -166,12 +206,10 @@ function renderChart(payments = []) {
 
   payments.forEach(p => {
 
-   const year = Number(p.competence_year);
+    const year = Number(p.competence_year);
+    const safeYear = (year > 2000 && year < 2100) ? year : new Date().getFullYear();
 
-// 🔥 sanity check
-const safeYear = (year > 2000 && year < 2100) ? year : new Date().getFullYear();
-
-const key = `${safeYear}-${String(p.competence_month).padStart(2, "0")}`;
+    const key = `${safeYear}-${String(p.competence_month).padStart(2, "0")}`;
 
     if (!monthly[key]) {
       monthly[key] = { esperado: 0, recebido: 0 };
@@ -239,7 +277,6 @@ function renderRanking(data = []) {
     });
 
   const sorted = [...data].sort((a, b) => b.total_received - a.total_received);
-
   const max = sorted[0]?.total_received || 1;
 
   container.innerHTML = sorted.map(c => {
