@@ -476,7 +476,15 @@ function filterEnrollments() {
     e.class_name.toLowerCase().includes(term)
   );
 
+ if(filtered.length === 0){
+
+  renderEmptyState(studentId);
+
+} else {
+
   renderEnrollments(filtered);
+
+}
 }
 
 async function updateEnrollmentStatus(id, status){
@@ -500,6 +508,25 @@ async function updateEnrollmentStatus(id, status){
     console.error(err)
     alert("Erro na API")
   }
+
+}
+
+function renderEmptyState(studentId){
+
+  const tbody = document.querySelector("#enrollmentsTable tbody");
+  if(!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6" style="text-align:center; padding:20px;">
+        Este aluno não possui matrícula ativa.
+      </td>
+    </tr>
+  `;
+
+  document.getElementById("statTotal").innerText = 0;
+  document.getElementById("statActive").innerText = 0;
+  document.getElementById("statInactive").innerText = 0;
 
 }
 
