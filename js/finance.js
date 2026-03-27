@@ -1,83 +1,47 @@
-// js/finance.js
+// ===============================
+// FINANCE SERVICE (GLOBAL SAFE)
+// ===============================
 
-window.calculateFinance = function (paymentsData = [], cashData = []) {
-  try {
-    let esperado = 0;
-    let recebido = 0;
-    let pendente = 0;
-    let atrasado = 0;
+window.calculateFinance = function ({
+  payments = [],
+  cashEntries = [],
+  cashExits = []
+}) {
 
-    const today = new Date();
+  // RECEITA
+  const received = payments
+    .filter(p => p.status === "paid")
+    .reduce((acc, p) => acc + (p.amount || 0), 0)
 
-    // PAYMENTS
-    paymentsData.forEach(p => {
-      const value = Number(p.final_amount || p.amount || 0);
+  const expected = payments
+    .reduce((acc, p) => acc + (p.amount || 0), 0)
 
-      esperado += value;
+  const projected = expected * 0.9
 
-      if (p.status === "paid") {
-        recebido += value;
-        return;
-      }
+  const overdue = payments
+    .filter(p => p.status === "overdue")
+    .reduce((acc, p) => acc + (p.amount || 0), 0)
 
-      if (p.status === "pending") {
-        const due = p.due_date ? new Date(p.due_date) : null;
+  const defaultRate = expected > 0
+    ? (overdue / expected) * 100
+    : 0
 
-        if (due && due < today) {
-          atrasado += value;
-        } else {
-          pendente += value;
-        }
-      }
-    });
+  // CAIXA
+  const entries = cashEntries
+    .reduce((acc, c) => acc + (c.amount || 0), 0)
 
-    const projetado = recebido + pendente;
+  const exits = cashExits
+    .reduce((acc, c) => acc + (c.amount || 0), 0)
 
-    const inadPercent = esperado > 0
-      ? (atrasado / esperado) * 100
-      : 0;
+  const balance = entries - exits
 
-    // CASH
-    let entradas = 0;
-    let saidas = 0;
+  // CONSOLIDADO
+  const total = received + balance
 
-    cashData.forEach(e => {
-      const v = Number(e.amount || 0);
-
-      if (e.type === "in") entradas += v;
-      if (e.type === "out") saidas += v;
-    });
-
-    const saldo = entradas - saidas;
-
-    // CONSOLIDADO
-    const total = recebido + saldo;
-
-    return {
-      esperado,
-      recebido,
-      projetado,
-      atrasado,
-      inadPercent,
-      entradas,
-      saidas,
-      saldo,
-      total
-    };
-
-  } catch (err) {
-    console.error("Finance error:", err);
-
-    return {
-      esperado: 0,
-      recebido: 0,
-      projetado: 0,
-      atrasado: 0,
-      inadPercent: 0,
-      entradas: 0,
-      saidas: 0,
-      saldo: 0,
-      total: 0
-    };
+  return {
+    receita: { received, expected, projected },
+    inadimplencia: { overdue, defaultRate },
+    caixa: { entries, exits, balance },
+    total
   }
-};
+}
