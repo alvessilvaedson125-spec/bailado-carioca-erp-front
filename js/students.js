@@ -148,7 +148,7 @@ function goToStudentEnrollments(studentId){
   localStorage.setItem("selectedStudentId", studentId);
 
   // Mantido comportamento atual (não mexer no router agora)
-  window.location.href = "/app/#/enrollments";
+ window.location.hash = "enrollments";
 
 }
 
