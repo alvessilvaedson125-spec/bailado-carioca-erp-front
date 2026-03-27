@@ -36,8 +36,8 @@ window.calculateFinance = function ({
   // INADIMPLÊNCIA
   // =========================
 
-  const overdue = payments
-    .filter(p => p.status === "overdue")
+ const overdue = payments
+  .filter(p => p.status === "overdue" || p.status === "pending")
     .reduce((acc, p) => acc + (p.amount || 0), 0)
 
   const defaultRate = expected > 0
