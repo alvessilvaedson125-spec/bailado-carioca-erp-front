@@ -26,7 +26,7 @@ async function init() {
   const saidasEl = el("dre-saidas");
   const saldoEl = el("dre-saldo");
 
-  const totalFinanceiroEl = el("dre-total-financeiro");
+  const totalFinanceiroEl = el("dre-total");
 
   const summaryRecebido = el("summary-recebido");
   const summaryProjetado = el("summary-projetado");
@@ -113,6 +113,8 @@ async function init() {
 
     // 🔥 NOVO KPI CONSOLIDADO
     const totalFinanceiro = recebido + saldo;
+
+    
 
     // 🔽 RENDER SEGURO
 
