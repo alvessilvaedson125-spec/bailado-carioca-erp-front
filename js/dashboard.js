@@ -164,7 +164,12 @@ function renderChart(payments = []) {
 
   payments.forEach(p => {
 
-    const key = `${p.competence_year}-${String(p.competence_month).padStart(2, "0")}`;
+   const year = Number(p.competence_year);
+
+// 🔥 sanity check
+const safeYear = (year > 2000 && year < 2100) ? year : new Date().getFullYear();
+
+const key = `${safeYear}-${String(p.competence_month).padStart(2, "0")}`;
 
     if (!monthly[key]) {
       monthly[key] = { esperado: 0, recebido: 0 };
