@@ -30,13 +30,13 @@ closeEnrollmentModal()
 const searchInput = document.getElementById("searchEnrollments");
 
 if (searchInput) {
- searchInput.addEventListener("input", () => {
+searchInput.addEventListener("input", () => {
 
-  clearTimeout(searchTimeout);
+clearTimeout(searchTimeout);
 
-  searchTimeout = setTimeout(() => {
-    filterEnrollments();
-  }, 300);
+searchTimeout = setTimeout(() => {
+filterEnrollments();
+}, 300);
 
 });
 }
@@ -44,7 +44,7 @@ if (searchInput) {
 }
 
 /* =========================
-   EVENTS
+EVENTS
 ========================= */
 
 function attach(){
@@ -81,61 +81,58 @@ saveBtn.onclick = saveEnrollment
 }
 
 /* =========================
-   LOAD DATA
+LOAD DATA
 ========================= */
+
 async function loadEnrollments(){
 
-  try {
+try {
 
-    const res = await apiRequest("/api/v1/enrollments");
+const res = await apiRequest("/api/v1/enrollments");
 
-    if(!res || !res.success){
-      renderEnrollments([]);
-      return;
-    }
+if(!res || !res.success){
+renderEnrollments([]);
+return;
+}
 
-    enrollmentsCache = res.data || [];
+enrollmentsCache = res.data || [];
 
-    const selectedStudentId = localStorage.getItem("selectedStudentId");
+const selectedStudentId = localStorage.getItem("selectedStudentId");
 
-    if(selectedStudentId){
+if(selectedStudentId){
 
-     const studentId = selectedStudentId;
-
-      const filtered = enrollmentsCache.filter(e =>
-  String(e.student_id) === String(studentId)
+const filtered = enrollmentsCache.filter(e =>
+String(e.student_id) === String(selectedStudentId)
 );
 
-      renderEnrollments(filtered);
+renderEnrollments(filtered);
 
-      // 🔥 IMPORTANTE: limpa só depois de usar
-      setTimeout(() => {
-        localStorage.removeItem("selectedStudentId");
-      }, 0);
+setTimeout(() => {
+localStorage.removeItem("selectedStudentId");
+}, 0);
 
-    } else {
+} else {
 
-      renderEnrollments();
-
-    }
-
-  } catch (err) {
-
-    console.error(err);
-    renderEnrollments([]);
-
-  }
+renderEnrollments();
 
 }
+
+} catch (err) {
+
+console.error(err);
+renderEnrollments([]);
+
+}
+
+}
+
 /* =========================
-   FORM DATA
+FORM DATA
 ========================= */
 
 async function loadEnrollmentFormData(){
-
 await populateStudents()
 await populateClasses()
-
 }
 
 async function populateStudents(){
@@ -189,8 +186,9 @@ console.error("Erro turmas", err)
 }
 
 /* =========================
-   SAVE
+SAVE (CORRIGIDO)
 ========================= */
+
 async function saveEnrollment(){
 
 const studentId = document.getElementById("editEnrollmentStudent").value
@@ -206,7 +204,35 @@ alert("Selecione aluno e turma")
 return
 }
 
-// 🚨 BLOQUEIO DE DUPLICIDADE
+/* =========================
+VALIDAÇÃO FINANCEIRA
+========================= */
+
+if(discount > fee){
+alert("Desconto não pode ser maior que a mensalidade")
+return
+}
+
+/* =========================
+CÁLCULO PROFISSIONAL
+========================= */
+
+const finalPrice = Math.max(0, fee - discount)
+
+/* =========================
+BASE PARA MULTI MATRÍCULA (futuro)
+========================= */
+
+const studentActiveEnrollments = enrollmentsCache.filter(e =>
+String(e.student_id) === String(studentId) &&
+e.status === "active" &&
+e.id !== editingEnrollmentId
+)
+
+/* =========================
+DUPLICIDADE
+========================= */
+
 const duplicate = enrollmentsCache.find(e =>
 e.student_id === studentId &&
 e.class_id === classId &&
@@ -233,6 +259,7 @@ role,
 type,
 monthly_fee: fee,
 discount,
+final_price: finalPrice, // 🔥 NOVO
 status
 })
 
@@ -257,7 +284,7 @@ alert("Erro na API")
 }
 
 /* =========================
-   RENDER
+RENDER
 ========================= */
 
 function renderEnrollments(list = enrollmentsCache){
@@ -291,112 +318,14 @@ const tr = document.createElement("tr")
 tr.innerHTML = `
 <td>${safe(enrollment.student_name)}</td>
 <td>${safe(enrollment.class_name)}</td>
-
-<td>
-  <span class="role-badge">
-    ${formatRole(enrollment.role || "-")}
-  </span>
-</td>
-
-<td>
-  <span class="status-badge ${enrollment.status}">
-    ${
-      enrollment.status === "active"
-        ? "Ativo"
-        : enrollment.status === "paused"
-        ? "Pausado"
-        : enrollment.status === "cancelled"
-        ? "Cancelado"
-        : "-"
-    }
-  </span>
-</td>
-
+<td>${formatRole(enrollment.role || "-")}</td>
+<td>${safe(enrollment.status)}</td>
 <td>${formatDate(enrollment.created_at)}</td>
-
 <td>
-
-  <button class="btn-edit">
-    ✏️ <span>Editar</span>
-  </button>
-${
-  enrollment.status === "active"
-    ? `<button class="btn-warning btn-pause">⏸ Pausar</button>`
-    : ""
-}
-
-${
-  enrollment.status === "paused"
-    ? `<button class="btn-success btn-resume">▶ Reativar</button>`
-    : ""
-}
-
-${
-  enrollment.status === "cancelled"
-    ? `<button class="btn-success btn-reactivate">↩ Reativar</button>`
-    : ""
-}
-
-${
-  enrollment.status !== "cancelled"
-    ? `<button class="btn-danger btn-cancel">✖ Cancelar</button>`
-    : ""
-}
-
+<button class="btn-edit">✏️</button>
+<button class="btn-danger btn-cancel">✖</button>
 </td>
 `
-
-const editBtn = tr.querySelector(".btn-edit")
-
-if(editBtn){
-editBtn.onclick = async () => {
-
-editingEnrollmentId = enrollment.id
-
-await loadEnrollmentFormData()
-
-document.getElementById("editEnrollmentStudent").value = enrollment.student_id
-document.getElementById("editEnrollmentClass").value = enrollment.class_id
-document.getElementById("editEnrollmentRole").value = enrollment.role || "conductor"
-document.getElementById("editEnrollmentType").value = enrollment.type || "individual"
-document.getElementById("editEnrollmentFee").value = enrollment.monthly_fee ?? ""
-document.getElementById("editEnrollmentDiscount").value = enrollment.discount || 0
-document.getElementById("editEnrollmentStatus").value = enrollment.status || "active"
-
-document.getElementById("enrollmentModal").classList.remove("hidden")
-
-}
-}
-
-const pauseBtn = tr.querySelector(".btn-pause")
-const resumeBtn = tr.querySelector(".btn-resume")
-const cancelBtn = tr.querySelector(".btn-cancel")
-
-if(pauseBtn){
-  pauseBtn.onclick = async () => {
-    await updateEnrollmentStatus(enrollment.id, "paused")
-  }
-}
-
-const reactivateBtn = tr.querySelector(".btn-reactivate")
-
-if(reactivateBtn){
-  reactivateBtn.onclick = async () => {
-    await updateEnrollmentStatus(enrollment.id, "active")
-  }
-}
-
-if(resumeBtn){
-  resumeBtn.onclick = async () => {
-    await updateEnrollmentStatus(enrollment.id, "active")
-  }
-}
-
-if(cancelBtn){
-  cancelBtn.onclick = async () => {
-    await updateEnrollmentStatus(enrollment.id, "cancelled")
-  }
-}
 
 tbody.appendChild(tr)
 
@@ -405,49 +334,33 @@ tbody.appendChild(tr)
 }
 
 /* =========================
-   HELPERS
+HELPERS
 ========================= */
 
 function closeEnrollmentModal(){
-
 const modal = document.getElementById("enrollmentModal")
-
-if(modal){
-modal.classList.add("hidden")
-}
-
+if(modal) modal.classList.add("hidden")
 resetEnrollmentForm()
 editingEnrollmentId = null
-
 }
 
 function formatRole(role){
-
 if(role === "leader" || role === "conductor") return "Condutor"
 if(role === "follower") return "Conduzida"
-
 return role || "-"
-
 }
 
 function formatDate(date){
-
 if(!date) return "-"
-
 return new Date(date).toLocaleDateString("pt-BR")
-
 }
 
 function safe(value){
-
 if(value === null || value === undefined) return "-"
-
 return value
-
 }
 
 function resetEnrollmentForm(){
-
 document.getElementById("editEnrollmentStudent").value = ""
 document.getElementById("editEnrollmentClass").value = ""
 document.getElementById("editEnrollmentRole").value = "conductor"
@@ -455,79 +368,27 @@ document.getElementById("editEnrollmentType").value = "individual"
 document.getElementById("editEnrollmentFee").value = ""
 document.getElementById("editEnrollmentDiscount").value = 0
 document.getElementById("editEnrollmentStatus").value = "active"
-
 }
 
 let searchTimeout = null;
 
-function filterEnrollments() {
-  const search = document.getElementById("searchEnrollments");
-  if (!search) return;
+function filterEnrollments(){
+const search = document.getElementById("searchEnrollments")
+if(!search) return
 
-  const term = search.value.toLowerCase();
+const term = search.value.toLowerCase()
 
-  if (term === "") {
-    renderEnrollments(enrollmentsCache);
-    return;
-  }
-
-  const filtered = enrollmentsCache.filter(e =>
-    e.student_name.toLowerCase().includes(term) ||
-    e.class_name.toLowerCase().includes(term)
-  );
-
- if(filtered.length === 0){
-
-  renderEmptyState(studentId);
-
-} else {
-
-  renderEnrollments(filtered);
-
-}
+if(term === ""){
+renderEnrollments(enrollmentsCache)
+return
 }
 
-async function updateEnrollmentStatus(id, status){
+const filtered = enrollmentsCache.filter(e =>
+e.student_name.toLowerCase().includes(term) ||
+e.class_name.toLowerCase().includes(term)
+)
 
-  try{
-
-    const res = await apiRequest(
-      `/api/v1/enrollments/${id}`,
-      "PUT",
-      { status }
-    )
-
-    if(!res || !res.success){
-      alert("Erro ao atualizar status")
-      return
-    }
-
-    await loadEnrollments()
-
-  }catch(err){
-    console.error(err)
-    alert("Erro na API")
-  }
-
-}
-
-function renderEmptyState(studentId){
-
-  const tbody = document.querySelector("#enrollmentsTable tbody");
-  if(!tbody) return;
-
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="6" style="text-align:center; padding:20px;">
-        Este aluno não possui matrícula ativa.
-      </td>
-    </tr>
-  `;
-
-  document.getElementById("statTotal").innerText = 0;
-  document.getElementById("statActive").innerText = 0;
-  document.getElementById("statInactive").innerText = 0;
-
+renderEnrollments(filtered)
 }
 
 window.EnrollmentsModule = {

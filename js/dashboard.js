@@ -82,13 +82,17 @@ async function init() {
     if (paymentsEl) paymentsEl.innerText = paymentsData.length;
 
     // ===============================
-    // 💰 FINANCE SERVICE (CORE)
+    // 💰 FINANCE SERVICE (CORRIGIDO)
     // ===============================
 
     const finance = window.calculateFinance({
       payments: paymentsData.map(p => ({
         amount: Number(p.final_amount || 0),
         status: p.status
+      })),
+      enrollments: enrollmentsData.map(e => ({
+        final_price: Number(e.final_price || e.monthly_fee || 0),
+        status: e.status
       })),
       cashEntries: cashData.filter(c => c.type === "in"),
       cashExits: cashData.filter(c => c.type === "out")
@@ -171,127 +175,6 @@ async function init() {
     if (totalFinanceiroEl) totalFinanceiroEl.innerText = "R$ 0,00";
 
   }
-}
-
-// ===============================
-// 📊 CHART
-// ===============================
-
-function renderChart(payments = []) {
-
-  const ctx = document.getElementById("financeChart");
-  if (!ctx) return;
-
-  if (financeChartInstance) {
-    financeChartInstance.destroy();
-  }
-
-  const monthly = {};
-
-  payments.forEach(p => {
-
-    const year = Number(p.competence_year);
-    const safeYear = (year > 2000 && year < 2100)
-      ? year
-      : new Date().getFullYear();
-
-    const key = `${safeYear}-${String(p.competence_month).padStart(2, "0")}`;
-
-    if (!monthly[key]) {
-      monthly[key] = { esperado: 0, recebido: 0 };
-    }
-
-    const v = Number(p.final_amount || 0);
-
-    monthly[key].esperado += v;
-
-    if (p.status === "paid") {
-      monthly[key].recebido += v;
-    }
-
-  });
-
-  const labels = Object.keys(monthly).sort().slice(-6);
-
-  const esperado = labels.map(m => monthly[m].esperado);
-  const recebido = labels.map(m => monthly[m].recebido);
-
-  financeChartInstance = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Esperado",
-          data: esperado,
-          backgroundColor: "#3b82f6",
-          barThickness: 18
-        },
-        {
-          label: "Recebido",
-          data: recebido,
-          backgroundColor: "#22c55e",
-          barThickness: 18
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          labels: { boxWidth: 12 }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }},
-        y: { beginAtZero: true }
-      }
-    }
-  });
-}
-
-// ===============================
-// 🏆 RANKING
-// ===============================
-
-function renderRanking(data = []) {
-
-  const container = document.getElementById("ranking-classes");
-  if (!container) return;
-
-  const f = (v) =>
-    Number(v || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
-
-  const sorted = [...data].sort((a, b) => b.total_received - a.total_received);
-  const max = sorted[0]?.total_received || 1;
-
-  container.innerHTML = sorted.map(c => {
-
-    const eficiencia = c.total_expected > 0
-      ? (c.total_received / c.total_expected) * 100
-      : 0;
-
-    const width = (c.total_received / max) * 100;
-
-    return `
-      <div class="ranking-item">
-        <div class="ranking-header">
-          <span>${c.class_name}</span>
-          <strong>${f(c.total_received)}</strong>
-        </div>
-
-        <div class="ranking-bar">
-          <div class="ranking-fill" style="width:${width}%"></div>
-        </div>
-
-        <small>${eficiencia.toFixed(0)}% de eficiência</small>
-      </div>
-    `;
-  }).join("");
 }
 
 window.DashboardModule = { init };
