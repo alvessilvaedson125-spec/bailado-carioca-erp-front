@@ -1,7 +1,4 @@
-
-
 let financeChartInstance = null;
-let cashData = [];
 
 (function () {
 
@@ -72,85 +69,66 @@ async function init() {
     const classesData = classes?.success ? classes.data : [];
     const enrollmentsData = enrollments?.success ? enrollments.data : [];
     const paymentsData = payments?.success ? payments.data : [];
-    const cashEntries = cash?.success ? cash.data : [];
+    const cashData = cash?.success ? cash.data : [];
     const rankingData = byClass?.success ? byClass.data : [];
 
-    cashData = cashEntries;
-
+    // ===============================
     // KPIs
+    // ===============================
+
     if (studentsEl) studentsEl.innerText = studentsData.length;
     if (classesEl) classesEl.innerText = classesData.length;
     if (enrollmentsEl) enrollmentsEl.innerText = enrollmentsData.length;
     if (paymentsEl) paymentsEl.innerText = paymentsData.length;
 
-    let esperado = 0;
-    let recebido = 0;
-    let pendente = 0;
-    let atrasado = 0;
+    // ===============================
+    // 💰 FINANCE SERVICE (CORE)
+    // ===============================
 
-    const today = new Date();
-
-    paymentsData.forEach(p => {
-
-      const value = Number(p.final_amount || 0);
-      esperado += value;
-
-      if (p.status === "paid") recebido += value;
-
-      if (p.status === "pending") {
-        const due = new Date(p.due_date);
-        if (due < today) atrasado += value;
-        else pendente += value;
-      }
-
+    const finance = window.calculateFinance({
+      payments: paymentsData.map(p => ({
+        amount: Number(p.final_amount || 0),
+        status: p.status
+      })),
+      cashEntries: cashData.filter(c => c.type === "in"),
+      cashExits: cashData.filter(c => c.type === "out")
     });
 
-    const projetado = recebido + pendente;
+    const esperado = finance.receita.expected;
+    const recebido = finance.receita.received;
+    const projetado = finance.receita.projected;
 
-    const inadPercent = esperado > 0
-      ? (atrasado / esperado) * 100
-      : 0;
+    const atrasado = finance.inadimplencia.overdue;
+    const inadPercent = finance.inadimplencia.defaultRate;
 
-    let entradas = 0;
-    let saidas = 0;
+    const entradas = finance.caixa.entries;
+    const saidas = finance.caixa.exits;
+    const saldo = finance.caixa.balance;
 
-    cashData.forEach(e => {
-      const v = Number(e.amount || 0);
-      if (e.type === "in") entradas += v;
-      if (e.type === "out") saidas += v;
-    });
+    const totalFinanceiro = finance.total;
 
-    const saldo = entradas - saidas;
+    // ===============================
+    // 🧠 INTELIGÊNCIA
+    // ===============================
 
-    // 🔥 CONSOLIDADO
-    const totalFinanceiro = recebido + saldo;
-
-    // =====================================
-    // 🧠 INTELIGÊNCIA (NOVA CAMADA)
-    // =====================================
-
-    // Receita (variação simples mock segura)
-    const recebidoAnterior = recebido * 0.9; // fallback seguro
+    const recebidoAnterior = recebido * 0.9;
     let variacaoReceita = 0;
 
     if (recebidoAnterior > 0) {
       variacaoReceita = ((recebido - recebidoAnterior) / recebidoAnterior) * 100;
     }
 
-    // Caixa (status)
     let statusCaixa = "Neutro";
     if (saldo > 0) statusCaixa = "Saudável";
     if (saldo < 0) statusCaixa = "Negativo";
 
-    // Total (interpretação)
     let labelTotal = "Equilíbrio";
-
     if (totalFinanceiro > 1000) labelTotal = "Saudável";
     if (totalFinanceiro < 500) labelTotal = "Atenção";
 
-    // =====================================
+    // ===============================
     // 🎯 RENDER
-    // =====================================
+    // ===============================
 
     if (esperadoEl) esperadoEl.innerText = formatCurrency(esperado);
     if (recebidoEl) recebidoEl.innerText = formatCurrency(recebido);
@@ -195,6 +173,10 @@ async function init() {
   }
 }
 
+// ===============================
+// 📊 CHART
+// ===============================
+
 function renderChart(payments = []) {
 
   const ctx = document.getElementById("financeChart");
@@ -209,7 +191,9 @@ function renderChart(payments = []) {
   payments.forEach(p => {
 
     const year = Number(p.competence_year);
-    const safeYear = (year > 2000 && year < 2100) ? year : new Date().getFullYear();
+    const safeYear = (year > 2000 && year < 2100)
+      ? year
+      : new Date().getFullYear();
 
     const key = `${safeYear}-${String(p.competence_month).padStart(2, "0")}`;
 
@@ -266,6 +250,10 @@ function renderChart(payments = []) {
     }
   });
 }
+
+// ===============================
+// 🏆 RANKING
+// ===============================
 
 function renderRanking(data = []) {
 
