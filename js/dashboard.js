@@ -166,9 +166,9 @@ async function init() {
   renderChart(paymentsData);
 }
 
-    if (rankingData.length && rankingContainer) {
-      renderRanking(rankingData);
-    }
+    if (rankingData.length && rankingContainer && typeof renderRanking === "function") {
+  renderRanking(rankingData);
+}
 
   } catch (e) {
 
