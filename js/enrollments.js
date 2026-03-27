@@ -103,8 +103,8 @@ async function loadEnrollments(){
       const studentId = Number(selectedStudentId);
 
       const filtered = enrollmentsCache.filter(e =>
-        Number(e.student_id) === studentId
-      );
+  String(e.student_id) === String(studentId)
+);
 
       renderEnrollments(filtered);
 
