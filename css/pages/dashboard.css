@@ -257,9 +257,7 @@
   color: #374151;
 }
 
-/* =========================
-   CAIXA - HIERARQUIA
-========================= */
+
 /* =========================
    CAIXA - HIERARQUIA FORÇADA
 ========================= */
@@ -275,8 +273,9 @@
   color: #6b7280;
 }
 .finance-card.caixa .caixa-main strong {
- font-size: 26px;
+ font-size: 24px;
   font-weight: 700;
+   letter-spacing: -0.3px;
   color: #111827;
   line-height: 1.1;
 }
