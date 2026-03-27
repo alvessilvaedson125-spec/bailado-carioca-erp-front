@@ -26,14 +26,19 @@ async function init() {
   const saidasEl = el("dre-saidas");
   const saldoEl = el("dre-saldo");
 
+  const totalFinanceiroEl = el("dre-total-financeiro");
+
   const summaryRecebido = el("summary-recebido");
   const summaryProjetado = el("summary-projetado");
   const summaryInad = el("summary-inadimplencia");
 
   const rankingContainer = el("ranking-classes");
 
-  
-
+  const formatCurrency = (v) =>
+    Number(v || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
 
   try {
 
@@ -50,15 +55,22 @@ async function init() {
       apiRequest("/api/v1/enrollments"),
       apiRequest("/api/v1/payments"),
       apiRequest("/api/v1/cash"),
-      apiRequest("/api/v1/payments/by-class") // 🔥 NOVO
+      apiRequest("/api/v1/payments/by-class")
     ]);
 
-    cashData = cash.data || [];
+    const studentsData = students?.success ? students.data : [];
+    const classesData = classes?.success ? classes.data : [];
+    const enrollmentsData = enrollments?.success ? enrollments.data : [];
+    const paymentsData = payments?.success ? payments.data : [];
+    const cashEntries = cash?.success ? cash.data : [];
+    const rankingData = byClass?.success ? byClass.data : [];
 
-    if (students.success) studentsEl.innerText = students.data.length;
-    if (classes.success) classesEl.innerText = classes.data.length;
-    if (enrollments.success) enrollmentsEl.innerText = enrollments.data.length;
-    if (payments.success) paymentsEl.innerText = payments.data.length;
+    cashData = cashEntries;
+
+    if (studentsEl) studentsEl.innerText = studentsData.length;
+    if (classesEl) classesEl.innerText = classesData.length;
+    if (enrollmentsEl) enrollmentsEl.innerText = enrollmentsData.length;
+    if (paymentsEl) paymentsEl.innerText = paymentsData.length;
 
     let esperado = 0;
     let recebido = 0;
@@ -67,7 +79,7 @@ async function init() {
 
     const today = new Date();
 
-    payments.data.forEach(p => {
+    paymentsData.forEach(p => {
 
       const value = Number(p.final_amount || 0);
       esperado += value;
@@ -79,6 +91,7 @@ async function init() {
         if (due < today) atrasado += value;
         else pendente += value;
       }
+
     });
 
     const projetado = recebido + pendente;
@@ -98,45 +111,55 @@ async function init() {
 
     const saldo = entradas - saidas;
 
-    const f = (v) =>
-      v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    // 🔥 NOVO KPI CONSOLIDADO
+    const totalFinanceiro = recebido + saldo;
 
-    esperadoEl.innerText = f(esperado);
-    recebidoEl.innerText = f(recebido);
-    projetadoEl.innerText = f(projetado);
+    // 🔽 RENDER SEGURO
 
-    atrasadoEl.innerText = f(atrasado);
-    inadPercentEl.innerText = inadPercent.toFixed(1) + "%";
+    if (esperadoEl) esperadoEl.innerText = formatCurrency(esperado);
+    if (recebidoEl) recebidoEl.innerText = formatCurrency(recebido);
+    if (projetadoEl) projetadoEl.innerText = formatCurrency(projetado);
 
-    entradasEl.innerText = f(entradas);
-    saidasEl.innerText = f(saidas);
-    saldoEl.innerText = f(saldo);
+    if (atrasadoEl) atrasadoEl.innerText = formatCurrency(atrasado);
+    if (inadPercentEl) inadPercentEl.innerText = inadPercent.toFixed(1) + "%";
 
-    summaryRecebido.innerText = f(recebido);
-    summaryProjetado.innerText = f(projetado);
-    summaryInad.innerText = inadPercent.toFixed(1) + "%";
+    if (entradasEl) entradasEl.innerText = formatCurrency(entradas);
+    if (saidasEl) saidasEl.innerText = formatCurrency(saidas);
+    if (saldoEl) saldoEl.innerText = formatCurrency(saldo);
 
-    renderChart(payments.data);
-
-    // 🚀 NOVO: ranking por turma
-    if (byClass.success && rankingContainer) {
-      renderRanking(byClass.data);
+    if (totalFinanceiroEl) {
+      totalFinanceiroEl.innerText = formatCurrency(totalFinanceiro);
     }
 
-    
+    if (summaryRecebido) summaryRecebido.innerText = formatCurrency(recebido);
+    if (summaryProjetado) summaryProjetado.innerText = formatCurrency(projetado);
+    if (summaryInad) summaryInad.innerText = inadPercent.toFixed(1) + "%";
+
+    renderChart(paymentsData);
+
+    if (rankingData.length && rankingContainer) {
+      renderRanking(rankingData);
+    }
 
   } catch (e) {
+
     console.error("Erro dashboard:", e);
+
+    // fallback seguro
+    if (totalFinanceiroEl) totalFinanceiroEl.innerText = "R$ 0,00";
+
   }
 }
+
 function renderChart(payments = []) {
 
   const ctx = document.getElementById("financeChart");
   if (!ctx) return;
 
   if (financeChartInstance) {
-  financeChartInstance.destroy();
-}
+    financeChartInstance.destroy();
+  }
+
   const monthly = {};
 
   payments.forEach(p => {
@@ -157,7 +180,7 @@ function renderChart(payments = []) {
 
   });
 
-  const labels = Object.keys(monthly).sort().slice(-6); // 🔥 últimos 6 meses
+  const labels = Object.keys(monthly).sort().slice(-6);
 
   const esperado = labels.map(m => monthly[m].esperado);
   const recebido = labels.map(m => monthly[m].recebido);
@@ -171,7 +194,7 @@ function renderChart(payments = []) {
           label: "Esperado",
           data: esperado,
           backgroundColor: "#3b82f6",
-          barThickness: 18 // 🔥 CONTROLE REAL
+          barThickness: 18
         },
         {
           label: "Recebido",
@@ -197,7 +220,6 @@ function renderChart(payments = []) {
   });
 }
 
-// 🚀 NOVO BLOCO
 function renderRanking(data = []) {
 
   const container = document.getElementById("ranking-classes");
@@ -237,8 +259,6 @@ function renderRanking(data = []) {
     `;
   }).join("");
 }
-
-
 
 window.DashboardModule = { init };
 
