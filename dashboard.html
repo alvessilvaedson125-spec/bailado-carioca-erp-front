@@ -40,88 +40,95 @@
   <!-- FINANCEIRO -->
   <div class="finance-section">
 
-    <!-- CARDS -->
+    <!-- GRID -->
     <div class="finance-grid">
 
+      <!-- RECEITA -->
       <div class="finance-card receita">
-  <h3>Receita</h3>
+        <h3>Receita</h3>
 
-  <div class="receita-main">
-    <span>Recebido</span>
-    <strong id="dre-recebido"></strong>
-  </div>
+        <div class="finance-main">
+          <span>Recebido</span>
+          <strong id="dre-recebido"></strong>
+        </div>
 
-  <div class="receita-secondary">
-    <p>Esperado: <span id="dre-esperado"></span></p>
-    <p>Projetado: <span id="dre-projetado"></span></p>
-  </div>
-</div>
-
-      <div class="finance-card inadimplencia">
-        <h3>Inadimplência</h3>
-        <p>Atrasado: <strong id="dre-atrasado"></strong></p>
-        <p>Taxa: <strong id="dre-inadimplencia-percent"></strong></p>
+        <div class="finance-secondary">
+          <p>Esperado: <span id="dre-esperado"></span></p>
+          <p>Projetado: <span id="dre-projetado"></span></p>
+        </div>
       </div>
 
+      <!-- INADIMPLÊNCIA -->
+      <div class="finance-card inadimplencia">
+        <h3>Inadimplência</h3>
+
+        <div class="finance-secondary">
+          <p>Atrasado: <strong id="dre-atrasado"></strong></p>
+          <p>Taxa: <strong id="dre-inadimplencia-percent"></strong></p>
+        </div>
+      </div>
+
+      <!-- CAIXA -->
       <div class="finance-card caixa">
-  <h3>Caixa</h3>
+        <h3>Caixa</h3>
 
-  <div class="caixa-main">
-    <span>Saldo</span>
-    <strong id="dre-saldo"></strong>
-  </div>
+        <div class="finance-main">
+          <span>Saldo</span>
+          <strong id="dre-saldo"></strong>
+        </div>
 
-  <div class="caixa-secondary">
-    <p>Entradas: <span id="dre-entradas"></span></p>
-    <p>Saídas: <span id="dre-saidas"></span></p>
-  </div>
-</div>
+        <div class="finance-secondary">
+          <p>Entradas: <span id="dre-entradas"></span></p>
+          <p>Saídas: <span id="dre-saidas"></span></p>
+        </div>
+      </div>
 
-     <div class="finance-card total">
-  <h3>Total Consolidado</h3>
+      <!-- TOTAL -->
+      <div class="finance-card total">
+        <h3>Total Consolidado</h3>
 
-  <div class="total-main">
-    <span>Total</span>
-    <strong id="dre-total"></strong>
-  </div>
+        <div class="finance-main">
+          <span>Total</span>
+          <strong id="dre-total"></strong>
+        </div>
 
-  <div class="total-secondary">
-    <p>Recebido + Caixa</p>
-  </div>
-</div>
+        <div class="finance-secondary">
+          <p>Recebido + Caixa</p>
+        </div>
+      </div>
 
     </div>
 
     <!-- GRÁFICO + RESUMO -->
     <div class="finance-bottom">
 
-  <!-- GRÁFICO -->
-  <div class="finance-chart">
-    <canvas id="financeChart"></canvas>
-  </div>
+      <div class="finance-chart">
+        <canvas id="financeChart"></canvas>
+      </div>
 
-  <!-- RESUMO -->
-  <div class="finance-summary">
-    <h4>Resumo Financeiro</h4>
+      <div class="finance-summary">
+        <h4>Resumo Financeiro</h4>
 
-    <p>Recebido:
-      <strong id="summary-recebido"></strong>
-    </p>
+        <p>Recebido:
+          <strong id="summary-recebido"></strong>
+        </p>
 
-    <p>Projetado:
-      <strong id="summary-projetado"></strong>
-    </p>
+        <p>Projetado:
+          <strong id="summary-projetado"></strong>
+        </p>
 
-    <p>Inadimplência:
-      <strong id="summary-inadimplencia"></strong>
-    </p>
-  </div>
+        <p>Inadimplência:
+          <strong id="summary-inadimplencia"></strong>
+        </p>
+      </div>
 
-  <!-- 🔥 NOVO: RANKING -->
-  <div class="finance-card ranking">
-    <h4>Ranking de Turmas</h4>
-    <div id="ranking-classes"></div>
+      <div class="finance-card ranking">
+        <h4>Ranking de Turmas</h4>
+        <div id="ranking-classes"></div>
+      </div>
+
+    </div>
+
   </div>
 
 </div>
-

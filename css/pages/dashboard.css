@@ -71,8 +71,6 @@
   margin-top: 10px;
 }
 
-/* GRID CARDS */
-
 .finance-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -80,12 +78,19 @@
   margin-bottom: 20px;
 }
 
+/* =========================
+   FINANCE CARD BASE
+========================= */
+
 .finance-card {
   background: #ffffff;
   border-radius: 12px;
   padding: 18px;
   border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .finance-card:hover {
@@ -96,22 +101,46 @@
 .finance-card h3 {
   font-size: 15px;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   color: #111827;
 }
 
-.finance-card p {
-  font-size: 14px;
-  margin: 4px 0;
+/* =========================
+   HIERARQUIA PADRÃO (UNIFICADA)
+========================= */
+
+.finance-main {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 6px;
+}
+
+.finance-main span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.finance-main strong {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.1;
+}
+
+.finance-secondary p {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 2px 0;
+}
+
+.finance-secondary span {
+  font-weight: 500;
   color: #374151;
 }
 
-.finance-card strong {
-  font-weight: 600;
-  color: #111827;
-}
-
-/* IDENTIDADE VISUAL */
+/* =========================
+   IDENTIDADE VISUAL
+========================= */
 
 .finance-card.receita {
   border-left: 4px solid #16a34a;
@@ -125,8 +154,12 @@
   border-left: 4px solid #2563eb;
 }
 
+.finance-card.total {
+  border-left: 4px solid #111827;
+}
+
 /* =========================
-   CHART + SUMMARY (NOVA ESTRUTURA)
+   CHART + SUMMARY
 ========================= */
 
 .finance-bottom {
@@ -136,30 +169,10 @@
     "chart summary"
     "chart ranking";
   gap: 16px;
-  align-items: stretch;
 }
 
 .finance-chart {
   grid-area: chart;
-}
-
-.finance-summary {
-  grid-area: summary;
-}
-
-.finance-card.ranking {
-  grid-area: ranking;
-}
-
-.finance-card.ranking {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* GRÁFICO */
-
-.finance-chart {
   background: #ffffff;
   border-radius: 12px;
   padding: 16px;
@@ -172,9 +185,8 @@
   height: 100% !important;
 }
 
-/* RESUMO LATERAL */
-
 .finance-summary {
+  grid-area: summary;
   background: #ffffff;
   border-radius: 12px;
   padding: 18px;
@@ -195,6 +207,13 @@
 
 .finance-summary strong {
   color: #111827;
+}
+
+.finance-card.ranking {
+  grid-area: ranking;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* =========================
@@ -223,111 +242,4 @@
   .finance-chart {
     height: 220px;
   }
-}
-
-/* =========================
-   RECEITA - HIERARQUIA
-========================= */
-
-.receita-main {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 8px;
-}
-
-.receita-main span {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.receita-main strong {
-  font-size: 24px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.receita-secondary p {
-  font-size: 12px;
-  color: #6b7280;
-  margin: 2px 0;
-}
-
-.receita-secondary span {
-  font-weight: 500;
-  color: #374151;
-}
-
-
-/* =========================
-   CAIXA - HIERARQUIA FORÇADA
-========================= */
-
-.finance-card.caixa .caixa-main {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 8px;
-}
-
-.finance-card.caixa .caixa-main span {
-  font-size: 12px;
-  color: #6b7280;
-}
-.finance-card.caixa .caixa-main strong {
- font-size: 24px;
-  font-weight: 700;
-   letter-spacing: -0.3px;
-  color: #111827;
-  line-height: 1.1;
-}
-
-.finance-card.caixa .caixa-main span {
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 2px;
-}
-
-.finance-card.caixa .caixa-main {
-  padding: 6px 0;
-}
-
-.finance-card.caixa .caixa-secondary p {
-  font-size: 12px;
-  color: #6b7280;
-  margin: 2px 0;
-}
-
-.finance-card.caixa .caixa-secondary span {
-  font-weight: 500;
-  color: #374151;
-}
-
-/* =========================
-   TOTAL CONSOLIDADO - HIERARQUIA
-========================= */
-
-.finance-card.total {
-  border-left: 4px solid #111827;
-}
-
-.finance-card.total .total-main {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 8px;
-}
-
-.finance-card.total .total-main span {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.finance-card.total .total-main strong {
-  font-size: 28px;
-  font-weight: 800;
-  color: #111827;
-  line-height: 1.1;
-}
-
-.finance-card.total .total-secondary p {
-  font-size: 12px;
-  color: #6b7280;
 }
