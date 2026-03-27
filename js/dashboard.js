@@ -1,3 +1,5 @@
+
+
 let financeChartInstance = null;
 let cashData = [];
 
