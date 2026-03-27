@@ -162,7 +162,9 @@ async function init() {
     if (summaryProjetado) summaryProjetado.innerText = formatCurrency(projetado);
     if (summaryInad) summaryInad.innerText = inadPercent.toFixed(1) + "%";
 
-    renderChart(paymentsData);
+   if (typeof renderChart === "function") {
+  renderChart(paymentsData);
+}
 
     if (rankingData.length && rankingContainer) {
       renderRanking(rankingData);
