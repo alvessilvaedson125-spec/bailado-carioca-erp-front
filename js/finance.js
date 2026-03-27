@@ -40,9 +40,9 @@ window.calculateFinance = function ({
   .filter(p => p.status === "overdue" || p.status === "pending")
     .reduce((acc, p) => acc + (p.amount || 0), 0)
 
-  const defaultRate = expected > 0
-    ? (overdue / expected) * 100
-    : 0
+ const defaultRate = expected > 0
+  ? Math.min((overdue / expected) * 100, 100)
+  : 0
 
   // =========================
   // CAIXA

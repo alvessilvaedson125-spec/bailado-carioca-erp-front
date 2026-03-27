@@ -94,8 +94,13 @@ async function init() {
         final_price: Number(e.final_price || e.monthly_fee || 0),
         status: e.status
       })),
-      cashEntries: cashData.filter(c => c.type === "in"),
-      cashExits: cashData.filter(c => c.type === "out")
+     cashEntries: cashData.filter(c =>
+  c.type === "in" || c.type === "entrada"
+),
+
+cashExits: cashData.filter(c =>
+  c.type === "out" || c.type === "saida"
+)
     });
 
     const esperado = finance.receita.expected;
