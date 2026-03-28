@@ -27,7 +27,7 @@
   // ===============================
 
   async function loadUnits(){
-    const tbody = document.querySelector("#unitsTable");
+    const tbody = document.getElementById("unitsTable");
     if(!tbody) return;
 
     tbody.innerHTML = `<tr><td colspan="3">Carregando...</td></tr>`;
@@ -67,8 +67,20 @@
     list.forEach(unit => {
       const tr = document.createElement("tr");
 
+      const initials = unit.name
+        .split(" ")
+        .map(n => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+
       tr.innerHTML = `
-        <td>${safe(unit.name)}</td>
+        <td>
+          <div class="unit-cell">
+            <div class="unit-avatar">${initials}</div>
+            <strong>${safe(unit.name)}</strong>
+          </div>
+        </td>
         <td>${formatDate(unit.created_at)}</td>
         <td>
           <button class="btn-edit">✏️ Editar</button>
