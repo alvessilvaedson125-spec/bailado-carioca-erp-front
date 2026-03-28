@@ -7,7 +7,10 @@ let initDone = false;
 
 async function init(){
 
-if (initDone) return;
+if (initDone) {
+  await loadEnrollments();
+  return;
+}
 initDone = true;
 
 console.log("Enrollments module iniciado")
