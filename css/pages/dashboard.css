@@ -68,35 +68,34 @@
   color: #6b7280;
 }
 
-/* Cores por performance */
+/* Primeiros 2 cards — cor fixa */
+.dash-kpis .dash-kpi-card:nth-child(1) { border-left-color: #16a34a; }
+.dash-kpis .dash-kpi-card:nth-child(2) { border-left-color: #2563eb; }
 
+/* 🔥 Cores por performance — SEM background, só borda e valor */
 .dash-kpi-card.kpi-green {
+  background: white;
   border-left-color: #16a34a;
 }
-
 .dash-kpi-card.kpi-green .dash-kpi-value {
   color: #16a34a;
 }
 
 .dash-kpi-card.kpi-yellow {
+  background: white;
   border-left-color: #f59e0b;
 }
-
 .dash-kpi-card.kpi-yellow .dash-kpi-value {
   color: #ca8a04;
 }
 
 .dash-kpi-card.kpi-red {
+  background: white;
   border-left-color: #dc2626;
 }
-
 .dash-kpi-card.kpi-red .dash-kpi-value {
   color: #dc2626;
 }
-
-/* Primeiros 2 cards — cor fixa */
-.dash-kpis .dash-kpi-card:nth-child(1) { border-left-color: #16a34a; }
-.dash-kpis .dash-kpi-card:nth-child(2) { border-left-color: #2563eb; }
 
 /* =========================
    LINHA 2 — SAÚDE DO NEGÓCIO
@@ -156,7 +155,6 @@
   color: #111827;
 }
 
-/* Operacional */
 .dash-operacional {
   display: flex;
   flex-direction: column;
@@ -170,30 +168,18 @@
   font-weight: 600;
 }
 
-/* Status badge */
 .dash-status-badge {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
-  padding: 6px 12px;
+  padding: 5px 12px;
   border-radius: 8px;
   display: inline-block;
   width: fit-content;
 }
 
-.dash-status-badge.green {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.dash-status-badge.yellow {
-  background: #fef9c3;
-  color: #ca8a04;
-}
-
-.dash-status-badge.red {
-  background: #fee2e2;
-  color: #dc2626;
-}
+.dash-status-badge.green  { background: #dcfce7; color: #16a34a; }
+.dash-status-badge.yellow { background: #fef9c3; color: #ca8a04; }
+.dash-status-badge.red    { background: #fee2e2; color: #dc2626; }
 
 /* =========================
    LINHA 3 — GRÁFICO
@@ -243,11 +229,15 @@
 }
 
 /* =========================
-   RANKING
+   RANKING — 🔥 CORRIGIDO
 ========================= */
 
+#dash-ranking {
+  max-width: 600px; /* 🔥 limita largura */
+}
+
 .ranking-item {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .ranking-header {
@@ -268,8 +258,8 @@
 .ranking-pos {
   font-size: 12px;
   font-weight: 700;
-  color: #6b7280;
-  width: 24px;
+  color: #9ca3af;
+  width: 20px;
 }
 
 .ranking-right {
@@ -302,10 +292,15 @@
   margin-bottom: 4px;
 }
 
-.ranking-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+.ranking-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
 .ranking-fill-green  { background: #22c55e; }
 .ranking-fill-yellow { background: #f59e0b; }
-.ranking-fill-red    { background: #ef4444; }
+.ranking-fill-red    { background: #4f46e5; } /* índigo — mais elegante que vermelho puro */
 
 .ranking-item small {
   font-size: 12px;
@@ -320,7 +315,6 @@
   .dash-kpis {
     grid-template-columns: repeat(2, 1fr);
   }
-
   .dash-health {
     grid-template-columns: 1fr 1fr;
   }
@@ -330,12 +324,13 @@
   .dash-kpis {
     grid-template-columns: 1fr 1fr;
   }
-
   .dash-health {
     grid-template-columns: 1fr;
   }
-
   .dash-kpi-value {
     font-size: 22px;
+  }
+  #dash-ranking {
+    max-width: 100%;
   }
 }
