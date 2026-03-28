@@ -148,7 +148,7 @@ async function renderRanking() {
     const classes = classesRes.data || [];
     const rankingData = rankingRes.data || [];
 
-    const container = document.getElementById("ranking-container");
+   const container = document.getElementById("ranking-classes");
     if (!container) return;
 
     // 🔥 INDEXAR pagamentos por class_id
