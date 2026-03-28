@@ -138,7 +138,6 @@ async function init(){
 // =====================
 // RANKING
 // =====================
-
 function renderRanking(data){
 
   const container = document.getElementById("ranking-classes");
@@ -149,7 +148,21 @@ function renderRanking(data){
     return;
   }
 
-  const sorted = [...data].sort((a,b) => b.total - a.total).slice(0,5);
+  const normalized = data.map(item => ({
+    name: item.class_name || item.name || "Turma",
+    total: Number(
+      item.total ??
+      item.amount ??
+      item.sum ??
+      item.received ??
+      0
+    ),
+    expected: Number(item.expected ?? 0)
+  }));
+
+  const sorted = normalized
+    .sort((a,b) => b.total - a.total)
+    .slice(0,5);
 
   container.innerHTML = sorted.map((item, index) => {
 
@@ -159,14 +172,13 @@ function renderRanking(data){
 
     return `
       <div class="ranking-item">
-        <strong>${index + 1}. ${item.class_name}</strong><br>
+        <strong>${index + 1}. ${item.name}</strong><br>
         ${formatCurrency(item.total)}<br>
         <small>${efficiency}% de eficiência</small>
       </div>
     `;
   }).join("");
 }
-
 // =====================
 // EXPORT
 // =====================
