@@ -70,8 +70,7 @@ function buildEnrollmentsMap(res){
 
   res.data.forEach(enrollment => {
 
-    const studentId = Number(enrollment.student_id);
-
+   const studentId = enrollment.student_id;
     if(enrollment.status === "active"){
       enrollmentsMap[studentId] = true;
     }
@@ -80,7 +79,7 @@ function buildEnrollmentsMap(res){
 
 }
 function isStudentActive(studentId){
-  return !!enrollmentsMap[Number(studentId)];
+ return !!enrollmentsMap[studentId];
 }
 
 function renderStudents(list){
