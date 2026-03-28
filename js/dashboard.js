@@ -1,61 +1,28 @@
-let financeChartInstance = null;
+(function(){
 
-(function () {
+function formatCurrency(v){
+  return Number(v || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
 
-async function init() {
+function safeSet(id, value){
+  const el = document.getElementById(id);
+  if(el) el.innerText = value;
+}
 
-  if (!document.getElementById("financeChart")) return;
+async function init(){
 
-  const el = (id) => document.getElementById(id);
-
-  // KPIs
-  const studentsEl = el("metric-students");
-  const classesEl = el("metric-classes");
-  const enrollmentsEl = el("metric-enrollments");
-  const paymentsEl = el("metric-payments");
-
-  // Receita
-  const esperadoEl = el("dre-esperado");
-  const recebidoEl = el("dre-recebido");
-  const projetadoEl = el("dre-projetado");
-  const recebidoTrendEl = el("dre-recebido-trend");
-
-  // Inadimplência
-  const atrasadoEl = el("dre-atrasado");
-  const inadPercentEl = el("dre-inadimplencia-percent");
-
-  // Caixa
-  const entradasEl = el("dre-entradas");
-  const saidasEl = el("dre-saidas");
-  const saldoEl = el("dre-saldo");
-  const caixaStatusEl = el("dre-caixa-status");
-
-  // Total
-  const totalFinanceiroEl = el("dre-total");
-  const totalLabelEl = el("dre-total-label");
-
-  // Summary
-  const summaryRecebido = el("summary-recebido");
-  const summaryProjetado = el("summary-projetado");
-  const summaryInad = el("summary-inadimplencia");
-
-  const rankingContainer = el("ranking-classes");
-
-  const formatCurrency = (v) =>
-    Number(v || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
-
-  try {
+  try{
 
     const [
-      students,
-      classes,
-      enrollments,
-      payments,
-      cash,
-      byClass
+      studentsRes,
+      classesRes,
+      enrollmentsRes,
+      paymentsRes,
+      cashRes,
+      rankingRes
     ] = await Promise.all([
       apiRequest("/api/v1/students"),
       apiRequest("/api/v1/classes"),
@@ -65,141 +32,126 @@ async function init() {
       apiRequest("/api/v1/payments/by-class")
     ]);
 
-    const studentsData = students?.success ? students.data : [];
-    const classesData = classes?.success ? classes.data : [];
-    const enrollmentsData = enrollments?.success ? enrollments.data : [];
-    const paymentsData = payments?.success ? payments.data : [];
-    const cashData = cash?.success ? cash.data : [];
-    const rankingData = byClass?.success ? byClass.data : [];
+    const students = studentsRes?.data || [];
+    const classes = classesRes?.data || [];
+    const enrollments = enrollmentsRes?.data || [];
+    const payments = paymentsRes?.data || [];
+    const cash = cashRes?.data || [];
+    const ranking = rankingRes?.data || [];
 
-    // ===============================
+    // =====================
     // KPIs
-    // ===============================
+    // =====================
+    safeSet("metric-students", students.length);
+    safeSet("metric-classes", classes.length);
+    safeSet("metric-enrollments", enrollments.length);
+    safeSet("metric-payments", payments.length);
 
-    if (studentsEl) studentsEl.innerText = studentsData.length;
-    if (classesEl) classesEl.innerText = classesData.length;
-    if (enrollmentsEl) enrollmentsEl.innerText = enrollmentsData.length;
-    if (paymentsEl) paymentsEl.innerText = paymentsData.length;
+    // =====================
+    // RECEITA
+    // =====================
 
-    // ===============================
-    // 💰 FINANCE SERVICE (CORRIGIDO)
-    // ===============================
+    const esperado = enrollments.reduce((sum, e) => {
+      return sum + Number(e.final_price || e.monthly_fee || 0);
+    }, 0);
 
-    const finance = window.calculateFinance({
-      payments: paymentsData.map(p => ({
-        amount: Number(p.final_amount || 0),
-        status: p.status
-      })),
-      enrollments: enrollmentsData.map(e => ({
-        final_price: Number(e.final_price || e.monthly_fee || 0),
-        status: e.status
-      })),
-     cashEntries: cashData.filter(c =>
-  c.type === "in" || c.type === "entrada"
-),
+    const recebido = payments
+      .filter(p => p.computed_status === "paid")
+      .reduce((sum, p) => sum + Number(p.final_amount || 0), 0);
 
-cashExits: cashData.filter(c =>
-  c.type === "out" || c.type === "saida"
-)
+    const atrasado = payments
+      .filter(p => p.computed_status === "overdue")
+      .reduce((sum, p) => sum + Number(p.final_amount || 0), 0);
+
+    const projetado = esperado - atrasado;
+
+    const inadPercent = esperado > 0
+      ? (atrasado / esperado) * 100
+      : 0;
+
+    // =====================
+    // CAIXA
+    // =====================
+
+    let entradas = 0;
+    let saidas = 0;
+
+    cash.forEach(c => {
+      const val = Number(c.amount || 0);
+
+      if(c.type === "in" || c.type === "entrada"){
+        entradas += val;
+      } else {
+        saidas += val;
+      }
     });
 
-    const esperado = finance.receita.expected;
-    const recebido = finance.receita.received;
-    const projetado = finance.receita.projected;
+    const saldo = entradas - saidas;
 
-    const atrasado = finance.inadimplencia.overdue;
-    const inadPercent = finance.inadimplencia.defaultRate;
+    // =====================
+    // TOTAL CONSOLIDADO
+    // =====================
 
-    const entradas = finance.caixa.entries;
-    const saidas = finance.caixa.exits;
-    const saldo = finance.caixa.balance;
+    const total = recebido + saldo;
 
-    const totalFinanceiro = finance.total;
+    // =====================
+    // RENDER
+    // =====================
 
-    // ===============================
-    // 🧠 INTELIGÊNCIA
-    // ===============================
+    safeSet("dre-esperado", formatCurrency(esperado));
+    safeSet("dre-recebido", formatCurrency(recebido));
+    safeSet("dre-projetado", formatCurrency(projetado));
 
-    const recebidoAnterior = recebido * 0.9;
-    let variacaoReceita = 0;
+    safeSet("dre-atrasado", formatCurrency(atrasado));
+    safeSet("dre-inadimplencia-percent", inadPercent.toFixed(1) + "%");
 
-    if (recebidoAnterior > 0) {
-      variacaoReceita = ((recebido - recebidoAnterior) / recebidoAnterior) * 100;
+    safeSet("dre-entradas", formatCurrency(entradas));
+    safeSet("dre-saidas", formatCurrency(saidas));
+    safeSet("dre-saldo", formatCurrency(saldo));
+
+    safeSet("dre-total", formatCurrency(total));
+
+    safeSet("summary-recebido", formatCurrency(recebido));
+    safeSet("summary-projetado", formatCurrency(projetado));
+    safeSet("summary-inadimplencia", inadPercent.toFixed(1) + "%");
+
+    // =====================
+    // RANKING (SEGURO)
+    // =====================
+
+    renderRanking(ranking);
+
+    // =====================
+    // CHART (SEGURO)
+    // =====================
+
+    if(typeof renderChart === "function"){
+      renderChart(payments);
     }
 
-    let statusCaixa = "Neutro";
-    if (saldo > 0) statusCaixa = "Saudável";
-    if (saldo < 0) statusCaixa = "Negativo";
-
-    let labelTotal = "Equilíbrio";
-    if (totalFinanceiro > 1000) labelTotal = "Saudável";
-    if (totalFinanceiro < 500) labelTotal = "Atenção";
-
-    // ===============================
-    // 🎯 RENDER
-    // ===============================
-
-    if (esperadoEl) esperadoEl.innerText = formatCurrency(esperado);
-    if (recebidoEl) recebidoEl.innerText = formatCurrency(recebido);
-    if (projetadoEl) projetadoEl.innerText = formatCurrency(projetado);
-
-    if (recebidoTrendEl) {
-      recebidoTrendEl.innerText =
-        `${variacaoReceita >= 0 ? "↗️" : "↘️"} ${Math.abs(variacaoReceita).toFixed(1)}%`;
-    }
-
-    if (atrasadoEl) atrasadoEl.innerText = formatCurrency(atrasado);
-    if (inadPercentEl) inadPercentEl.innerText = inadPercent.toFixed(1) + "%";
-
-    if (entradasEl) entradasEl.innerText = formatCurrency(entradas);
-    if (saidasEl) saidasEl.innerText = formatCurrency(saidas);
-    if (saldoEl) saldoEl.innerText = formatCurrency(saldo);
-
-    if (caixaStatusEl) caixaStatusEl.innerText = statusCaixa;
-
-    if (totalFinanceiroEl) {
-      totalFinanceiroEl.innerText = formatCurrency(totalFinanceiro);
-    }
-
-    if (totalLabelEl) totalLabelEl.innerText = labelTotal;
-
-    if (summaryRecebido) summaryRecebido.innerText = formatCurrency(recebido);
-    if (summaryProjetado) summaryProjetado.innerText = formatCurrency(projetado);
-    if (summaryInad) summaryInad.innerText = inadPercent.toFixed(1) + "%";
-
-   if (typeof renderChart === "function") {
-  renderChart(paymentsData);
-}
-
-    if (rankingData.length && rankingContainer && typeof renderRanking === "function") {
-  renderRanking(rankingData);
-}
-
-  } catch (e) {
-
+  }catch(e){
     console.error("Erro dashboard:", e);
-
-    if (totalFinanceiroEl) totalFinanceiroEl.innerText = "R$ 0,00";
-
   }
+
 }
 
-function renderRanking(data) {
+// =====================
+// RANKING
+// =====================
+
+function renderRanking(data){
 
   const container = document.getElementById("ranking-classes");
-  if (!container) return;
+  if(!container) return;
 
-  if (!data.length) {
+  if(!data.length){
     container.innerHTML = "<p>Nenhuma turma com faturamento</p>";
     return;
   }
 
-  // ordena por valor desc
-  const sorted = [...data].sort((a, b) => b.total - a.total);
+  const sorted = [...data].sort((a,b) => b.total - a.total).slice(0,5);
 
-  const top = sorted.slice(0, 5);
-
-  container.innerHTML = top.map((item, index) => {
+  container.innerHTML = sorted.map((item, index) => {
 
     const efficiency = item.expected > 0
       ? ((item.total / item.expected) * 100).toFixed(0)
@@ -212,10 +164,15 @@ function renderRanking(data) {
         <small>${efficiency}% de eficiência</small>
       </div>
     `;
-
   }).join("");
 }
 
-window.DashboardModule = { init };
+// =====================
+// EXPORT
+// =====================
+
+window.DashboardModule = {
+  init
+};
 
 })();
