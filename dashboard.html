@@ -4,131 +4,83 @@
   <div class="page-header">
     <div>
       <h2>Dashboard</h2>
-      <p>Visão financeira e operacional</p>
+      <p>Visão executiva e financeira</p>
     </div>
   </div>
 
-  <!-- KPIs -->
-  <div class="metrics">
+  <!-- LINHA 1: KPIs DE DECISÃO -->
+  <div class="dash-kpis">
 
-    <div class="metric-card">
-      <div class="metric-title">Alunos</div>
-      <div class="metric-value" id="metric-students">0</div>
-      <div class="metric-sub">Total cadastrados</div>
+    <div class="dash-kpi-card">
+      <span class="dash-kpi-label">Recebido</span>
+      <strong class="dash-kpi-value" id="dash-recebido">—</strong>
+      <span class="dash-kpi-trend" id="dash-recebido-trend"></span>
     </div>
 
-    <div class="metric-card">
-      <div class="metric-title">Turmas</div>
-      <div class="metric-value" id="metric-classes">0</div>
-      <div class="metric-sub">Ativas</div>
+    <div class="dash-kpi-card">
+      <span class="dash-kpi-label">Esperado</span>
+      <strong class="dash-kpi-value" id="dash-esperado">—</strong>
+      <span class="dash-kpi-sub">Total do período</span>
     </div>
 
-    <div class="metric-card">
-      <div class="metric-title">Matrículas</div>
-      <div class="metric-value" id="metric-enrollments">0</div>
-      <div class="metric-sub">Vínculos ativos</div>
+    <div class="dash-kpi-card" id="dash-eficiencia-card">
+      <span class="dash-kpi-label">Eficiência</span>
+      <strong class="dash-kpi-value" id="dash-eficiencia">—</strong>
+      <span class="dash-kpi-sub" id="dash-eficiencia-label">—</span>
     </div>
 
-    <div class="metric-card">
-      <div class="metric-title">Pagamentos</div>
-      <div class="metric-value" id="metric-payments">0</div>
-      <div class="metric-sub">Registros</div>
+    <div class="dash-kpi-card" id="dash-inad-card">
+      <span class="dash-kpi-label">Inadimplência</span>
+      <strong class="dash-kpi-value" id="dash-inadimplencia">—</strong>
+      <span class="dash-kpi-sub">Atrasado: <span id="dash-atrasado">—</span></span>
     </div>
 
   </div>
 
-  <!-- FINANCEIRO -->
-  <div class="finance-section">
+  <!-- LINHA 2: SAÚDE DO NEGÓCIO -->
+  <div class="dash-health">
 
-    <!-- GRID -->
-    <div class="finance-grid">
-
-      <!-- RECEITA -->
-      <div class="finance-card receita">
-        <h3>Receita</h3>
-
-        <div class="finance-main">
-          <span>Recebido</span>
-          <strong id="dre-recebido"></strong>
-        </div>
-
-        <div class="finance-secondary">
-          <p>Esperado: <span id="dre-esperado"></span></p>
-          <p>Projetado: <span id="dre-projetado"></span></p>
-        </div>
+    <div class="dash-health-card">
+      <h4>Caixa</h4>
+      <strong class="dash-health-value" id="dash-saldo">—</strong>
+      <div class="dash-health-detail">
+        <span>Entradas: <b id="dash-entradas">—</b></span>
+        <span>Saídas: <b id="dash-saidas">—</b></span>
       </div>
-
-      <!-- INADIMPLÊNCIA -->
-      <div class="finance-card inadimplencia">
-        <h3>Inadimplência</h3>
-
-        <div class="finance-secondary">
-          <p>Atrasado: <strong id="dre-atrasado"></strong></p>
-          <p>Taxa: <strong id="dre-inadimplencia-percent"></strong></p>
-        </div>
-      </div>
-
-      <!-- CAIXA -->
-      <div class="finance-card caixa">
-        <h3>Caixa</h3>
-
-        <div class="finance-main">
-          <span>Saldo</span>
-          <strong id="dre-saldo"></strong>
-        </div>
-
-        <div class="finance-secondary">
-          <p>Entradas: <span id="dre-entradas"></span></p>
-          <p>Saídas: <span id="dre-saidas"></span></p>
-        </div>
-      </div>
-
-      <!-- TOTAL -->
-      <div class="finance-card total">
-        <h3>Total Consolidado</h3>
-
-        <div class="finance-main">
-          <span>Total</span>
-          <strong id="dre-total"></strong>
-        </div>
-
-        <div class="finance-secondary">
-          <p>Recebido + Caixa</p>
-        </div>
-      </div>
-
     </div>
 
-    <!-- GRÁFICO + RESUMO -->
-    <div class="finance-bottom">
-
-      <div class="finance-chart">
-        <canvas id="financeChart"></canvas>
-      </div>
-
-      <div class="finance-summary">
-        <h4>Resumo Financeiro</h4>
-
-        <p>Recebido:
-          <strong id="summary-recebido"></strong>
-        </p>
-
-        <p>Projetado:
-          <strong id="summary-projetado"></strong>
-        </p>
-
-        <p>Inadimplência:
-          <strong id="summary-inadimplencia"></strong>
-        </p>
-      </div>
-
-      <div class="finance-card ranking">
-        <h4>Ranking de Turmas</h4>
-        <div id="ranking-classes"></div>
-      </div>
-
+    <div class="dash-health-card highlight">
+      <h4>Total Consolidado</h4>
+      <strong class="dash-health-value" id="dash-total">—</strong>
+      <span class="dash-health-sub">Recebido + Caixa</span>
     </div>
 
+    <div class="dash-health-card">
+      <h4>Status Geral</h4>
+      <strong class="dash-status-badge" id="dash-status">—</strong>
+      <div class="dash-operacional">
+        <span>Alunos: <b id="dash-alunos">—</b></span>
+        <span>Turmas: <b id="dash-turmas">—</b></span>
+        <span>Matrículas: <b id="dash-matriculas">—</b></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LINHA 3: GRÁFICO -->
+  <div class="dash-chart-card">
+    <h4>Recebido vs Esperado — últimos 6 meses</h4>
+    <div class="dash-chart-wrap">
+      <canvas id="financeChart"></canvas>
+    </div>
+  </div>
+
+  <!-- LINHA 4: RANKING -->
+  <div class="dash-card">
+    <h4>Ranking de Turmas</h4>
+    <div id="dash-ranking">
+      <p class="empty-state">Carregando...</p>
+    </div>
   </div>
 
 </div>

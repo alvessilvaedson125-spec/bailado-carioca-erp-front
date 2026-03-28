@@ -1,312 +1,259 @@
-
-
 let financeChartInstance = null;
-let cashData = [];
 
 (function () {
 
-async function init() {
-
-  if (!document.getElementById("financeChart")) return;
+  const fmt = (v) =>
+    Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const el = (id) => document.getElementById(id);
+  const setText = (id, val) => { if (el(id)) el(id).innerText = val; };
 
-  // KPIs
-  const studentsEl = el("metric-students");
-  const classesEl = el("metric-classes");
-  const enrollmentsEl = el("metric-enrollments");
-  const paymentsEl = el("metric-payments");
+  async function init() {
+    console.log("Dashboard module iniciado");
 
-  // Receita
-  const esperadoEl = el("dre-esperado");
-  const recebidoEl = el("dre-recebido");
-  const projetadoEl = el("dre-projetado");
-  const recebidoTrendEl = el("dre-recebido-trend");
+    if (!el("financeChart")) return;
 
-  // Inadimplência
-  const atrasadoEl = el("dre-atrasado");
-  const inadPercentEl = el("dre-inadimplencia-percent");
+    try {
 
-  // Caixa
-  const entradasEl = el("dre-entradas");
-  const saidasEl = el("dre-saidas");
-  const saldoEl = el("dre-saldo");
-  const caixaStatusEl = el("dre-caixa-status");
+      const [
+        studentsRes,
+        classesRes,
+        enrollmentsRes,
+        paymentsRes,
+        cashRes,
+        byClassRes
+      ] = await Promise.all([
+        apiRequest("/api/v1/students"),
+        apiRequest("/api/v1/classes"),
+        apiRequest("/api/v1/enrollments"),
+        apiRequest("/api/v1/payments"),
+        apiRequest("/api/v1/cash"),
+        apiRequest("/api/v1/payments/by-class")
+      ]);
 
-  // Total
-  const totalFinanceiroEl = el("dre-total");
-  const totalLabelEl = el("dre-total-label");
+      const students    = studentsRes?.success    ? studentsRes.data    : [];
+      const classes     = classesRes?.success     ? classesRes.data     : [];
+      const enrollments = enrollmentsRes?.success ? enrollmentsRes.data : [];
+      const payments    = paymentsRes?.success    ? paymentsRes.data    : [];
+      const cash        = cashRes?.success        ? cashRes.data        : [];
+      const byClass     = byClassRes?.success     ? byClassRes.data     : [];
 
-  // Summary
-  const summaryRecebido = el("summary-recebido");
-  const summaryProjetado = el("summary-projetado");
-  const summaryInad = el("summary-inadimplencia");
+      // ==============================
+      // CÁLCULO FINANCEIRO
+      // ==============================
 
-  const rankingContainer = el("ranking-classes");
+      const finance = calculateFinance({ payments, cash });
 
-  const formatCurrency = (v) =>
-    Number(v || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
+      const { esperado, recebido, projetado } = finance.receita;
+      const { atrasado, defaultRate }          = finance.inadimplencia;
+      const { entries, exits, balance }        = finance.caixa;
+      const total                              = finance.total;
 
-  try {
+      // ==============================
+      // EFICIÊNCIA
+      // ==============================
 
-    const [
-      students,
-      classes,
-      enrollments,
-      payments,
-      cash,
-      byClass
-    ] = await Promise.all([
-      apiRequest("/api/v1/students"),
-      apiRequest("/api/v1/classes"),
-      apiRequest("/api/v1/enrollments"),
-      apiRequest("/api/v1/payments"),
-      apiRequest("/api/v1/cash"),
-      apiRequest("/api/v1/payments/by-class")
-    ]);
+      const eficiencia = esperado > 0
+        ? (recebido / esperado) * 100
+        : 0;
 
-    const studentsData = students?.success ? students.data : [];
-    const classesData = classes?.success ? classes.data : [];
-    const enrollmentsData = enrollments?.success ? enrollments.data : [];
-    const paymentsData = payments?.success ? payments.data : [];
-    const cashEntries = cash?.success ? cash.data : [];
-    const rankingData = byClass?.success ? byClass.data : [];
+      // ==============================
+      // RENDER LINHA 1 — KPIs
+      // ==============================
 
-    cashData = cashEntries;
+      setText("dash-recebido",    fmt(recebido));
+      setText("dash-esperado",    fmt(esperado));
+      setText("dash-eficiencia",  eficiencia.toFixed(1) + "%");
+      setText("dash-inadimplencia", defaultRate.toFixed(1) + "%");
+      setText("dash-atrasado",    fmt(atrasado));
 
-    // KPIs
-    if (studentsEl) studentsEl.innerText = studentsData.length;
-    if (classesEl) classesEl.innerText = classesData.length;
-    if (enrollmentsEl) enrollmentsEl.innerText = enrollmentsData.length;
-    if (paymentsEl) paymentsEl.innerText = paymentsData.length;
+      // Eficiência — cor e label
+      const efCard = el("dash-eficiencia-card");
+      const efLabel = el("dash-eficiencia-label");
 
-    let esperado = 0;
-    let recebido = 0;
-    let pendente = 0;
-    let atrasado = 0;
-
-    const today = new Date();
-
-    paymentsData.forEach(p => {
-
-      const value = Number(p.final_amount || 0);
-      esperado += value;
-
-      if (p.status === "paid") recebido += value;
-
-      if (p.status === "pending") {
-        const due = new Date(p.due_date);
-        if (due < today) atrasado += value;
-        else pendente += value;
+      if (eficiencia >= 70) {
+        if (efCard)  efCard.classList.add("kpi-green");
+        if (efLabel) efLabel.innerText = "✅ Boa performance";
+      } else if (eficiencia >= 60) {
+        if (efCard)  efCard.classList.add("kpi-yellow");
+        if (efLabel) efLabel.innerText = "⚠️ Atenção";
+      } else {
+        if (efCard)  efCard.classList.add("kpi-red");
+        if (efLabel) efLabel.innerText = "🔴 Abaixo do ideal";
       }
 
-    });
+      // Inadimplência — cor
+      const inadCard = el("dash-inad-card");
+      if (inadCard) {
+        if (defaultRate >= 20)      inadCard.classList.add("kpi-red");
+        else if (defaultRate >= 10) inadCard.classList.add("kpi-yellow");
+        else                        inadCard.classList.add("kpi-green");
+      }
 
-    const projetado = recebido + pendente;
+      // Trend recebido (mock seguro)
+      const trendEl = el("dash-recebido-trend");
+      if (trendEl) {
+        const trend = recebido > 0 ? "↗️ em dia" : "↘️ sem receita";
+        trendEl.innerText = trend;
+      }
 
-    const inadPercent = esperado > 0
-      ? (atrasado / esperado) * 100
-      : 0;
+      // ==============================
+      // RENDER LINHA 2 — SAÚDE
+      // ==============================
 
-    let entradas = 0;
-    let saidas = 0;
+      setText("dash-entradas",  fmt(entries));
+      setText("dash-saidas",    fmt(exits));
+      setText("dash-saldo",     fmt(balance));
+      setText("dash-total",     fmt(total));
 
-    cashData.forEach(e => {
-      const v = Number(e.amount || 0);
-      if (e.type === "in") entradas += v;
-      if (e.type === "out") saidas += v;
-    });
+      // Status geral
+      const statusEl = el("dash-status");
+      if (statusEl) {
+        if (eficiencia >= 70 && defaultRate < 10) {
+          statusEl.innerText = "✅ Saudável";
+          statusEl.className = "dash-status-badge green";
+        } else if (eficiencia >= 50 || defaultRate < 20) {
+          statusEl.innerText = "⚠️ Atenção";
+          statusEl.className = "dash-status-badge yellow";
+        } else {
+          statusEl.innerText = "🔴 Crítico";
+          statusEl.className = "dash-status-badge red";
+        }
+      }
 
-    const saldo = entradas - saidas;
+      // Operacional
+      setText("dash-alunos",     students.length);
+      setText("dash-turmas",     classes.length);
+      setText("dash-matriculas", enrollments.length);
 
-    // 🔥 CONSOLIDADO
-    const totalFinanceiro = recebido + saldo;
+      // ==============================
+      // RENDER LINHA 3 — GRÁFICO
+      // ==============================
 
-    // =====================================
-    // 🧠 INTELIGÊNCIA (NOVA CAMADA)
-    // =====================================
+      renderChart(payments);
 
-    // Receita (variação simples mock segura)
-    const recebidoAnterior = recebido * 0.9; // fallback seguro
-    let variacaoReceita = 0;
+      // ==============================
+      // RENDER LINHA 4 — RANKING
+      // ==============================
 
-    if (recebidoAnterior > 0) {
-      variacaoReceita = ((recebido - recebidoAnterior) / recebidoAnterior) * 100;
+      renderRanking(byClass);
+
+    } catch (err) {
+      console.error("Erro dashboard:", err);
+      setText("dash-total", "R$ 0,00");
     }
-
-    // Caixa (status)
-    let statusCaixa = "Neutro";
-    if (saldo > 0) statusCaixa = "Saudável";
-    if (saldo < 0) statusCaixa = "Negativo";
-
-    // Total (interpretação)
-    let labelTotal = "Equilíbrio";
-
-    if (totalFinanceiro > 1000) labelTotal = "Saudável";
-    if (totalFinanceiro < 500) labelTotal = "Atenção";
-
-    // =====================================
-    // 🎯 RENDER
-    // =====================================
-
-    if (esperadoEl) esperadoEl.innerText = formatCurrency(esperado);
-    if (recebidoEl) recebidoEl.innerText = formatCurrency(recebido);
-    if (projetadoEl) projetadoEl.innerText = formatCurrency(projetado);
-
-    if (recebidoTrendEl) {
-      recebidoTrendEl.innerText =
-        `${variacaoReceita >= 0 ? "↗️" : "↘️"} ${Math.abs(variacaoReceita).toFixed(1)}%`;
-    }
-
-    if (atrasadoEl) atrasadoEl.innerText = formatCurrency(atrasado);
-    if (inadPercentEl) inadPercentEl.innerText = inadPercent.toFixed(1) + "%";
-
-    if (entradasEl) entradasEl.innerText = formatCurrency(entradas);
-    if (saidasEl) saidasEl.innerText = formatCurrency(saidas);
-    if (saldoEl) saldoEl.innerText = formatCurrency(saldo);
-
-    if (caixaStatusEl) caixaStatusEl.innerText = statusCaixa;
-
-    if (totalFinanceiroEl) {
-      totalFinanceiroEl.innerText = formatCurrency(totalFinanceiro);
-    }
-
-    if (totalLabelEl) totalLabelEl.innerText = labelTotal;
-
-    if (summaryRecebido) summaryRecebido.innerText = formatCurrency(recebido);
-    if (summaryProjetado) summaryProjetado.innerText = formatCurrency(projetado);
-    if (summaryInad) summaryInad.innerText = inadPercent.toFixed(1) + "%";
-
-    renderChart(paymentsData);
-
-    if (rankingData.length && rankingContainer) {
-      renderRanking(rankingData);
-    }
-
-  } catch (e) {
-
-    console.error("Erro dashboard:", e);
-
-    if (totalFinanceiroEl) totalFinanceiroEl.innerText = "R$ 0,00";
-
-  }
-}
-
-function renderChart(payments = []) {
-
-  const ctx = document.getElementById("financeChart");
-  if (!ctx) return;
-
-  if (financeChartInstance) {
-    financeChartInstance.destroy();
   }
 
-  const monthly = {};
+  // ==============================
+  // GRÁFICO
+  // ==============================
 
-  payments.forEach(p => {
+  function renderChart(payments = []) {
+    const ctx = el("financeChart");
+    if (!ctx) return;
 
-    const year = Number(p.competence_year);
-    const safeYear = (year > 2000 && year < 2100) ? year : new Date().getFullYear();
-
-    const key = `${safeYear}-${String(p.competence_month).padStart(2, "0")}`;
-
-    if (!monthly[key]) {
-      monthly[key] = { esperado: 0, recebido: 0 };
+    if (financeChartInstance) {
+      financeChartInstance.destroy();
     }
 
-    const v = Number(p.final_amount || 0);
+    const monthly = {};
 
-    monthly[key].esperado += v;
+    payments.forEach(p => {
+      const year = Number(p.competence_year);
+      const safeYear = (year > 2000 && year < 2100) ? year : new Date().getFullYear();
+      const key = `${safeYear}-${String(p.competence_month).padStart(2, "0")}`;
 
-    if (p.status === "paid") {
-      monthly[key].recebido += v;
-    }
+      if (!monthly[key]) monthly[key] = { esperado: 0, recebido: 0 };
 
-  });
+      const v = Number(p.final_amount || 0);
+      monthly[key].esperado += v;
+      if (p.status === "paid") monthly[key].recebido += v;
+    });
 
-  const labels = Object.keys(monthly).sort().slice(-6);
+    const labels   = Object.keys(monthly).sort().slice(-6);
+    const esperado = labels.map(m => monthly[m].esperado);
+    const recebido = labels.map(m => monthly[m].recebido);
 
-  const esperado = labels.map(m => monthly[m].esperado);
-  const recebido = labels.map(m => monthly[m].recebido);
-
-  financeChartInstance = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Esperado",
-          data: esperado,
-          backgroundColor: "#3b82f6",
-          barThickness: 18
-        },
-        {
-          label: "Recebido",
-          data: recebido,
-          backgroundColor: "#22c55e",
-          barThickness: 18
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          labels: { boxWidth: 12 }
-        }
+    financeChartInstance = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          { label: "Esperado", data: esperado, backgroundColor: "#3b82f6", barThickness: 18 },
+          { label: "Recebido", data: recebido, backgroundColor: "#22c55e", barThickness: 18 }
+        ]
       },
-      scales: {
-        x: { grid: { display: false }},
-        y: { beginAtZero: true }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { boxWidth: 12 } } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true }
+        }
       }
-    }
-  });
-}
-
-function renderRanking(data = []) {
-
-  const container = document.getElementById("ranking-classes");
-  if (!container) return;
-
-  const f = (v) =>
-    Number(v || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
     });
+  }
 
-  const sorted = [...data].sort((a, b) => b.total_received - a.total_received);
-  const max = sorted[0]?.total_received || 1;
+  // ==============================
+  // RANKING
+  // ==============================
 
-  container.innerHTML = sorted.map(c => {
+  function renderRanking(data = []) {
+    const container = el("dash-ranking");
+    if (!container) return;
 
-    const eficiencia = c.total_expected > 0
-      ? (c.total_received / c.total_expected) * 100
-      : 0;
+    if (!data.length) {
+      container.innerHTML = `<p class="empty-state">Nenhuma turma com dados</p>`;
+      return;
+    }
 
-    const width = (c.total_received / max) * 100;
+    const sorted = [...data].sort((a, b) => b.total_received - a.total_received);
+    const max    = sorted[0]?.total_received || 1;
 
-    return `
-      <div class="ranking-item">
-        <div class="ranking-header">
-          <span>${c.class_name}</span>
-          <strong>${f(c.total_received)}</strong>
+    container.innerHTML = sorted.map((c, i) => {
+
+      const eficiencia = c.total_expected > 0
+        ? (c.total_received / c.total_expected) * 100
+        : 0;
+
+      const width = (c.total_received / max) * 100;
+
+      let color  = "ranking-fill-red";
+      let badge  = "🔴 Crítico";
+      let bClass = "red";
+
+      if (eficiencia >= 70) {
+        color  = "ranking-fill-green";
+        badge  = "✅ Excelente";
+        bClass = "green";
+      } else if (eficiencia >= 60) {
+        color  = "ranking-fill-yellow";
+        badge  = "⚠️ Atenção";
+        bClass = "yellow";
+      }
+
+      return `
+        <div class="ranking-item">
+          <div class="ranking-header">
+            <div class="ranking-name">
+              <span class="ranking-pos">#${i + 1}</span>
+              <span>${c.class_name}</span>
+            </div>
+            <div class="ranking-right">
+              <strong>${fmt(c.total_received)}</strong>
+              <span class="ranking-badge ${bClass}">${badge}</span>
+            </div>
+          </div>
+          <div class="ranking-bar">
+            <div class="ranking-fill ${color}" style="width:${width}%"></div>
+          </div>
+          <small>${eficiencia.toFixed(0)}% de eficiência</small>
         </div>
+      `;
+    }).join("");
+  }
 
-        <div class="ranking-bar">
-          <div class="ranking-fill" style="width:${width}%"></div>
-        </div>
-
-        <small>${eficiencia.toFixed(0)}% de eficiência</small>
-      </div>
-    `;
-  }).join("");
-}
-
-window.DashboardModule = { init };
+  window.DashboardModule = { init };
 
 })();
-
