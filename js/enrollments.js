@@ -2,8 +2,13 @@
 
 let enrollmentsCache = []
 let editingEnrollmentId = null
+let initDone = false;
+
 
 async function init(){
+
+if (initDone) return;
+initDone = true;
 
 console.log("Enrollments module iniciado")
 
@@ -42,6 +47,10 @@ filterEnrollments();
 }
 
 }
+
+
+
+
 
 /* =========================
 EVENTS
