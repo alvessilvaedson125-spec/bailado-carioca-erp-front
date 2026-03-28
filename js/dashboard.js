@@ -203,6 +203,44 @@ async function renderRanking() {
     console.error("Erro ranking:", err);
   }
 }
+
+function renderChart(payments){
+
+  const canvas = document.getElementById("finance-chart");
+  if(!canvas) return;
+
+  // limpar gráfico anterior (evita duplicação)
+  if(window.__chart){
+    window.__chart.destroy();
+  }
+
+  const pagos = payments
+    .filter(p => p.computed_status === "paid")
+    .reduce((sum, p) => sum + Number(p.final_amount || 0), 0);
+
+  const pendentes = payments
+    .filter(p => p.computed_status !== "paid")
+    .reduce((sum, p) => sum + Number(p.final_amount || 0), 0);
+
+  window.__chart = new Chart(canvas, {
+    type: "doughnut",
+    data: {
+      labels: ["Recebido", "Pendente"],
+      datasets: [{
+        data: [pagos, pendentes]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "bottom"
+        }
+      }
+    }
+  });
+
+}
 // =====================
 // EXPORT
 // =====================
