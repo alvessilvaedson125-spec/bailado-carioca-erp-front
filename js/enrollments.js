@@ -107,9 +107,7 @@ String(e.student_id) === String(selectedStudentId)
 
 renderEnrollments(filtered);
 
-setTimeout(() => {
 localStorage.removeItem("selectedStudentId");
-}, 0);
 
 } else {
 
