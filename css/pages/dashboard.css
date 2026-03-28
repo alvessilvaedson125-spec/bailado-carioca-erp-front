@@ -69,9 +69,30 @@
 }
 
 /* Cores por performance */
-.dash-kpi-card.kpi-green { border-left-color: #16a34a; }
-.dash-kpi-card.kpi-yellow { border-left-color: #f59e0b; }
-.dash-kpi-card.kpi-red { border-left-color: #dc2626; }
+
+.dash-kpi-card.kpi-green {
+  border-left-color: #16a34a;
+}
+
+.dash-kpi-card.kpi-green .dash-kpi-value {
+  color: #16a34a;
+}
+
+.dash-kpi-card.kpi-yellow {
+  border-left-color: #f59e0b;
+}
+
+.dash-kpi-card.kpi-yellow .dash-kpi-value {
+  color: #ca8a04;
+}
+
+.dash-kpi-card.kpi-red {
+  border-left-color: #dc2626;
+}
+
+.dash-kpi-card.kpi-red .dash-kpi-value {
+  color: #dc2626;
+}
 
 /* Primeiros 2 cards — cor fixa */
 .dash-kpis .dash-kpi-card:nth-child(1) { border-left-color: #16a34a; }

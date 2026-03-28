@@ -44,10 +44,10 @@ let financeChartInstance = null;
 
       const finance = calculateFinance({ payments, cash });
 
-      const { esperado, recebido, projetado } = finance.receita;
-      const { atrasado, defaultRate }          = finance.inadimplencia;
-      const { entries, exits, balance }        = finance.caixa;
-      const total                              = finance.total;
+      const { esperado, recebido }    = finance.receita;
+      const { atrasado, defaultRate } = finance.inadimplencia;
+      const { entries, exits, balance } = finance.caixa;
+      const total                     = finance.total;
 
       // ==============================
       // EFICIÊNCIA
@@ -61,14 +61,20 @@ let financeChartInstance = null;
       // RENDER LINHA 1 — KPIs
       // ==============================
 
-      setText("dash-recebido",    fmt(recebido));
-      setText("dash-esperado",    fmt(esperado));
-      setText("dash-eficiencia",  eficiencia.toFixed(1) + "%");
+      setText("dash-recebido",     fmt(recebido));
+      setText("dash-esperado",     fmt(esperado));
+      setText("dash-eficiencia",   eficiencia.toFixed(1) + "%");
       setText("dash-inadimplencia", defaultRate.toFixed(1) + "%");
-      setText("dash-atrasado",    fmt(atrasado));
+      setText("dash-atrasado",     fmt(atrasado));
 
-      // Eficiência — cor e label
-      const efCard = el("dash-eficiencia-card");
+      // Trend recebido
+      const trendEl = el("dash-recebido-trend");
+      if (trendEl) {
+        trendEl.innerText = recebido > 0 ? "↗️ em dia" : "↘️ sem receita";
+      }
+
+      // Eficiência — borda + label
+      const efCard  = el("dash-eficiencia-card");
       const efLabel = el("dash-eficiencia-label");
 
       if (eficiencia >= 70) {
@@ -82,7 +88,7 @@ let financeChartInstance = null;
         if (efLabel) efLabel.innerText = "🔴 Abaixo do ideal";
       }
 
-      // Inadimplência — cor
+      // Inadimplência — borda
       const inadCard = el("dash-inad-card");
       if (inadCard) {
         if (defaultRate >= 20)      inadCard.classList.add("kpi-red");
@@ -90,21 +96,14 @@ let financeChartInstance = null;
         else                        inadCard.classList.add("kpi-green");
       }
 
-      // Trend recebido (mock seguro)
-      const trendEl = el("dash-recebido-trend");
-      if (trendEl) {
-        const trend = recebido > 0 ? "↗️ em dia" : "↘️ sem receita";
-        trendEl.innerText = trend;
-      }
-
       // ==============================
       // RENDER LINHA 2 — SAÚDE
       // ==============================
 
-      setText("dash-entradas",  fmt(entries));
-      setText("dash-saidas",    fmt(exits));
-      setText("dash-saldo",     fmt(balance));
-      setText("dash-total",     fmt(total));
+      setText("dash-entradas", fmt(entries));
+      setText("dash-saidas",   fmt(exits));
+      setText("dash-saldo",    fmt(balance));
+      setText("dash-total",    fmt(total));
 
       // Status geral
       const statusEl = el("dash-status");
