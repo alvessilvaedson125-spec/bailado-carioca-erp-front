@@ -138,46 +138,29 @@ async function init(){
 // =====================
 // RANKING
 // =====================
-function renderRanking(data){
+function renderRanking(data) {
+  const container = document.querySelector('#ranking-container');
+  if (!container) return;
 
-  const container = document.getElementById("ranking-classes");
-  if(!container) return;
-
-  if(!data.length){
-    container.innerHTML = "<p>Nenhuma turma com faturamento</p>";
+  if (!data || data.length === 0) {
+    container.innerHTML = `<p>Nenhum dado disponível</p>`;
     return;
   }
 
-  const normalized = data.map(item => ({
-    name: item.class_name || item.name || "Turma",
-    total: Number(
-      item.total ??
-      item.amount ??
-      item.sum ??
-      item.received ??
-      0
-    ),
-    expected: Number(item.expected ?? 0)
-  }));
+  const sorted = data
+    .map(item => ({
+      name: item.class_name || 'Turma',
+      total: Number(item.total_received || 0)
+    }))
+    .sort((a, b) => b.total - a.total);
 
-  const sorted = normalized
-    .sort((a,b) => b.total - a.total)
-    .slice(0,5);
-
-  container.innerHTML = sorted.map((item, index) => {
-
-    const efficiency = item.expected > 0
-      ? ((item.total / item.expected) * 100).toFixed(0)
-      : 0;
-
-    return `
-      <div class="ranking-item">
-        <strong>${index + 1}. ${item.name}</strong><br>
-        ${formatCurrency(item.total)}<br>
-        <small>${efficiency}% de eficiência</small>
-      </div>
-    `;
-  }).join("");
+  container.innerHTML = sorted.map((item, index) => `
+    <div>
+      <strong>${index + 1}. ${item.name}</strong><br>
+      R$ ${item.total.toFixed(2)}<br>
+      <small>${((item.total / (sorted[0]?.total || 1)) * 100).toFixed(0)}% de eficiência</small>
+    </div>
+  `).join('');
 }
 // =====================
 // EXPORT
