@@ -138,29 +138,70 @@ async function init(){
 // =====================
 // RANKING
 // =====================
-function renderRanking(data) {
- const container = document.querySelector('#ranking-classes');
-  if (!container) return;
+async function renderRanking() {
+  try {
+    const [classesRes, rankingRes] = await Promise.all([
+      apiRequest("/api/v1/classes"),
+      apiRequest("/api/v1/payments/by-class")
+    ]);
 
-  if (!data || data.length === 0) {
-    container.innerHTML = `<p>Nenhum dado disponível</p>`;
-    return;
+    const classes = classesRes.data || [];
+    const rankingData = rankingRes.data || [];
+
+    const container = document.getElementById("ranking-container");
+    if (!container) return;
+
+    // 🔥 INDEXAR pagamentos por class_id
+    const rankingMap = {};
+    rankingData.forEach(item => {
+      rankingMap[item.class_id] = item;
+    });
+
+    // 🔥 GARANTIR TODAS AS TURMAS
+    const fullRanking = classes.map(cls => {
+      const data = rankingMap[cls.id] || {
+        total_received: 0,
+        total_expected: 0,
+        total_overdue: 0
+      };
+
+      return {
+        class_name: cls.name,
+        total_received: data.total_received,
+        total_expected: data.total_expected,
+        efficiency:
+          data.total_expected > 0
+            ? (data.total_received / data.total_expected) * 100
+            : 0
+      };
+    });
+
+    // 🔥 ORDENAR
+    fullRanking.sort((a, b) => b.total_received - a.total_received);
+
+    // 🔥 RENDER
+    container.innerHTML = "";
+
+    if (fullRanking.length === 0) {
+      container.innerHTML = "<p>Nenhuma turma</p>";
+      return;
+    }
+
+    fullRanking.forEach((item, index) => {
+      const div = document.createElement("div");
+
+      div.innerHTML = `
+        <strong>${index + 1}. ${item.class_name}</strong><br>
+        R$ ${item.total_received.toFixed(2)}<br>
+        ${item.efficiency.toFixed(0)}% de eficiência
+      `;
+
+      container.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("Erro ranking:", err);
   }
-
-  const sorted = data
-    .map(item => ({
-      name: item.class_name || 'Turma',
-      total: Number(item.total_received || 0)
-    }))
-    .sort((a, b) => b.total - a.total);
-
-  container.innerHTML = sorted.map((item, index) => `
-    <div>
-      <strong>${index + 1}. ${item.name}</strong><br>
-      R$ ${item.total.toFixed(2)}<br>
-      <small>${((item.total / (sorted[0]?.total || 1)) * 100).toFixed(0)}% de eficiência</small>
-    </div>
-  `).join('');
 }
 // =====================
 // EXPORT
