@@ -1,2 +1,137 @@
-<h2>Relatórios</h2>
-<p>Módulo em construção.</p>
+<div class="page" id="reports-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Relatórios</h1>
+      <p class="page-subtitle">Dados operacionais e decisões financeiras</p>
+    </div>
+    <div class="reports-filters">
+      <select id="report-month">
+        <option value="">Todos os meses</option>
+        <option value="1">Janeiro</option>
+        <option value="2">Fevereiro</option>
+        <option value="3">Março</option>
+        <option value="4">Abril</option>
+        <option value="5">Maio</option>
+        <option value="6">Junho</option>
+        <option value="7">Julho</option>
+        <option value="8">Agosto</option>
+        <option value="9">Setembro</option>
+        <option value="10">Outubro</option>
+        <option value="11">Novembro</option>
+        <option value="12">Dezembro</option>
+      </select>
+      <select id="report-year">
+        <option value="2025">2025</option>
+        <option value="2026" selected>2026</option>
+      </select>
+      <button id="btnGenerateReport" class="btn-primary">Gerar relatório</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="report-kpis">
+    <div class="report-kpi-card blue">
+      <span>Esperado</span>
+      <strong id="rep-esperado">—</strong>
+    </div>
+    <div class="report-kpi-card green">
+      <span>Recebido</span>
+      <strong id="rep-recebido">—</strong>
+    </div>
+    <div class="report-kpi-card orange">
+      <span>Pendente</span>
+      <strong id="rep-pendente">—</strong>
+    </div>
+    <div class="report-kpi-card red">
+      <span>Inadimplente</span>
+      <strong id="rep-atrasado">—</strong>
+    </div>
+  </div>
+
+  <!-- LINHA 2: Caixa + Taxa -->
+  <div class="report-row">
+
+    <div class="report-card">
+      <h3>Caixa</h3>
+      <div class="report-card-row">
+        <span>Entradas</span>
+        <strong class="green" id="rep-entradas">—</strong>
+      </div>
+      <div class="report-card-row">
+        <span>Saídas</span>
+        <strong class="red" id="rep-saidas">—</strong>
+      </div>
+      <div class="report-card-row total">
+        <span>Saldo</span>
+        <strong id="rep-saldo">—</strong>
+      </div>
+    </div>
+
+    <div class="report-card">
+      <h3>Eficiência de Cobrança</h3>
+      <div class="report-gauge">
+        <div class="report-gauge-bar">
+          <div class="report-gauge-fill green" id="rep-gauge-recebido" style="width:0%"></div>
+          <div class="report-gauge-fill orange" id="rep-gauge-pendente" style="width:0%"></div>
+          <div class="report-gauge-fill red" id="rep-gauge-atrasado" style="width:0%"></div>
+        </div>
+        <div class="report-gauge-legend">
+          <span class="green">■ Recebido</span>
+          <span class="orange">■ Pendente</span>
+          <span class="red">■ Inadimplente</span>
+        </div>
+      </div>
+      <div class="report-card-row total">
+        <span>Taxa de inadimplência</span>
+        <strong id="rep-default-rate">—</strong>
+      </div>
+    </div>
+
+    <div class="report-card">
+      <h3>Total Consolidado</h3>
+      <p class="report-total-label">Recebido + Saldo de Caixa</p>
+      <strong class="report-total-value" id="rep-total">—</strong>
+      <p class="report-total-sub" id="rep-total-label">—</p>
+    </div>
+
+  </div>
+
+  <!-- RANKING DE TURMAS -->
+  <div class="report-card full">
+    <h3>Ranking por Turma</h3>
+    <div id="rep-ranking">
+      <p class="empty-state">Carregando...</p>
+    </div>
+  </div>
+
+  <!-- TABELA DE PAGAMENTOS -->
+  <div class="report-card full">
+    <div class="report-table-header">
+      <h3>Pagamentos do período</h3>
+      <div class="report-table-filters">
+        <select id="rep-filter-status">
+          <option value="">Todos os status</option>
+          <option value="paid">Pago</option>
+          <option value="pending">Pendente</option>
+          <option value="overdue">Vencido</option>
+        </select>
+      </div>
+    </div>
+    <table class="data-table" id="rep-payments-table">
+      <thead>
+        <tr>
+          <th>Aluno</th>
+          <th>Turma</th>
+          <th>Competência</th>
+          <th>Valor</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="rep-payments-body">
+        <tr><td colspan="5">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

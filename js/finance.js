@@ -1,72 +1,67 @@
 window.calculateFinance = function ({
   payments = [],
   enrollments = [],
-  cashEntries = [],
-  cashExits = []
+  cash = []
 }) {
 
-  const normalizeStatus = (s) => (s || "").toLowerCase();
+  const normalize = (s) => (s || "").toLowerCase();
 
   // =========================
-  // RECEBIDO
+  // RECEITA
   // =========================
 
-  const received = payments
-    .filter(p => normalizeStatus(p.status) === "paid" || normalizeStatus(p.status) === "pago")
-    .reduce((acc, p) => acc + (p.amount || 0), 0);
+  let esperado = 0;
+  let recebido = 0;
+  let atrasado = 0;
+  let pendente = 0;
 
-  // =========================
-  // ESPERADO
-  // =========================
+  const today = new Date();
 
-  const activeEnrollments = enrollments
-    .filter(e => normalizeStatus(e.status) === "active" || normalizeStatus(e.status) === "ativo");
+  payments.forEach(p => {
+    const value = Number(p.final_amount || 0);
+    esperado += value;
 
-  const expected = activeEnrollments
-    .reduce((acc, e) => acc + (e.final_price || e.monthly_fee || 0), 0);
+    if (p.status === "paid") {
+      recebido += value;
+    } else if (p.status === "pending") {
+      const due = new Date(p.due_date);
+      if (due < today) atrasado += value;
+      else pendente += value;
+    } else if (p.status === "overdue") {
+      atrasado += value;
+    }
+  });
 
-  // =========================
-  // PROJEÇÃO
-  // =========================
+  const projetado = recebido + pendente;
 
-  const projected = expected * 0.9;
-
-  // =========================
-  // INADIMPLÊNCIA
-  // =========================
-
-  const overdue = payments
-    .filter(p => {
-      const s = normalizeStatus(p.status);
-      return s === "overdue" || s === "pending" || s === "vencido" || s === "pendente";
-    })
-    .reduce((acc, p) => acc + (p.amount || 0), 0);
-
-  const defaultRate = expected > 0
-    ? Math.min((overdue / expected) * 100, 100)
+  const defaultRate = esperado > 0
+    ? Math.min((atrasado / esperado) * 100, 100)
     : 0;
 
   // =========================
   // CAIXA
   // =========================
 
-  const entries = cashEntries
-    .reduce((acc, c) => acc + (c.amount || 0), 0);
+  let entries = 0;
+  let exits = 0;
 
-  const exits = cashExits
-    .reduce((acc, c) => acc + (c.amount || 0), 0);
+  cash.forEach(c => {
+    const v = Number(c.amount || 0);
+    if (c.type === "in")  entries += v;
+    if (c.type === "out") exits += v;
+  });
 
   const balance = entries - exits;
 
   // =========================
-  // TOTAL (CORRETO)
+  // TOTAL CONSOLIDADO
   // =========================
 
-  const total = Number(received || 0) + Number(balance || 0);
+  const total = recebido + balance;
 
   return {
-    receita: { received, expected, projected },
-    inadimplencia: { overdue, defaultRate },
+    receita: { esperado, recebido, projetado, pendente },
+    inadimplencia: { atrasado, defaultRate },
     caixa: { entries, exits, balance },
     total
   };

@@ -10,6 +10,7 @@ async function checkAuth() {
     return false
   }
 }
+
 async function loadPage(page) {
 
   try {
@@ -31,9 +32,8 @@ async function loadPage(page) {
 
     content.innerHTML = html
 
-    // 🔥 ESPERA O BROWSER PROCESSAR O HTML + SCRIPTS
-   await waitForModule(page)
-initModule(page)
+    await waitForModule(page)
+    initModule(page)
 
   } catch (err) {
     console.error(err)
@@ -42,50 +42,50 @@ initModule(page)
 
 }
 
-async function waitForModule(page){
+async function waitForModule(page) {
 
   const moduleMap = {
-    dashboard: "DashboardModule",
-    students: "StudentsModule",
-    classes: "ClassesModule",
-    units: "UnitsModule",
-    teachers: "TeachersModule",
+    dashboard:   "DashboardModule",
+    students:    "StudentsModule",
+    classes:     "ClassesModule",
+    units:       "UnitsModule",
+    teachers:    "TeachersModule",
     enrollments: "EnrollmentsModule",
-    payments: "PaymentsModule",
-    cash: "CashModule"
+    payments:    "PaymentsModule",
+    cash:        "CashModule",
+    reports:     "ReportsModule"
   }
 
   const moduleName = moduleMap[page]
 
-  if(!moduleName) return
+  if (!moduleName) return
 
   let attempts = 0
   const maxAttempts = 50 // ~500ms
 
-  while(!window[moduleName] && attempts < maxAttempts){
+  while (!window[moduleName] && attempts < maxAttempts) {
     await new Promise(r => setTimeout(r, 10))
     attempts++
   }
 
-  if(!window[moduleName]){
+  if (!window[moduleName]) {
     console.error(`Módulo ${moduleName} não carregou`)
   }
 
 }
 
-
-
 function initModule(page) {
 
   const modules = {
-    dashboard: window.DashboardModule,
-    students: window.StudentsModule,
-    classes: window.ClassesModule,
-    units: window.UnitsModule,
-    teachers: window.TeachersModule,
+    dashboard:   window.DashboardModule,
+    students:    window.StudentsModule,
+    classes:     window.ClassesModule,
+    units:       window.UnitsModule,
+    teachers:    window.TeachersModule,
     enrollments: window.EnrollmentsModule,
-    payments: window.PaymentsModule,
-    cash: window.CashModule
+    payments:    window.PaymentsModule,
+    cash:        window.CashModule,
+    reports:     window.ReportsModule
   }
 
   const module = modules[page]
@@ -95,6 +95,7 @@ function initModule(page) {
   } else {
     console.warn("Módulo não encontrado ou sem init:", page)
   }
+
 }
 
 let isLoading = false
@@ -111,12 +112,12 @@ function setupNavigation() {
 
       const page = link.dataset.page
 
-      // 👉 ATUALIZA URL (AGORA CONTROLADO)
       window.location.hash = page
 
     })
 
   })
+
 }
 
 function setActiveMenu(page) {
@@ -128,6 +129,7 @@ function setActiveMenu(page) {
   const target = document.querySelector(`.sidebar li[data-page="${page}"]`)
 
   if (target) target.classList.add("active")
+
 }
 
 function getPageFromHash() {
@@ -143,9 +145,12 @@ function handleRouteChange() {
 
   const page = getPageFromHash()
 
+  setActiveMenu(page)
+
   loadPage(page).finally(() => {
     isLoading = false
   })
+
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -155,10 +160,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   setupNavigation()
 
-  // 👉 escuta mudança de rota
   window.addEventListener("hashchange", handleRouteChange)
 
-  // 👉 carrega rota inicial correta
   handleRouteChange()
 
 })
