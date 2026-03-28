@@ -139,7 +139,7 @@ async function init(){
 // RANKING
 // =====================
 function renderRanking(data) {
-  const container = document.querySelector('#ranking-container');
+ const container = document.querySelector('#ranking-classes');
   if (!container) return;
 
   if (!data || data.length === 0) {
