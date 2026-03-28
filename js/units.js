@@ -1,288 +1,210 @@
 (function(){
 
-let units = []
-
-async function init(){
-
-console.log("Units module iniciado")
-
-await loadUnits()
-
-document
-.getElementById("newUnitBtn")
-?.addEventListener("click", openNewUnitModal)
-
-document
-.getElementById("cancelUnitBtn")
-?.addEventListener("click", closeUnitModal)
-
-document
-.getElementById("saveUnitBtn")
-?.addEventListener("click", saveUnit)
-
-document
-.getElementById("searchUnit")
-?.addEventListener("input", filterUnits)
-
-}
-
-// ===============================
-// LOAD
-// ===============================
-
-async function loadUnits(){
-
-try{
-
-const res = await apiRequest("/api/v1/units")
-
-units = res.data || []
-
-renderUnits(units)
-
-}catch(err){
-
-console.error(err)
-
-alert("Erro ao carregar unidades")
-
-}
-
-}
-
-// ===============================
-// RENDER
-// ===============================
-
-function renderUnits(list){
-
-const table = document.getElementById("unitsTable")
-
-if(!table) return
-
-if(list.length === 0){
-
-table.innerHTML = `
-<tr>
-<td colspan="3" class="empty-state">
-Nenhuma unidade encontrada
-</td>
-</tr>
-`
-
-return
-}
-
-table.innerHTML = list.map(unit => `
-
-<tr>
-
-<td>${unit.name}</td>
-
-<td>${formatDate(unit.created_at)}</td>
-
-<td>
-
-<button onclick="UnitsModule.editUnit('${unit.id}')">
-Editar
-</button>
-
-<button onclick="UnitsModule.deleteUnit('${unit.id}')">
-Excluir
-</button>
-
-</td>
-
-</tr>
-
-`).join("")
-
-}
-
-// ===============================
-// MODAL
-// ===============================
-
-function openNewUnitModal(){
-
-document.getElementById("unitModalTitle").innerText = "Nova Unidade"
-
-document.getElementById("editUnitId").value = ""
-
-document.getElementById("editUnitName").value = ""
-
-openUnitModal()
-
-}
-
-function editUnit(id){
-
-const unit = units.find(u => u.id === id)
-
-if(!unit) return
-
-document.getElementById("unitModalTitle").innerText = "Editar Unidade"
-
-document.getElementById("editUnitId").value = unit.id
-
-document.getElementById("editUnitName").value = unit.name
-
-openUnitModal()
-
-}
-
-function openUnitModal(){
-
-document
-.getElementById("unitModal")
-.classList.remove("hidden")
-
-}
-
-function closeUnitModal(){
-
-document
-.getElementById("unitModal")
-.classList.add("hidden")
-
-}
-
-// ===============================
-// SAVE
-// ===============================
-
-async function saveUnit(){
-
-const id = document.getElementById("editUnitId").value
-
-const name = document.getElementById("editUnitName").value.trim()
-
-if(!name){
-
-alert("Informe o nome da unidade")
-
-return
-
-}
-
-try{
-
-let res
-
-if(id){
-
-res = await apiRequest(
-`/api/v1/units/${id}`,
-"PUT",
-{ name }
-)
-
-}else{
-
-res = await apiRequest(
-"/api/v1/units",
-"POST",
-{ name }
-)
-
-}
-
-if(!res.success){
-
-alert("Erro ao salvar unidade")
-
-return
-
-}
-
-closeUnitModal()
-
-await loadUnits()
-
-}catch(err){
-
-console.error(err)
-
-alert("Erro na API")
-
-}
-
-}
-
-// ===============================
-// DELETE
-// ===============================
-
-async function deleteUnit(id){
-
-if(!confirm("Deseja excluir esta unidade?")) return
-
-try{
-
-const res = await apiRequest(
-`/api/v1/units/${id}`,
-"DELETE"
-)
-
-if(!res.success){
-
-alert("Erro ao excluir")
-
-return
-
-}
-
-await loadUnits()
-
-}catch(err){
-
-console.error(err)
-
-alert("Erro na API")
-
-}
-
-}
-
-// ===============================
-// FILTER
-// ===============================
-
-function filterUnits(){
-
-const term = document
-.getElementById("searchUnit")
-.value
-.toLowerCase()
-
-const filtered = units.filter(unit =>
-unit.name.toLowerCase().includes(term)
-)
-
-renderUnits(filtered)
-
-}
-
-// ===============================
-// UTIL
-// ===============================
-
-function formatDate(date){
-
-if(!date) return ""
-
-const d = new Date(date)
-
-return d.toLocaleDateString()
-
-}
-
-window.UnitsModule = {
-init,
-loadUnits,
-editUnit,
-deleteUnit,
-saveUnit
-};
+  let unitsCache = [];
+
+  async function init(){
+    console.log("Units module iniciado");
+
+    await checkAuth();
+
+    document.getElementById("newUnitBtn")?.addEventListener("click", openNewUnitModal);
+    document.getElementById("cancelUnitBtn")?.addEventListener("click", closeUnitModal);
+    document.getElementById("saveUnitBtn")?.addEventListener("click", saveUnit);
+    document.getElementById("searchUnit")?.addEventListener("input", filterUnits);
+
+    const modal = document.getElementById("unitModal");
+    if(modal){
+      modal.addEventListener("click", (e) => {
+        if(e.target === modal) closeUnitModal();
+      });
+    }
+
+    await loadUnits();
+  }
+
+  // ===============================
+  // LOAD
+  // ===============================
+
+  async function loadUnits(){
+    const tbody = document.querySelector("#unitsTable");
+    if(!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="3">Carregando...</td></tr>`;
+
+    try{
+      const res = await apiRequest("/api/v1/units");
+
+      if(!res || !res.success){
+        tbody.innerHTML = `<tr><td colspan="3">Erro ao carregar unidades</td></tr>`;
+        return;
+      }
+
+      unitsCache = res.data || [];
+      renderUnits(unitsCache);
+
+    }catch(err){
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="3">Erro na API</td></tr>`;
+    }
+  }
+
+  // ===============================
+  // RENDER
+  // ===============================
+
+  function renderUnits(list){
+    const tbody = document.getElementById("unitsTable");
+    if(!tbody) return;
+
+    if(list.length === 0){
+      tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Nenhuma unidade encontrada</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = "";
+
+    list.forEach(unit => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${safe(unit.name)}</td>
+        <td>${formatDate(unit.created_at)}</td>
+        <td>
+          <button class="btn-edit">✏️ Editar</button>
+          <button class="btn-danger">🗑️ Excluir</button>
+        </td>
+      `;
+
+      tr.querySelector(".btn-edit").onclick = () => editUnit(unit.id);
+      tr.querySelector(".btn-danger").onclick = () => deleteUnit(unit.id);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ===============================
+  // MODAL
+  // ===============================
+
+  function openNewUnitModal(){
+    document.getElementById("unitModalTitle").innerText = "Nova Unidade";
+    document.getElementById("editUnitId").value = "";
+    document.getElementById("editUnitName").value = "";
+    document.getElementById("unitModal").classList.remove("hidden");
+  }
+
+  function editUnit(id){
+    const unit = unitsCache.find(u => u.id === id);
+    if(!unit) return;
+
+    document.getElementById("unitModalTitle").innerText = "Editar Unidade";
+    document.getElementById("editUnitId").value = unit.id;
+    document.getElementById("editUnitName").value = unit.name;
+    document.getElementById("unitModal").classList.remove("hidden");
+  }
+
+  function closeUnitModal(){
+    document.getElementById("unitModal").classList.add("hidden");
+    document.getElementById("editUnitId").value = "";
+    document.getElementById("editUnitName").value = "";
+  }
+
+  // ===============================
+  // SAVE
+  // ===============================
+
+  async function saveUnit(){
+    const id = document.getElementById("editUnitId").value;
+    const name = document.getElementById("editUnitName").value.trim();
+
+    if(!name){
+      alert("Informe o nome da unidade");
+      return;
+    }
+
+    try{
+      const endpoint = id ? `/api/v1/units/${id}` : "/api/v1/units";
+      const method = id ? "PUT" : "POST";
+
+      const res = await apiRequest(endpoint, method, { name });
+
+      if(!res || !res.success){
+        alert("Erro ao salvar unidade");
+        return;
+      }
+
+      closeUnitModal();
+      await loadUnits();
+
+    }catch(err){
+      console.error(err);
+      alert("Erro na API");
+    }
+  }
+
+  // ===============================
+  // DELETE
+  // ===============================
+
+  async function deleteUnit(id){
+    if(!confirm("Deseja excluir esta unidade?")) return;
+
+    try{
+      const res = await apiRequest(`/api/v1/units/${id}`, "DELETE");
+
+      if(!res || !res.success){
+        alert("Erro ao excluir unidade");
+        return;
+      }
+
+      await loadUnits();
+
+    }catch(err){
+      console.error(err);
+      alert("Erro na API");
+    }
+  }
+
+  // ===============================
+  // FILTER
+  // ===============================
+
+  function filterUnits(){
+    const term = document.getElementById("searchUnit")?.value.toLowerCase() || "";
+
+    if(term === ""){
+      renderUnits(unitsCache);
+      return;
+    }
+
+    const filtered = unitsCache.filter(unit =>
+      unit.name.toLowerCase().includes(term)
+    );
+
+    renderUnits(filtered);
+  }
+
+  // ===============================
+  // UTILS
+  // ===============================
+
+  function formatDate(date){
+    if(!date) return "-";
+    return new Date(date).toLocaleDateString("pt-BR");
+  }
+
+  function safe(value){
+    if(value === null || value === undefined) return "-";
+    return value;
+  }
+
+  window.UnitsModule = {
+    init,
+    loadUnits,
+    editUnit,
+    deleteUnit,
+    saveUnit
+  };
 
 })();
