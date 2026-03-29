@@ -177,41 +177,59 @@
   // ===============================
 
   function renderRanking(data){
-    const container = el("rep-ranking");
-    if(!container) return;
+  const container = el("rep-ranking");
+  if(!container) return;
 
-    if(!data || !data.length){
-      container.innerHTML = `<p class="empty-state">Nenhum dado disponível</p>`;
-      return;
+  if(!data || !data.length){
+    container.innerHTML = `<p class="empty-state">Nenhum dado disponível</p>`;
+    return;
+  }
+
+  const sorted = [...data].sort((a,b) => b.total_received - a.total_received);
+  const max = sorted[0]?.total_received || 1;
+
+  container.innerHTML = sorted.map((c, i) => {
+    const eficiencia = c.total_expected > 0
+      ? (c.total_received / c.total_expected) * 100
+      : 0;
+
+    // 🔥 CORRETO: largura baseada na eficiência, não no valor recebido
+    const width = Math.min(eficiencia, 100).toFixed(1);
+
+    let cor   = "#ef4444";
+    let badge = "🔴 Crítico";
+    let bClass = "red";
+
+    if (eficiencia >= 70) {
+      cor    = "#22c55e";
+      badge  = "✅ Excelente";
+      bClass = "green";
+    } else if (eficiencia >= 60) {
+      cor    = "#f59e0b";
+      badge  = "⚠️ Atenção";
+      bClass = "yellow";
     }
 
-    const sorted = [...data].sort((a,b) => b.total_received - a.total_received);
-    const max = sorted[0]?.total_received || 1;
-
-    container.innerHTML = sorted.map(c => {
-      const eficiencia = c.total_expected > 0
-        ? (c.total_received / c.total_expected) * 100
-        : 0;
-      const width = (c.total_received / max) * 100;
-
-      let cor = "#ef4444";
-      if(eficiencia >= 70) cor = "#22c55e";
-      else if(eficiencia >= 60) cor = "#f59e0b";
-
-      return `
-        <div class="ranking-item">
-          <div class="ranking-header">
-            <span>${c.class_name}</span>
-            <strong>${fmt(c.total_received)}</strong>
+    return `
+      <div class="ranking-item">
+        <div class="ranking-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:12px; color:#9ca3af; font-weight:700; width:20px;">#${i+1}</span>
+            <span style="font-size:14px; color:#1e293b;">${c.class_name}</span>
           </div>
-          <div class="ranking-bar">
-            <div class="ranking-fill" style="width:${width}%; background:${cor}"></div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <strong style="font-size:14px;">${fmt(c.total_received)}</strong>
+            <span class="badge ${bClass}">${badge}</span>
           </div>
-          <small>${eficiencia.toFixed(0)}% de eficiência</small>
         </div>
-      `;
-    }).join("");
-  }
+        <div class="ranking-bar">
+          <div class="ranking-fill" style="width:${width}%; background:${cor};"></div>
+        </div>
+        <small style="font-size:12px; color:#6b7280;">${eficiencia.toFixed(0)}% de eficiência</small>
+      </div>
+    `;
+  }).join("");
+}
 
   // ===============================
   // RENDER TABELA PAGAMENTOS
