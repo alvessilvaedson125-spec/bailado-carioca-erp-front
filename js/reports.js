@@ -1,13 +1,14 @@
 (function(){
 
   let paymentsCache = [];
-  let cashCache = [];
-  let rankingCache = [];
+  let cashCache     = [];
+  let rankingCache  = [];
+  let financeCache  = null;
 
   const fmt = (v) =>
     Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const el = (id) => document.getElementById(id);
+  const el      = (id) => document.getElementById(id);
   const setText = (id, val) => { if(el(id)) el(id).innerText = val; };
 
   async function init(){
@@ -17,6 +18,8 @@
 
     el("btnGenerateReport")?.addEventListener("click", loadReport);
     el("rep-filter-status")?.addEventListener("change", renderPaymentsTable);
+    el("btnExportCSV")?.addEventListener("click", exportCSV);
+    el("btnExportPDF")?.addEventListener("click", exportPDF);
 
     await populateClasses();
     await loadReport();
@@ -82,20 +85,19 @@
       cashCache     = cashRes?.success     ? cashRes.data     : [];
       rankingCache  = rankingRes?.success  ? rankingRes.data  : [];
 
-      // 🔥 Se filtrou por turma, filtra ranking também no frontend
       const rankingFiltered = classId
         ? rankingCache.filter(r => r.class_id === classId)
         : rankingCache;
 
-      const finance = calculateFinance({
+      financeCache = calculateFinance({
         payments: paymentsCache,
-        cash: cashCache
+        cash:     cashCache
       });
 
-      renderKPIs(finance);
-      renderGauge(finance);
-      renderCaixa(finance);
-      renderTotal(finance);
+      renderKPIs(financeCache);
+      renderGauge(financeCache);
+      renderCaixa(financeCache);
+      renderTotal(financeCache);
       renderRanking(rankingFiltered);
       renderPaymentsTable();
 
@@ -177,59 +179,57 @@
   // ===============================
 
   function renderRanking(data){
-  const container = el("rep-ranking");
-  if(!container) return;
+    const container = el("rep-ranking");
+    if(!container) return;
 
-  if(!data || !data.length){
-    container.innerHTML = `<p class="empty-state">Nenhum dado disponível</p>`;
-    return;
-  }
-
-  const sorted = [...data].sort((a,b) => b.total_received - a.total_received);
-  const max = sorted[0]?.total_received || 1;
-
-  container.innerHTML = sorted.map((c, i) => {
-    const eficiencia = c.total_expected > 0
-      ? (c.total_received / c.total_expected) * 100
-      : 0;
-
-    // 🔥 CORRETO: largura baseada na eficiência, não no valor recebido
-    const width = Math.min(eficiencia, 100).toFixed(1);
-
-    let cor   = "#ef4444";
-    let badge = "🔴 Crítico";
-    let bClass = "red";
-
-    if (eficiencia >= 70) {
-      cor    = "#22c55e";
-      badge  = "✅ Excelente";
-      bClass = "green";
-    } else if (eficiencia >= 60) {
-      cor    = "#f59e0b";
-      badge  = "⚠️ Atenção";
-      bClass = "yellow";
+    if(!data || !data.length){
+      container.innerHTML = `<p class="empty-state">Nenhum dado disponível</p>`;
+      return;
     }
 
-    return `
-      <div class="ranking-item">
-        <div class="ranking-header">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:12px; color:#9ca3af; font-weight:700; width:20px;">#${i+1}</span>
-            <span style="font-size:14px; color:#1e293b;">${c.class_name}</span>
+    const sorted = [...data].sort((a,b) => b.total_received - a.total_received);
+
+    container.innerHTML = sorted.map((c, i) => {
+      const eficiencia = c.total_expected > 0
+        ? (c.total_received / c.total_expected) * 100
+        : 0;
+
+      const width = Math.min(eficiencia, 100).toFixed(1);
+
+      let cor    = "#ef4444";
+      let badge  = "🔴 Crítico";
+      let bClass = "red";
+
+      if (eficiencia >= 70) {
+        cor    = "#22c55e";
+        badge  = "✅ Excelente";
+        bClass = "green";
+      } else if (eficiencia >= 60) {
+        cor    = "#f59e0b";
+        badge  = "⚠️ Atenção";
+        bClass = "yellow";
+      }
+
+      return `
+        <div class="ranking-item">
+          <div class="ranking-header">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:12px; color:#9ca3af; font-weight:700; width:20px;">#${i+1}</span>
+              <span style="font-size:14px; color:#1e293b;">${c.class_name}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <strong style="font-size:14px;">${fmt(c.total_received)}</strong>
+              <span class="badge ${bClass}">${badge}</span>
+            </div>
           </div>
-          <div style="display:flex; align-items:center; gap:10px;">
-            <strong style="font-size:14px;">${fmt(c.total_received)}</strong>
-            <span class="badge ${bClass}">${badge}</span>
+          <div class="ranking-bar">
+            <div class="ranking-fill" style="width:${width}%; background:${cor};"></div>
           </div>
+          <small style="font-size:12px; color:#6b7280;">${eficiencia.toFixed(0)}% de eficiência</small>
         </div>
-        <div class="ranking-bar">
-          <div class="ranking-fill" style="width:${width}%; background:${cor};"></div>
-        </div>
-        <small style="font-size:12px; color:#6b7280;">${eficiencia.toFixed(0)}% de eficiência</small>
-      </div>
-    `;
-  }).join("");
-}
+      `;
+    }).join("");
+  }
 
   // ===============================
   // RENDER TABELA PAGAMENTOS
@@ -243,9 +243,7 @@
 
     let list = [...paymentsCache];
 
-    // Ordenar por risco: vencido → pendente → pago
     list.sort((a, b) => {
-      const order = { overdue: 0, pending: 1, paid: 2 };
       const getOrder = (p) => {
         if(p.status === "paid") return 2;
         if(new Date(p.due_date) < new Date()) return 0;
@@ -275,6 +273,10 @@
 
       const isOverdue = p.status === "pending" && new Date(p.due_date) < new Date();
 
+      const statusLabel = p.status === "paid" ? "Pago"
+        : isOverdue ? "Vencido"
+        : "Pendente";
+
       const status = p.status === "paid"
         ? `<span class="badge green">Pago</span>`
         : isOverdue
@@ -289,11 +291,211 @@
         <td>${status}</td>
       `;
 
-      // 🔥 destaca linha vencida
       if(isOverdue) tr.style.background = "#fff5f5";
 
       tbody.appendChild(tr);
     });
+  }
+
+  // ===============================
+  // EXPORTAR CSV
+  // ===============================
+
+  function exportCSV(){
+    if(!paymentsCache.length){
+      Toast.warning("Nenhum dado para exportar");
+      return;
+    }
+
+    const month   = el("report-month")?.value || "todos";
+    const year    = el("report-year")?.value  || "todos";
+
+    // --- RESUMO FINANCEIRO ---
+    const finance = financeCache;
+    let csv = "RELATÓRIO FINANCEIRO — BAILADO CARIOCA\n";
+    csv += `Período:,${month}/${year}\n`;
+    csv += `Gerado em:,${new Date().toLocaleDateString("pt-BR")}\n\n`;
+
+    csv += "RESUMO FINANCEIRO\n";
+    csv += "Esperado,Recebido,Pendente,Inadimplente,Total Consolidado\n";
+    csv += [
+      fmtNum(finance.receita.esperado),
+      fmtNum(finance.receita.recebido),
+      fmtNum(finance.receita.pendente),
+      fmtNum(finance.inadimplencia.atrasado),
+      fmtNum(finance.total)
+    ].join(",") + "\n\n";
+
+    // --- PAGAMENTOS ---
+    csv += "PAGAMENTOS DO PERÍODO\n";
+    csv += "Aluno,Turma,Competência,Valor,Status\n";
+
+    paymentsCache.forEach(p => {
+      const isOverdue = p.status === "pending" && new Date(p.due_date) < new Date();
+      const status = p.status === "paid" ? "Pago"
+        : isOverdue ? "Vencido"
+        : "Pendente";
+
+      csv += [
+        `"${p.student_name || ""}"`,
+        `"${p.class_name   || ""}"`,
+        `${String(p.competence_month).padStart(2,"0")}/${p.competence_year}`,
+        fmtNum(p.final_amount),
+        status
+      ].join(",") + "\n";
+    });
+
+    // --- RANKING ---
+    if(rankingCache.length){
+      csv += "\nRANKING POR TURMA\n";
+      csv += "Turma,Recebido,Esperado,Eficiência\n";
+
+      [...rankingCache]
+        .sort((a,b) => b.total_received - a.total_received)
+        .forEach(c => {
+          const ef = c.total_expected > 0
+            ? ((c.total_received / c.total_expected) * 100).toFixed(1)
+            : "0.0";
+          csv += [
+            `"${c.class_name}"`,
+            fmtNum(c.total_received),
+            fmtNum(c.total_expected),
+            `${ef}%`
+          ].join(",") + "\n";
+        });
+    }
+
+    downloadFile(csv, `relatorio_${year}_${month}.csv`, "text/csv;charset=utf-8;");
+    Toast.success("CSV exportado!");
+  }
+
+  // ===============================
+  // EXPORTAR PDF
+  // ===============================
+
+  function exportPDF(){
+    if(!paymentsCache.length){
+      Toast.warning("Nenhum dado para exportar");
+      return;
+    }
+
+    const month = el("report-month")?.value || "Todos";
+    const year  = el("report-year")?.value  || "Todos";
+    const finance = financeCache;
+
+    const rankingRows = [...rankingCache]
+      .sort((a,b) => b.total_received - a.total_received)
+      .map((c, i) => {
+        const ef = c.total_expected > 0
+          ? ((c.total_received / c.total_expected) * 100).toFixed(1)
+          : "0.0";
+        return `<tr>
+          <td>#${i+1} ${c.class_name}</td>
+          <td>R$ ${fmtNum(c.total_received)}</td>
+          <td>R$ ${fmtNum(c.total_expected)}</td>
+          <td>${ef}%</td>
+        </tr>`;
+      }).join("");
+
+    const paymentRows = paymentsCache.map(p => {
+      const isOverdue = p.status === "pending" && new Date(p.due_date) < new Date();
+      const status = p.status === "paid" ? "Pago"
+        : isOverdue ? "Vencido" : "Pendente";
+      const color = p.status === "paid" ? "#16a34a"
+        : isOverdue ? "#dc2626" : "#d97706";
+
+      return `<tr>
+        <td>${p.student_name || "-"}</td>
+        <td>${p.class_name   || "-"}</td>
+        <td>${String(p.competence_month).padStart(2,"0")}/${p.competence_year}</td>
+        <td>R$ ${fmtNum(p.final_amount)}</td>
+        <td style="color:${color}; font-weight:600;">${status}</td>
+      </tr>`;
+    }).join("");
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <title>Relatório Financeiro — Bailado Carioca</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: Arial, sans-serif; font-size: 13px; color: #1e293b; padding: 32px; }
+          h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+          h2 { font-size: 14px; font-weight: 700; margin: 24px 0 10px; color: #374151; border-bottom: 2px solid #e5e7eb; padding-bottom: 4px; }
+          .subtitle { font-size: 12px; color: #6b7280; margin-bottom: 24px; }
+          .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 8px; }
+          .kpi { background: #f9fafb; border-radius: 8px; padding: 12px; border-left: 3px solid #4f46e5; }
+          .kpi span { font-size: 11px; color: #6b7280; display: block; }
+          .kpi strong { font-size: 16px; font-weight: 700; }
+          table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+          th { text-align: left; padding: 8px 10px; font-size: 11px; color: #6b7280; text-transform: uppercase; background: #f9fafb; }
+          td { padding: 8px 10px; border-top: 1px solid #f1f5f9; font-size: 12px; }
+          .footer { margin-top: 32px; font-size: 11px; color: #9ca3af; text-align: center; }
+          @media print {
+            body { padding: 16px; }
+            button { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Bailado Carioca — Gestão Escolar</h1>
+        <p class="subtitle">Relatório Financeiro — Período: ${month}/${year} — Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
+
+        <h2>Resumo Financeiro</h2>
+        <div class="kpis">
+          <div class="kpi"><span>Esperado</span><strong>R$ ${fmtNum(finance.receita.esperado)}</strong></div>
+          <div class="kpi"><span>Recebido</span><strong>R$ ${fmtNum(finance.receita.recebido)}</strong></div>
+          <div class="kpi"><span>Pendente</span><strong>R$ ${fmtNum(finance.receita.pendente)}</strong></div>
+          <div class="kpi"><span>Inadimplente</span><strong>R$ ${fmtNum(finance.inadimplencia.atrasado)}</strong></div>
+        </div>
+
+        <h2>Ranking por Turma</h2>
+        <table>
+          <thead><tr><th>Turma</th><th>Recebido</th><th>Esperado</th><th>Eficiência</th></tr></thead>
+          <tbody>${rankingRows}</tbody>
+        </table>
+
+        <h2>Pagamentos do Período</h2>
+        <table>
+          <thead><tr><th>Aluno</th><th>Turma</th><th>Competência</th><th>Valor</th><th>Status</th></tr></thead>
+          <tbody>${paymentRows}</tbody>
+        </table>
+
+        <div class="footer">Bailado Carioca — Gestão Escolar • ${new Date().toLocaleDateString("pt-BR")}</div>
+      </body>
+      </html>
+    `;
+
+    const win = window.open("", "_blank");
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => {
+      win.print();
+    }, 500);
+
+    Toast.success("PDF aberto para impressão!");
+  }
+
+  // ===============================
+  // UTILS
+  // ===============================
+
+  function fmtNum(v){
+    return Number(v || 0).toFixed(2).replace(".", ",");
+  }
+
+  function downloadFile(content, filename, mimeType){
+    const BOM = "\uFEFF"; // garante acentos no Excel
+    const blob = new Blob([BOM + content], { type: mimeType });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   window.ReportsModule = { init };
