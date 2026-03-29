@@ -1,7 +1,7 @@
 (function(){
 
 let studentsCache = [];
-let enrollmentsMap = {}; // studentId → true/false (tem matrícula ativa)
+let enrollmentsMap = {};
 
 async function init(){
 
@@ -21,7 +21,7 @@ async function init(){
 
   setupModal();
 
-  await loadData(); // 🔥 NOVO: carrega tudo sincronizado
+  await loadData();
 }
 
 async function loadData(){
@@ -33,7 +33,6 @@ async function loadData(){
 
   try{
 
-    // 🔥 CARREGAMENTO PARALELO (sem mudar backend)
     const [studentsRes, enrollmentsRes] = await Promise.all([
       apiRequest("/api/v1/students"),
       apiRequest("/api/v1/enrollments")
@@ -69,17 +68,16 @@ function buildEnrollmentsMap(res){
   }
 
   res.data.forEach(enrollment => {
-
-   const studentId = enrollment.student_id;
+    const studentId = enrollment.student_id;
     if(enrollment.status === "active"){
       enrollmentsMap[studentId] = true;
     }
-
   });
 
 }
+
 function isStudentActive(studentId){
- return !!enrollmentsMap[studentId];
+  return !!enrollmentsMap[studentId];
 }
 
 function renderStudents(list){
@@ -133,7 +131,6 @@ function renderStudents(list){
     const viewBtn = tr.querySelector(".btn-secondary");
 
     editBtn.onclick = () => editStudent(student.id);
-
     viewBtn.onclick = () => goToStudentEnrollments(student.id);
 
     tableBody.appendChild(tr);
@@ -143,12 +140,8 @@ function renderStudents(list){
 }
 
 function goToStudentEnrollments(studentId){
-
   localStorage.setItem("selectedStudentId", studentId);
-
-  // Mantido comportamento atual (não mexer no router agora)
- window.location.hash = "enrollments";
-
+  window.location.hash = "enrollments";
 }
 
 function getInitials(name){
@@ -244,7 +237,7 @@ async function saveStudent(){
   const phone = document.getElementById("editStudentPhone").value;
 
   if(!name.trim() || !email.trim()){
-    alert("Nome e email obrigatórios");
+    Toast.warning("Nome e email obrigatórios");
     return;
   }
 
@@ -256,19 +249,20 @@ async function saveStudent(){
 
     const method = id ? "PUT" : "POST";
 
-    const res = await apiRequest(endpoint,method,{name,email,phone});
+    const res = await apiRequest(endpoint, method, { name, email, phone });
 
     if(!res.success){
-      alert("Erro ao salvar");
+      Toast.error("Erro ao salvar aluno");
       return;
     }
 
+    Toast.success(id ? "Aluno atualizado!" : "Aluno cadastrado!");
     closeModal();
-    await loadData(); // 🔥 IMPORTANTE: manter consistência
+    await loadData();
 
   }catch(err){
     console.error(err);
-    alert("Erro na API");
+    Toast.error("Erro na API");
   }
 
 }
