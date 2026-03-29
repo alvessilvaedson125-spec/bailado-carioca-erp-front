@@ -1,9 +1,16 @@
 (function(){
 
-let classesCache = []
-let unitsCache = []
-let teachersCache = []
+let classesCache  = [];
+let unitsCache    = [];
+let teachersCache = [];
 
+// ===============================
+// UTILS
+// ===============================
+
+function safe(value){
+  return value ?? "-";
+}
 
 function createTeacherSelect(value = "") {
   const wrapper = document.createElement("div");
@@ -22,13 +29,11 @@ function createTeacherSelect(value = "") {
   removeBtn.onclick = () => {
     wrapper.remove();
 
-    // 🔥 garante que nunca fique vazio
     const all = document.querySelectorAll(".editClassTeacher");
-
     if (all.length === 0) {
       const container = document.getElementById("teachersContainer");
-      const { wrapper } = createTeacherSelect();
-      container.appendChild(wrapper);
+      const { wrapper: w } = createTeacherSelect();
+      container.appendChild(w);
       loadTeachersForClasses();
     }
   };
@@ -39,205 +44,249 @@ function createTeacherSelect(value = "") {
   return { wrapper, select };
 }
 
-
 function getSelectedTeachers() {
   const selects = document.querySelectorAll(".editClassTeacher");
-
   const unique = new Set();
-
   selects.forEach(select => {
-    if (select.value) {
-      unique.add(select.value);
-    }
+    if (select.value) unique.add(select.value);
   });
-
   return Array.from(unique);
 }
 
-
-function safe(value){
-  return value ?? "-"
-}
+// ===============================
+// INIT
+// ===============================
 
 async function init(){
+  console.log("Classes module iniciado");
+
   await Promise.all([
     loadClasses(),
     loadUnitsForClasses()
-  ])
+  ]);
 
   setupClassModal();
-
- 
 }
+
+// ===============================
+// LOAD CLASSES
+// ===============================
 
 async function loadClasses(){
 
-  const tableBody = document.querySelector("#classesTable tbody")
-  if(!tableBody) return
+  const tableBody = document.querySelector("#classesTable tbody");
+  if(!tableBody) return;
 
-  tableBody.innerHTML = "<tr><td colspan='8'>Carregando...</td></tr>"
+  tableBody.innerHTML = "<tr><td colspan='8'>Carregando...</td></tr>";
 
   try{
 
-    const res = await apiRequest("/api/v1/classes")
+    const res = await apiRequest("/api/v1/classes");
 
     if(!res.success){
-      tableBody.innerHTML = "<tr><td colspan='8'>Erro ao carregar turmas</td></tr>"
-      return
+      tableBody.innerHTML = "<tr><td colspan='8'>Erro ao carregar turmas</td></tr>";
+      return;
     }
 
-    classesCache = res.data || []
-
-    renderClasses(classesCache)
+    classesCache = res.data || [];
+    renderClasses(classesCache);
 
   }catch(err){
-
-    console.error(err)
-
-    tableBody.innerHTML = "<tr><td colspan='8'>Erro na API</td></tr>"
-
+    console.error(err);
+    tableBody.innerHTML = "<tr><td colspan='8'>Erro na API</td></tr>";
   }
 
 }
 
+// ===============================
+// RENDER CLASSES
+// ===============================
+
 function renderClasses(list){
 
-const tableBody = document.querySelector("#classesTable tbody")
+  const tableBody = document.querySelector("#classesTable tbody");
+  if(!tableBody) return;
 
-tableBody.innerHTML = ""
+  tableBody.innerHTML = "";
 
-if(list.length === 0){
-tableBody.innerHTML = "<tr><td colspan='8'>Nenhuma turma encontrada</td></tr>"
-return
-}
+  if(list.length === 0){
+    tableBody.innerHTML = "<tr><td colspan='8'>Nenhuma turma encontrada</td></tr>";
+    return;
+  }
 
-list.forEach(cls => {
+  list.forEach(cls => {
 
-const tr = document.createElement("tr")
+    const teacherNames = Array.isArray(cls.teacher_names)
+      ? cls.teacher_names.join(", ")
+      : (cls.teacher_names || cls.teacher_name || "-");
 
-tr.innerHTML = `
-<td>${cls.name ?? ""}</td>
-<td>${safe(
- (cls.teacher_names || "-")
-    ?Array.isArray(cls.teacher_names)
-  ? cls.teacher_names.join(", ")
-  : (cls.teacher_names || "-")
-    : (cls.teacher_names || cls.teacher_name)
-)}</td>
-<td>${safe(cls.unit_name)}</td>
-<td>${safe(cls.day_of_week)}</td>
-<td>${safe(cls.start_time)}</td>
+    const tr = document.createElement("tr");
 
-<td>${cls.conductors_count ?? 0}</td>
-<td>${cls.followers_count ?? 0}</td>
+    tr.innerHTML = `
+      <td>${safe(cls.name)}</td>
+      <td>${safe(teacherNames)}</td>
+      <td>${safe(cls.unit_name)}</td>
+      <td>${safe(cls.day_of_week)}</td>
+      <td>${safe(cls.start_time)}</td>
+      <td>${cls.conductors_count ?? 0}</td>
+      <td>${cls.followers_count  ?? 0}</td>
+      <td>
+        <button class="btn-edit">Editar</button>
+      </td>
+    `;
 
-<td>
-<button class="btn-edit" onclick="ClassesModule.editClass('${cls.id}')">
-Editar
-</button>
-</td>
-`
+    tr.querySelector(".btn-edit").onclick = () => editClass(cls.id);
 
-tableBody.appendChild(tr)
+    tableBody.appendChild(tr);
 
-})
+  });
 
 }
+
+// ===============================
+// FILTER
+// ===============================
 
 function filterClasses(){
 
-const search = document.getElementById("searchClasses")
+  const search = document.getElementById("searchClasses");
+  if(!search) return;
 
-if(!search) return
+  const term = search.value.toLowerCase();
 
-const term = search.value.toLowerCase()
+  if(term === ""){
+    renderClasses(classesCache);
+    return;
+  }
 
-if(term === ""){
-renderClasses(classesCache)
-return
+  const filtered = classesCache.filter(cls =>
+    (cls.name ?? "").toLowerCase().includes(term)
+  );
+
+  renderClasses(filtered);
 }
 
-const filtered = classesCache.filter(cls =>
-(cls.name ?? "").toLowerCase().includes(term)
-)
-
-renderClasses(filtered)
-
-}
+// ===============================
+// LOAD UNITS
+// ===============================
 
 async function loadUnitsForClasses(){
 
-try{
+  try{
 
-const res = await apiRequest("/api/v1/units")
+    const res = await apiRequest("/api/v1/units");
+    unitsCache = res.data || [];
 
-unitsCache = res.data || []
+    const select = document.getElementById("editClassUnit");
+    if(!select) return;
 
-const select = document.getElementById("editClassUnit")
+    select.innerHTML = `<option value="">Selecione a unidade</option>`;
 
-if(!select) return
+    unitsCache.forEach(unit => {
+      const opt = document.createElement("option");
+      opt.value = unit.id;
+      opt.textContent = unit.name;
+      select.appendChild(opt);
+    });
 
-select.innerHTML = `<option value="">Selecione a unidade</option>`
+  }catch(err){
+    console.error("Erro ao carregar unidades", err);
+    Toast.error("Erro ao carregar unidades");
+  }
 
-unitsCache.forEach(unit => {
-select.innerHTML += `<option value="${unit.id}">${unit.name}</option>`
-})
-
-}catch(err){
-console.error(err)
-alert("Erro ao carregar unidades")
 }
 
-}
+// ===============================
+// LOAD TEACHERS
+// ===============================
 
 async function loadTeachersForClasses(){
+
   try {
 
-    const res = await apiRequest("/api/v1/teachers")
-
-    teachersCache = res.data || []
+    const res = await apiRequest("/api/v1/teachers");
+    teachersCache = res.data || [];
 
     const selects = document.querySelectorAll(".editClassTeacher");
 
     selects.forEach(select => {
+      const currentVal = select.value;
+
       select.innerHTML = `<option value="">Selecione o professor</option>`;
 
       teachersCache.forEach(t => {
-        select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+        const opt = document.createElement("option");
+        opt.value = t.id;
+        opt.textContent = t.name;
+        select.appendChild(opt);
       });
+
+      if(currentVal) select.value = currentVal;
     });
 
   } catch(err){
-    console.error("Erro ao carregar professores", err)
-    alert("Erro ao carregar professores")
+    console.error("Erro ao carregar professores", err);
+    Toast.error("Erro ao carregar professores");
   }
-}async function editClass(id){
 
-  await loadUnitsForClasses()
+}
 
-  const cls = classesCache.find(c => c.id === id)
-  if(!cls) return
+// ===============================
+// NEW CLASS
+// ===============================
 
-  document.getElementById("editClassId").value = cls.id
-  document.getElementById("editClassName").value = cls.name ?? ""
+async function newClass(){
+
+  document.getElementById("editClassId").value    = "";
+  document.getElementById("editClassName").value  = "";
+  document.getElementById("editClassUnit").value  = "";
+  document.getElementById("editClassDay").value   = "";
+  document.getElementById("editClassTime").value  = "";
 
   const container = document.getElementById("teachersContainer");
   container.innerHTML = "";
 
-  // 🔥 CORREÇÃO AQUI
-  let teacherIds = [];
-if (Array.isArray(cls.teacher_ids)) {
-  teacherIds = cls.teacher_ids;
+  const { wrapper } = createTeacherSelect();
+  container.appendChild(wrapper);
 
-} else if (typeof cls.teacher_ids === "string") {
-  teacherIds = cls.teacher_ids
-    .split(",")
-    .map(id => id.trim())
-    .filter(id => id !== "");
+  await loadUnitsForClasses();
+  await loadTeachersForClasses();
 
-} else if (cls.teacher_id) {
-  teacherIds = [cls.teacher_id];
+  const title = document.querySelector("#classModal h2");
+  if (title) title.innerText = "Nova Turma";
+
+  document.getElementById("classModal").classList.remove("hidden");
 }
+
+// ===============================
+// EDIT CLASS
+// ===============================
+
+async function editClass(id){
+
+  const cls = classesCache.find(c => c.id === id);
+  if(!cls) return;
+
+  document.getElementById("editClassId").value   = cls.id;
+  document.getElementById("editClassName").value = cls.name ?? "";
+  document.getElementById("editClassUnit").value = cls.unit_id ?? "";
+  document.getElementById("editClassDay").value  = cls.day_of_week ?? "";
+  document.getElementById("editClassTime").value = cls.start_time ?? "";
+
+  const container = document.getElementById("teachersContainer");
+  container.innerHTML = "";
+
+  let teacherIds = [];
+  if (Array.isArray(cls.teacher_ids)) {
+    teacherIds = cls.teacher_ids;
+  } else if (typeof cls.teacher_ids === "string") {
+    teacherIds = cls.teacher_ids
+      .split(",")
+      .map(id => id.trim())
+      .filter(id => id !== "");
+  } else if (cls.teacher_id) {
+    teacherIds = [cls.teacher_id];
+  }
 
   if (teacherIds.length === 0) {
     const { wrapper } = createTeacherSelect();
@@ -249,166 +298,151 @@ if (Array.isArray(cls.teacher_ids)) {
     });
   }
 
+  await loadUnitsForClasses();
   await loadTeachersForClasses();
 
   const selects = document.querySelectorAll(".editClassTeacher");
-
   selects.forEach((select, index) => {
     select.value = teacherIds[index] ?? "";
   });
 
-  document.getElementById("editClassUnit").value = cls.unit_id ?? ""
-  document.getElementById("editClassDay").value = cls.day_of_week ?? ""
-  document.getElementById("editClassTime").value = cls.start_time ?? ""
-
-  const modal = document.getElementById("classModal")
-  modal.classList.remove("hidden")
-  modal.classList.add("active")
-}
-async function newClass(){
-
-  await loadUnitsForClasses()
-
-  document.getElementById("editClassId").value = ""
-  document.getElementById("editClassName").value = ""
-
-  const container = document.getElementById("teachersContainer");
-  container.innerHTML = "";
-
-  const { wrapper } = createTeacherSelect();
-  container.appendChild(wrapper);
-
-  await loadTeachersForClasses();
-
-  document.getElementById("editClassUnit").value = ""
-  document.getElementById("editClassDay").value = ""
-  document.getElementById("editClassTime").value = ""
-
   const title = document.querySelector("#classModal h2");
-  if (title) {
-    title.innerText = "Nova turma";
-  }
+  if (title) title.innerText = "Editar Turma";
 
-  const modal = document.getElementById("classModal")
-  modal.classList.remove("hidden")
-  modal.classList.add("active")
+  document.getElementById("classModal").classList.remove("hidden");
 }
 
-function setupClassModal(){
+// ===============================
+// SAVE CLASS
+// ===============================
 
-const cancelBtn = document.getElementById("cancelClassBtn")
-const saveBtn = document.getElementById("saveClassBtn")
-const modal = document.getElementById("classModal")
-
-if(cancelBtn){
-cancelBtn.onclick = closeClassModal
-}
-
-if(saveBtn){
-saveBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  console.log("CLICK SAVE DISPARADO");
-  saveClass();
-});
-}
-
-if(modal){
-modal.addEventListener("click",(e)=>{
-if(e.target === modal){
-closeClassModal()
-}
-})
-}
-
-}
-function closeClassModal(){
-  const modal = document.getElementById("classModal")
-  modal.classList.remove("active")
-  modal.classList.add("hidden")
-}
 async function saveClass(){
 
-  const id = document.getElementById("editClassId").value
-  const teachers = getSelectedTeachers(); // 🔥 nome correto
-  const unit_id = document.getElementById("editClassUnit").value
+  const id          = document.getElementById("editClassId").value;
+  const name        = document.getElementById("editClassName").value.trim();
+  const unit_id     = document.getElementById("editClassUnit").value;
+  const day_of_week = document.getElementById("editClassDay").value;
+  const start_time  = document.getElementById("editClassTime").value;
+  const teachers    = getSelectedTeachers();
 
-  const name = document.getElementById("editClassName").value
-  const day_of_week = document.getElementById("editClassDay").value
-  const start_time = document.getElementById("editClassTime").value
-
-  if(!name){ alert("Informe o nome da turma"); return }
-  if (teachers.length === 0) {
-    alert("Selecione pelo menos um professor");
+  if(!name){
+    Toast.warning("Informe o nome da turma");
     return;
   }
-  if(!unit_id){ alert("Selecione a unidade"); return }
-  if(!day_of_week){ alert("Selecione o dia da semana"); return }
-  if(!start_time){ alert("Informe o horário"); return }
+
+  if(teachers.length === 0){
+    Toast.warning("Selecione pelo menos um professor");
+    return;
+  }
+
+  if(!unit_id){
+    Toast.warning("Selecione a unidade");
+    return;
+  }
+
+  if(!day_of_week){
+    Toast.warning("Selecione o dia da semana");
+    return;
+  }
+
+  if(!start_time){
+    Toast.warning("Informe o horário");
+    return;
+  }
 
   try{
 
-    let res
+    const payload = { name, teachers, unit_id, day_of_week, start_time };
 
-    const payload = {
-      name,
-      teachers, // 🔥 CORRETO
-      unit_id,
-      day_of_week,
-      start_time
-    }
+    const endpoint = id ? `/api/v1/classes/${id}` : "/api/v1/classes";
+    const method   = id ? "PUT" : "POST";
 
-    if(id){
-      res = await apiRequest(`/api/v1/classes/${id}`,"PUT", payload)
-    }else{
-      res = await apiRequest("/api/v1/classes","POST", payload)
-    }
+    const res = await apiRequest(endpoint, method, payload);
 
     if(!res.success){
-      alert("Erro ao salvar turma")
-      return
+      Toast.error("Erro ao salvar turma");
+      return;
     }
 
-    alert("Turma salva com sucesso")
-
-    closeClassModal()
-
-    await loadClasses()
+    Toast.success(id ? "Turma atualizada!" : "Turma criada!");
+    closeClassModal();
+    await loadClasses();
 
   }catch(err){
-    console.error(err)
-    alert("Erro na API")
+    console.error(err);
+    Toast.error("Erro na API");
   }
 
 }
 
+// ===============================
+// MODAL
+// ===============================
+
+function setupClassModal(){
+
+  const cancelBtn = document.getElementById("cancelClassBtn");
+  const saveBtn   = document.getElementById("saveClassBtn");
+  const modal     = document.getElementById("classModal");
+
+  if(cancelBtn) cancelBtn.onclick = closeClassModal;
+
+  if(saveBtn){
+    saveBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      saveClass();
+    });
+  }
+
+  if(modal){
+    modal.addEventListener("click", (e) => {
+      if(e.target === modal) closeClassModal();
+    });
+  }
+
+}
+
+function closeClassModal(){
+  const modal = document.getElementById("classModal");
+  if(modal){
+    modal.classList.remove("active");
+    modal.classList.add("hidden");
+  }
+}
+
+// ===============================
+// EVENTS GLOBAIS
+// ===============================
+
 document.addEventListener("click", async (e) => {
 
-  // botão nova turma
-  const btn = e.target.closest("#newClassBtn");
-  if (btn) {
+  if (e.target.closest("#newClassBtn")) {
     newClass();
     return;
   }
 
-  // botão adicionar professor
   if (e.target.id === "addTeacherBtn") {
+    const container = document.getElementById("teachersContainer");
+    const { wrapper, select } = createTeacherSelect();
+    container.appendChild(wrapper);
 
-  const container = document.getElementById("teachersContainer");
+    const res = await apiRequest("/api/v1/teachers");
+    const teachers = res.data || [];
 
-  const { wrapper, select } = createTeacherSelect();
-  container.appendChild(wrapper);
+    select.innerHTML = `<option value="">Selecione o professor</option>`;
+    teachers.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = t.name;
+      select.appendChild(opt);
+    });
+  }
 
-  const res = await apiRequest("/api/v1/teachers");
-  const teachers = res.data || [];
-
-  select.innerHTML = `<option value="">Selecione o professor</option>`;
-
-  teachers.forEach(t => {
-    select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
-  });
-}
 });
 
+// ===============================
+// EXPORTS
+// ===============================
 
 window.ClassesModule = {
   init,
@@ -418,9 +452,7 @@ window.ClassesModule = {
   saveClass
 };
 
-// 👇 ADICIONA ISSO
 window.saveClass = saveClass;
-window.newClass = newClass;
+window.newClass  = newClass;
 
 })();
-
