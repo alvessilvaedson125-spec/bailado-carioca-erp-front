@@ -4,16 +4,30 @@ function safeSetText(id, value){
   const el = document.getElementById(id);
   if(el) el.innerText = value;
 }
-
 async function generatePayments() {
 
-  const month =
-    document.getElementById("competence-month")?.value ||
-    new Date().getMonth() + 1;
+  const monthRaw = document.getElementById("competence-month")?.value;
+  const yearRaw  = document.getElementById("competence-year")?.value;
 
-  const year =
-    document.getElementById("competence-year")?.value ||
-    new Date().getFullYear();
+  // 🔥 CORREÇÃO: string vazia não é válida
+  const month = monthRaw && monthRaw.trim() !== ""
+    ? Number(monthRaw)
+    : new Date().getMonth() + 1;
+
+  const year = yearRaw && yearRaw.trim() !== ""
+    ? Number(yearRaw)
+    : new Date().getFullYear();
+
+  // 🔒 Validação extra
+  if (month < 1 || month > 12) {
+    Toast.error("Mês inválido");
+    return;
+  }
+
+  if (year < 2020 || year > 2100) {
+    Toast.error("Ano inválido");
+    return;
+  }
 
   try {
 
@@ -21,15 +35,15 @@ async function generatePayments() {
       "/api/v1/payments/generate",
       "POST",
       {
-        competence_month: Number(month),
-        competence_year: Number(year)
+        competence_month: month,
+        competence_year: year
       }
     );
 
     if (data.generated === 0) {
-      Toast.warning(`Nenhuma nova mensalidade (${data.skipped})`);
+      Toast.warning(`Nenhuma nova mensalidade (${data.skipped} já existiam)`);
     } else {
-      Toast.success(`${data.generated} geradas (${data.skipped} ignoradas)`);
+      Toast.success(`${data.generated} geradas, ${data.skipped} ignoradas`);
     }
 
     await loadPayments();
@@ -38,7 +52,6 @@ async function generatePayments() {
     Toast.error(err.message);
   }
 }
-
 function renderStatus(status){
 
   if(status === "paid"){
