@@ -127,9 +127,9 @@ function renderPaymentsPage(){
       <td>${renderStatus(p.computed_status)}</td>
       <td>
         ${
-          p.computed_status !== 'paid'
-          ? `<button class="btn-mark-paid">Marcar pago</button>`
-          : `<span style="color: #16a34a; font-weight:600;">✓ Pago</span>`
+         p.computed_status !== 'paid'
+         ? `<button class="btn-mark-paid">Marcar pago</button>`
+         : `<span class="paid-label">✓ Pago</span>`
         }
       </td>
     `;

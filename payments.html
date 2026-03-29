@@ -1,119 +1,110 @@
 <div class="page">
 
   <!-- HEADER -->
-  <div class="payments-header">
+  <div class="page-header">
     <div>
       <h1>Pagamentos</h1>
-      <p>Gestão de mensalidades e fluxo financeiro</p>
+      <p class="page-subtitle">Gestão de mensalidades e fluxo financeiro</p>
     </div>
   </div>
 
   <!-- GERAR + FILTRAR -->
   <div class="payments-filters">
 
-    <div class="card">
+    <div class="payments-filter-card">
       <h3>Gerar mensalidades</h3>
-
-      <div class="form-row">
-        <label>Mês</label>
-        <input type="number" id="competence-month" min="1" max="12">
-
-        <label>Ano</label>
-        <input type="number" id="competence-year">
-
-        <button onclick="PaymentsModule.generatePayments()">Gerar</button>
+      <div class="payments-filter-row">
+        <div class="form-group">
+          <label>Mês</label>
+          <input type="number" id="competence-month" min="1" max="12" placeholder="Ex: 3">
+        </div>
+        <div class="form-group">
+          <label>Ano</label>
+          <input type="number" id="competence-year" placeholder="Ex: 2026">
+        </div>
+        <button class="btn-primary" onclick="PaymentsModule.generatePayments()">Gerar</button>
       </div>
     </div>
 
-    <div class="card">
+    <div class="payments-filter-card">
       <h3>Filtrar pagamentos</h3>
-
-      <div class="form-row">
-        <label>Mês</label>
-        <input type="number" id="filter-month" min="1" max="12">
-
-        <label>Ano</label>
-        <input type="number" id="filter-year">
-
-        <button onclick="PaymentsModule.loadPayments()">Filtrar</button>
+      <div class="payments-filter-row">
+        <div class="form-group">
+          <label>Mês</label>
+          <input type="number" id="filter-month" min="1" max="12" placeholder="Ex: 3">
+        </div>
+        <div class="form-group">
+          <label>Ano</label>
+          <input type="number" id="filter-year" placeholder="Ex: 2026">
+        </div>
+        <button class="btn-primary" onclick="PaymentsModule.loadPayments()">Filtrar</button>
       </div>
     </div>
 
   </div>
 
-  <!-- RESUMO -->
+  <!-- KPIs -->
   <div class="payments-kpis">
 
-  <div class="kpi kpi-blue">
-    <span>Total esperado</span>
-    <strong id="total-expected">R$ 0</strong>
-  </div>
+    <div class="payments-kpi-card">
+      <span class="payments-kpi-label">Total esperado</span>
+      <strong class="payments-kpi-value" id="total-expected">—</strong>
+    </div>
 
-  <div class="kpi kpi-green">
-    <span>Recebido</span>
-    <strong id="total-paid">R$ 0</strong>
-  </div>
+    <div class="payments-kpi-card green">
+      <span class="payments-kpi-label">Recebido</span>
+      <strong class="payments-kpi-value" id="total-paid">—</strong>
+    </div>
 
-  <div class="kpi kpi-yellow">
-    <span>Pendente</span>
-    <strong id="total-pending">R$ 0</strong>
-  </div>
+    <div class="payments-kpi-card orange">
+      <span class="payments-kpi-label">Pendente</span>
+      <strong class="payments-kpi-value" id="total-pending">—</strong>
+    </div>
 
-  <div class="kpi kpi-red">
-    <span>Vencido</span>
-    <strong id="total-overdue">R$ 0</strong>
-  </div>
+    <div class="payments-kpi-card red">
+      <span class="payments-kpi-label">Vencido</span>
+      <strong class="payments-kpi-value" id="total-overdue">—</strong>
+    </div>
 
-</div>
+  </div>
 
   <!-- CAIXA -->
-<div class="card">
-  <h3>Caixa</h3>
-
-  <div class="cash-values">
-    <div>
-      <span>Hoje</span>
-      <strong id="cash-today">R$ 0</strong>
+  <div class="payments-cash-card">
+    <div class="payments-cash-item">
+      <span>Recebido hoje</span>
+      <strong id="cash-today">R$ 0,00</strong>
     </div>
-
-    <div>
-      <span>Mês</span>
-      <strong id="cash-month">R$ 0</strong>
+    <div class="payments-cash-divider"></div>
+    <div class="payments-cash-item">
+      <span>Recebido no mês</span>
+      <strong id="cash-month">R$ 0,00</strong>
     </div>
   </div>
-</div>
 
   <!-- TABELA -->
- <!-- TABELA -->
-<div class="card payments-table">
+  <div class="table-container">
 
-  <h3>Lista de pagamentos</h3>
+    <div class="payments-table-header">
+      <h3>Lista de pagamentos</h3>
+      <span class="payments-count" id="payments-count"></span>
+    </div>
 
-  <div class="payments-info">
-  <span id="payments-count"></span>
-</div>
+    <table id="payments-table">
+      <thead>
+        <tr>
+          <th>Aluno</th>
+          <th>Turma</th>
+          <th>Valor</th>
+          <th>Competência</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="payments-body">
+        <tr><td colspan="6">Carregando...</td></tr>
+      </tbody>
+    </table>
 
-  <table id="payments-table">
-    <thead>
-      <tr>
-        <th>Aluno</th>
-        <th>Turma</th>
-        <th>Valor</th>
-        <th>Competência</th>
-        <th>Status</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-
-    <tbody id="payments-body"></tbody>
-  </table>
-
-  <div class="payments-footer">
-  <button id="toggle-payments" class="btn-secondary">
-    Mostrar mais
-  </button>
-</div>
-
-</div>
+  </div>
 
 </div>
