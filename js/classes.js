@@ -3,7 +3,7 @@
 let classesCache  = [];
 let unitsCache    = [];
 let teachersCache = [];
-let clickHandlerAttached = false; // 🔥 controle global
+let initDone = false; // 🔥 evita double init
 
 // ===============================
 // UTILS
@@ -58,6 +58,10 @@ function getSelectedTeachers() {
 // ===============================
 
 async function init(){
+
+  if(initDone) return; // 🔥 bloqueia double init
+  initDone = true;
+
   console.log("Classes module iniciado");
 
   await Promise.all([
@@ -66,8 +70,8 @@ async function init(){
   ]);
 
   setupClassModal();
-  setupNewClassBtn();      // 🔥 botão Nova Turma aqui
-  setupAddTeacherBtn();    // 🔥 botão Adicionar Professor aqui
+  setupNewClassBtn();
+  setupAddTeacherBtn();
 }
 
 // ===============================
@@ -281,7 +285,8 @@ async function newClass(){
   await loadUnitsForClasses();
   await loadTeachersForClasses();
 
-  const title = document.querySelector("#classModal h2");
+  // 🔥 h3 em vez de h2
+  const title = document.querySelector("#classModal h3");
   if (title) title.innerText = "Nova Turma";
 
   document.getElementById("classModal").classList.remove("hidden");
@@ -335,7 +340,8 @@ async function editClass(id){
     select.value = teacherIds[index] ?? "";
   });
 
-  const title = document.querySelector("#classModal h2");
+  // 🔥 h3 em vez de h2
+  const title = document.querySelector("#classModal h3");
   if (title) title.innerText = "Editar Turma";
 
   document.getElementById("classModal").classList.remove("hidden");
