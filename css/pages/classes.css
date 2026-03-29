@@ -31,7 +31,6 @@
   box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
 }
 
-
 /* =========================
    TABLE CONTAINER
 ========================= */
@@ -42,7 +41,6 @@
   padding: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.04);
 }
-
 
 /* =========================
    TABLE
@@ -77,18 +75,23 @@
   background: #f9fafb;
 }
 
-
 /* =========================
    MODAL BASE
 ========================= */
 
 #classModal {
   display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
   align-items: center;
   justify-content: center;
+  z-index: 9999;
 }
 
-/* quando abrir */
 #classModal.active {
   display: flex;
 }
@@ -101,25 +104,18 @@
   padding: 28px;
   box-shadow: 0 25px 50px rgba(0,0,0,0.18);
   animation: modalFade 0.2s ease;
+  max-height: 90vh;
+  overflow-y: auto;
 }
-
 
 /* =========================
    MODAL HEADER
 ========================= */
 
-#classModal h2 {
+#classModal h3 {
   font-size: 22px;
   font-weight: 600;
-  margin-bottom: 6px;
-}
-
-#classModal .modal-body {
-  margin-top: 12px;
-}
-
-.hidden {
-  display: none !important;
+  margin-bottom: 16px;
 }
 
 /* =========================
@@ -146,6 +142,7 @@
   background: #f9fafb;
   font-size: 14px;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 #classModal input:focus,
@@ -155,7 +152,6 @@
   background: #fff;
   box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
 }
-
 
 /* =========================
    ACTION BUTTONS
@@ -184,7 +180,8 @@
   box-shadow: 0 8px 20px rgba(99,102,241,0.25);
 }
 
-#classModal .btn-secondary {
+#classModal .btn-secondary,
+#classModal #cancelClassBtn {
   background: #e5e7eb;
   color: #374151;
   border-radius: 10px;
@@ -194,10 +191,10 @@
   transition: all 0.2s ease;
 }
 
-#classModal .btn-secondary:hover {
+#classModal .btn-secondary:hover,
+#classModal #cancelClassBtn:hover {
   background: #d1d5db;
 }
-
 
 /* =========================
    ANIMATION

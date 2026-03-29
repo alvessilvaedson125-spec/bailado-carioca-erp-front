@@ -3,7 +3,7 @@
 let classesCache  = [];
 let unitsCache    = [];
 let teachersCache = [];
-let initDone = false; // 🔥 evita double init
+let initDone = false;
 
 // ===============================
 // UTILS
@@ -59,7 +59,7 @@ function getSelectedTeachers() {
 
 async function init(){
 
-  if(initDone) return; // 🔥 bloqueia double init
+  if(initDone) return;
   initDone = true;
 
   console.log("Classes module iniciado");
@@ -285,11 +285,11 @@ async function newClass(){
   await loadUnitsForClasses();
   await loadTeachersForClasses();
 
-  // 🔥 h3 em vez de h2
   const title = document.querySelector("#classModal h3");
   if (title) title.innerText = "Nova Turma";
 
-  document.getElementById("classModal").classList.remove("hidden");
+  // 🔥 usa .active em vez de remover .hidden
+  document.getElementById("classModal").classList.add("active");
 }
 
 // ===============================
@@ -340,11 +340,11 @@ async function editClass(id){
     select.value = teacherIds[index] ?? "";
   });
 
-  // 🔥 h3 em vez de h2
   const title = document.querySelector("#classModal h3");
   if (title) title.innerText = "Editar Turma";
 
-  document.getElementById("classModal").classList.remove("hidden");
+  // 🔥 usa .active em vez de remover .hidden
+  document.getElementById("classModal").classList.add("active");
 }
 
 // ===============================
@@ -438,7 +438,6 @@ function closeClassModal(){
   const modal = document.getElementById("classModal");
   if(modal){
     modal.classList.remove("active");
-    modal.classList.add("hidden");
   }
 }
 
