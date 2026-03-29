@@ -1,0 +1,79 @@
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1>Presença</h1>
+      <p class="page-subtitle">Registro de chamada por turma</p>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="attendance-filters">
+
+    <div class="form-group">
+      <label>Turma</label>
+      <select id="att-class">
+        <option value="">Selecione a turma...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Data da aula</label>
+      <input type="date" id="att-date" />
+    </div>
+
+    <button id="att-load-btn" class="btn-primary">Carregar chamada</button>
+
+  </div>
+
+  <!-- CHAMADA -->
+  <div id="att-call-container" class="hidden">
+
+    <div class="attendance-header">
+      <div>
+        <h3 id="att-call-title">—</h3>
+        <p id="att-call-subtitle" class="page-subtitle">—</p>
+      </div>
+      <div class="attendance-actions">
+        <button id="att-all-present" class="btn-secondary">✅ Todos presentes</button>
+        <button id="att-save-btn" class="btn-primary">💾 Salvar chamada</button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Bolsista</th>
+            <th>Presença</th>
+          </tr>
+        </thead>
+        <tbody id="att-table-body">
+          <tr><td colspan="3">Selecione a turma e a data</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div class="attendance-history">
+
+    <div class="attendance-history-header">
+      <h3>Histórico de frequência</h3>
+      <div class="attendance-history-filters">
+        <select id="att-history-class">
+          <option value="">Selecione a turma...</option>
+        </select>
+        <button id="att-history-btn" class="btn-secondary">Ver frequência</button>
+      </div>
+    </div>
+
+    <div id="att-history-container">
+      <p class="empty-state">Selecione uma turma para ver o histórico</p>
+    </div>
+
+  </div>
+
+</div>

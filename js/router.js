@@ -54,8 +54,8 @@ async function waitForModule(page) {
     payments:    "PaymentsModule",
     cash:        "CashModule",
     reports:     "ReportsModule",
-    admin:       "AdminModule"
-    
+    admin:       "AdminModule",
+    attendance:  "AttendanceModule"
   }
 
   const moduleName = moduleMap[page]
@@ -63,7 +63,7 @@ async function waitForModule(page) {
   if (!moduleName) return
 
   let attempts = 0
-  const maxAttempts = 50 // ~500ms
+  const maxAttempts = 50
 
   while (!window[moduleName] && attempts < maxAttempts) {
     await new Promise(r => setTimeout(r, 10))
@@ -88,7 +88,8 @@ function initModule(page) {
     payments:    window.PaymentsModule,
     cash:        window.CashModule,
     reports:     window.ReportsModule,
-     admin:       window.AdminModule
+    admin:       window.AdminModule,
+    attendance:  window.AttendanceModule
   }
 
   const module = modules[page]

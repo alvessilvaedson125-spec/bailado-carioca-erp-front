@@ -1,0 +1,175 @@
+/* ================================
+   ATTENDANCE PAGE
+   ================================ */
+
+.attendance-filters {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+}
+
+.attendance-filters .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.attendance-filters label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.attendance-filters select,
+.attendance-filters input[type="date"] {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  color: #1e293b;
+  min-width: 200px;
+}
+
+/* ================================
+   CHAMADA HEADER
+   ================================ */
+
+.attendance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.attendance-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.attendance-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ================================
+   TOGGLE PRESENÇA
+   ================================ */
+
+.att-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.att-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+  cursor: pointer;
+  background: white;
+  color: #6b7280;
+  transition: 0.15s;
+}
+
+.att-btn:hover {
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
+.att-btn.att-present.active {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.att-btn.att-absent.active {
+  background: #fee2e2;
+  border-color: #dc2626;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* ================================
+   HISTÓRICO
+   ================================ */
+
+.attendance-history {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  margin-top: 20px;
+}
+
+.attendance-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.attendance-history-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.attendance-history-filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.attendance-history-filters select {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  min-width: 200px;
+}
+
+#att-history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#att-history-table thead {
+  background: #f9fafb;
+}
+
+#att-history-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+#att-history-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+#att-history-table tr:last-child td {
+  border-bottom: none;
+}
+
+#att-history-table tr:hover td {
+  background: #f9fafb;
+}
