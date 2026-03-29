@@ -1,10 +1,17 @@
 window.calculateFinance = function ({
   payments = [],
-  enrollments = [],
   cash = []
 }) {
 
-  const normalize = (s) => (s || "").toLowerCase();
+  // =========================
+  // 🔥 EXCLUI BOLSISTAS INTEGRAIS
+  // scholarship = 1 E final_amount = 0
+  // não entram nos cálculos financeiros
+  // =========================
+
+  const billablePayments = payments.filter(p =>
+    !(p.scholarship === 1 && Number(p.final_amount) === 0)
+  );
 
   // =========================
   // RECEITA
@@ -17,7 +24,7 @@ window.calculateFinance = function ({
 
   const today = new Date();
 
-  payments.forEach(p => {
+  billablePayments.forEach(p => {
     const value = Number(p.final_amount || 0);
     esperado += value;
 
@@ -32,7 +39,7 @@ window.calculateFinance = function ({
     }
   });
 
-  const projetado = recebido + pendente;
+  const projetado  = recebido + pendente;
 
   const defaultRate = esperado > 0
     ? Math.min((atrasado / esperado) * 100, 100)
@@ -43,12 +50,12 @@ window.calculateFinance = function ({
   // =========================
 
   let entries = 0;
-  let exits = 0;
+  let exits   = 0;
 
   cash.forEach(c => {
     const v = Number(c.amount || 0);
     if (c.type === "in")  entries += v;
-    if (c.type === "out") exits += v;
+    if (c.type === "out") exits   += v;
   });
 
   const balance = entries - exits;
@@ -60,9 +67,9 @@ window.calculateFinance = function ({
   const total = recebido + balance;
 
   return {
-    receita: { esperado, recebido, projetado, pendente },
+    receita:       { esperado, recebido, projetado, pendente },
     inadimplencia: { atrasado, defaultRate },
-    caixa: { entries, exits, balance },
+    caixa:         { entries, exits, balance },
     total
   };
 };
