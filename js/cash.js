@@ -1,275 +1,158 @@
 (function(){
 
- 
-
 let allEntries = [];
-let visibleItems = 5;
 let currentEntries = [];
-
+let visibleItems = 5;
 
 function formatDate(dateString) {
-  if (!dateString) return "";
-
+  if (!dateString) return "-";
   const date = new Date(dateString);
-
-  if (isNaN(date)) return "";
-
+  if (isNaN(date)) return "-";
   return date.toLocaleDateString("pt-BR");
 }
 
-async function createEntry(){
-
-  const errorDiv = document.getElementById("cash-error");
-  if (errorDiv) errorDiv.innerText = "";
-
-  try {
-    let type = document.getElementById("cash-type").value;
-    
-
-   const amount = document.getElementById("cash-amount").value;
-const description = document.getElementById("cash-description").value;
-const date = document.getElementById("cash-date").value;
-
-// 🔒 VALIDAÇÃO
-if (!date) {
-  if (errorDiv) errorDiv.innerText = "Informe a data";
-  return;
+function fmt(v){
+  return Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-if (!amount || Number(amount) <= 0) {
-  if (errorDiv) errorDiv.innerText = "Informe um valor válido";
-  return;
+function safeSetText(id, value){
+  const el = document.getElementById(id);
+  if(el) el.innerText = value;
 }
 
-if (!description || description.trim() === "") {
-  if (errorDiv) errorDiv.innerText = "Informe a descrição";
-  return;
-}
-await apiRequest(`/api/v1/cash`, 'POST',
-      {
-        type,
-        amount: Number(amount),
-        description,
-        date
-      }
-    );
+// ===============================
+// INIT
+// ===============================
 
-    alert("Lançamento criado com sucesso");
-
-    clearForm();
-
-    await loadEntries();
-
-  } catch (err) {
-    console.error("ERRO:", err);
-
-    if (errorDiv) {
-      errorDiv.innerText = err.message || "Erro ao criar lançamento";
-    }
-  }
+async function init(){
+  console.log("Cash module iniciado");
+  await loadEntries();
 }
 
-function clearForm() {
-  const dateEl = document.getElementById("cash-date");
-  const typeEl = document.getElementById("cash-type");
-  const amountEl = document.getElementById("cash-amount");
-  const descEl = document.getElementById("cash-description");
-
-  if (dateEl) dateEl.value = "";
-  if (typeEl) typeEl.value = ""; 
-  if (amountEl) amountEl.value = "";
-  if (descEl) descEl.value = "";
-}
+// ===============================
+// LOAD
+// ===============================
 
 async function loadEntries() {
 
   const tbody = document.getElementById("cash-body");
   if (!tbody) return;
 
-  tbody.innerHTML = "";
+  tbody.innerHTML = `<tr><td colspan="5">Carregando...</td></tr>`;
 
   try {
 
-    // ✅ GET CORRETO
-  const res = await  apiRequest(`/api/v1/cash`, 'GET')
-
+    const res = await apiRequest("/api/v1/cash", "GET");
     const rawData = res?.data || [];
 
-    // ✅ REMOVE CANCELADOS
-    const data = rawData.filter(e => e.status !== "cancelled");
+    // Remove cancelados
+    allEntries = rawData.filter(e => e.status !== "cancelled");
 
-    allEntries = data;
+    let totalIn  = 0;
+    let totalOut = 0;
 
-let totalIn = 0;
-let totalOut = 0;
-let saldo = 0;
-    
-data.forEach(e => {
-  const amount = Number(e.amount);
+    allEntries.forEach(e => {
+      const amount = Number(e.amount);
+      if (e.type === "in") totalIn  += amount;
+      else                 totalOut += amount;
+    });
 
-  if (e.type === "in") {
-    totalIn += amount;
-    saldo += amount;
-  } else {
-    totalOut += amount;
-    saldo -= amount;
-  }
-});
+    const saldo = totalIn - totalOut;
 
-    currentEntries = data;
-visibleItems = 5;
-renderTable(data);
+    safeSetText("cash-balance", fmt(saldo));
+    safeSetText("cash-in",      fmt(totalIn));
+    safeSetText("cash-out",     fmt(totalOut));
 
-    // 🔢 ATUALIZA CARDS
-    const inEl = document.getElementById("cash-in");
-    const outEl = document.getElementById("cash-out");
+    // Cor do saldo
     const balanceEl = document.getElementById("cash-balance");
+    if(balanceEl) balanceEl.style.color = saldo >= 0 ? "#16a34a" : "#dc2626";
 
-    if (inEl) {
-      inEl.innerText = totalIn.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-    }
-
-    if (outEl) {
-      outEl.innerText = totalOut.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-    }
-
-    if (balanceEl) {
-      const valorFormatado = saldo.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-
-      balanceEl.innerText = valorFormatado;
-      balanceEl.style.color = saldo >= 0 ? "green" : "red";
-    }
-
-    
+    currentEntries = allEntries;
+    visibleItems = 5;
+    renderTable(allEntries);
 
   } catch (err) {
     console.error("Erro ao carregar caixa:", err);
-
-    const errorMsg = document.getElementById("cash-error");
-    if (errorMsg) {
-      errorMsg.innerText = "Erro ao carregar dados";
-    }
+    tbody.innerHTML = `<tr><td colspan="5">Erro ao carregar dados</td></tr>`;
   }
 }
 
-async function init(){
-  await loadEntries();
-}
+// ===============================
+// CREATE ENTRY
+// ===============================
 
-// 🔁 AUTO LOAD
-document.addEventListener("DOMContentLoaded", () => {
-  if (window.location.hash.includes("cash") || document.getElementById("cash-body")) {
-    loadEntries();
+async function createEntry(){
+
+  const errorDiv = document.getElementById("cash-error");
+  if (errorDiv) errorDiv.innerText = "";
+
+  const type        = document.getElementById("cash-type")?.value;
+  const amount      = document.getElementById("cash-amount")?.value;
+  const description = document.getElementById("cash-description")?.value;
+  const date        = document.getElementById("cash-date")?.value;
+
+  if (!type) {
+    Toast.warning("Selecione o tipo");
+    return;
   }
-});
 
-document.addEventListener("click", (e) => {
-  if (e.target.id === "clear-filters") {
-    clearFilters();
+  if (!date) {
+    Toast.warning("Informe a data");
+    return;
   }
-});
 
-// 🔍 FILTROS
-function applyFilters() {
+  if (!amount || Number(amount) <= 0) {
+    Toast.warning("Informe um valor válido");
+    return;
+  }
 
-  const type = document.getElementById("filter-type")?.value;
-  const text = document.getElementById("filter-text")?.value.toLowerCase();
+  if (!description || description.trim() === "") {
+    Toast.warning("Informe a descrição");
+    return;
+  }
 
-  const tbody = document.getElementById("cash-body");
-  if (!tbody) return;
+  try {
 
-  tbody.innerHTML = "";
+    await apiRequest("/api/v1/cash", "POST", {
+      type,
+      amount: Number(amount),
+      description,
+      date
+    });
 
-  const filtered = allEntries.filter(e => {
+    Toast.success("Lançamento criado!");
+    clearForm();
+    await loadEntries();
 
-    const matchType = !type || e.type === type;
-
-    const matchText =
-      !text ||
-      (e.description || "").toLowerCase().includes(text);
-
-    return matchType && matchText;
-  });
-
-  if (filtered.length === 0) {
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="5" style="text-align:center; padding:16px; color:#888;">
-        Nenhuma movimentação encontrada
-      </td>
-    </tr>
-  `;
-  return;
-}
- currentEntries = filtered;
-visibleItems = 5;
-renderTable(filtered);
+  } catch (err) {
+    console.error("ERRO:", err);
+    Toast.error(err.message || "Erro ao criar lançamento");
+  }
 }
 
-// 🎯 LISTENERS
-document.addEventListener("input", (e) => {
-  if (e.target.id === "filter-text") applyFilters();
-});
+// ===============================
+// CANCEL ENTRY
+// ===============================
 
-document.addEventListener("change", (e) => {
-  if (e.target.id === "filter-type") applyFilters();
-});
-
-// ❌ CANCELAR
 async function cancelCashEntry(id) {
   if (!confirm("Cancelar esta movimentação?")) return;
 
   try {
-   const res = await fetch(`https://bailado-carioca-escola-api.alvessilvaedson125.workers.dev/api/v1/cash/cancel`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("bc_token")}`
-      },
-      body: JSON.stringify({ id })
-    });
 
-    if (!res.ok) {
-      throw new Error("Erro na requisição");
-    }
+    await apiRequest("/api/v1/cash/cancel", "POST", { id });
 
-    try { await res.json(); } catch (e) {}
-
-    alert("Movimentação cancelada");
-
-    await window.CashModule.loadEntries();
+    Toast.success("Movimentação cancelada!");
+    await loadEntries();
 
   } catch (err) {
     console.error(err);
-    alert("Erro ao cancelar");
+    Toast.error("Erro ao cancelar movimentação");
   }
 }
 
-function clearFilters() {
-  const typeEl = document.getElementById("filter-type");
-  const textEl = document.getElementById("filter-text");
-
-  if (typeEl) typeEl.value = "";
-  if (textEl) textEl.value = "";
-
-  applyFilters();
-}
-
-// ✅ REGISTRO DO MÓDULO (CRÍTICO)
-window.CashModule = {
-  init,
-  createEntry,
-  loadEntries
-};
+// ===============================
+// RENDER TABLE
+// ===============================
 
 function renderTable(data) {
   const tbody = document.getElementById("cash-body");
@@ -280,34 +163,29 @@ function renderTable(data) {
   const sliced = data.slice(0, visibleItems);
 
   if (sliced.length === 0) {
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="5" style="text-align:center; padding:16px; color:#888;">
-        Nenhuma movimentação encontrada
-      </td>
-    </tr>
-  `;
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="empty-state">Nenhuma movimentação encontrada</td>
+      </tr>
+    `;
+    renderShowMoreButton(0);
+    return;
+  }
 
-  renderShowMoreButton(0); // 🔥 ADICIONE ISSO
-  return;
-}
   sliced.forEach(e => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
       <td>${formatDate(e.date || e.created_at)}</td>
       <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
-      <td>${Number(e.amount).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      })}</td>
-      <td>${e.description || ""}</td>
+      <td>${fmt(e.amount)}</td>
+      <td>${e.description || "-"}</td>
       <td>
-        <button class="btn-cancel" onclick="cancelCashEntry('${e.id}')">
-          Cancelar
-        </button>
+        <button class="btn-danger btn-cancel-entry">Cancelar</button>
       </td>
     `;
+
+    tr.querySelector(".btn-cancel-entry").onclick = () => cancelCashEntry(e.id);
 
     tbody.appendChild(tr);
   });
@@ -315,35 +193,107 @@ function renderTable(data) {
   renderShowMoreButton(data.length);
 }
 
+// ===============================
+// SHOW MORE
+// ===============================
+
 function renderShowMoreButton(total) {
- 
- const container = document.getElementById("cash-show-more-container");
-if (!container) return;
 
-container.innerHTML = "";
+  const container = document.getElementById("cash-show-more-container");
+  if (!container) return;
 
-let btn = document.createElement("button");
-btn.id = "show-more-btn";
-btn.className = "btn-secondary";
-btn.style.marginTop = "10px";
+  container.innerHTML = "";
 
+  if(total === 0) return;
 
-container.appendChild(btn);
+  const btn = document.createElement("button");
+  btn.className = "btn-secondary";
+  btn.style.marginTop = "10px";
 
   if (visibleItems >= total) {
-   btn.innerText = `Mostrar menos (${visibleItems}/${total})`;
+    btn.innerText = `Mostrar menos (${total}/${total})`;
     btn.onclick = () => {
       visibleItems = 5;
       renderTable(currentEntries);
     };
   } else {
-   btn.innerText = `Mostrar mais (${visibleItems}/${total})`;
+    btn.innerText = `Mostrar mais (${visibleItems}/${total})`;
     btn.onclick = () => {
       visibleItems += 5;
       renderTable(currentEntries);
     };
   }
+
+  container.appendChild(btn);
 }
+
+// ===============================
+// FILTERS
+// ===============================
+
+function applyFilters() {
+
+  const type = document.getElementById("filter-type")?.value;
+  const text = document.getElementById("filter-text")?.value.toLowerCase();
+
+  const filtered = allEntries.filter(e => {
+    const matchType = !type || e.type === type;
+    const matchText = !text || (e.description || "").toLowerCase().includes(text);
+    return matchType && matchText;
+  });
+
+  currentEntries = filtered;
+  visibleItems = 5;
+  renderTable(filtered);
+}
+
+function clearFilters() {
+  const typeEl = document.getElementById("filter-type");
+  const textEl = document.getElementById("filter-text");
+  if (typeEl) typeEl.value = "";
+  if (textEl) textEl.value = "";
+  applyFilters();
+}
+
+// ===============================
+// CLEAR FORM
+// ===============================
+
+function clearForm() {
+  const fields = ["cash-date", "cash-type", "cash-amount", "cash-description"];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  const errorDiv = document.getElementById("cash-error");
+  if (errorDiv) errorDiv.innerText = "";
+}
+
+// ===============================
+// EVENTS
+// ===============================
+
+document.addEventListener("input", (e) => {
+  if (e.target.id === "filter-text") applyFilters();
+});
+
+document.addEventListener("change", (e) => {
+  if (e.target.id === "filter-type") applyFilters();
+});
+
+document.addEventListener("click", (e) => {
+  if (e.target.id === "clear-filters") clearFilters();
+});
+
+// ===============================
+// EXPORTS
+// ===============================
+
+window.CashModule = {
+  init,
+  createEntry,
+  loadEntries
+};
 
 window.cancelCashEntry = cancelCashEntry;
 window.clearForm = clearForm;
