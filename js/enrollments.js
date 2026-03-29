@@ -4,56 +4,45 @@ let enrollmentsCache = []
 let editingEnrollmentId = null
 let initDone = false;
 
-
 async function init(){
 
-if (initDone) {
-  await loadEnrollments();
-  return;
-}
-initDone = true;
+  if (initDone) {
+    await loadEnrollments();
+    return;
+  }
+  initDone = true;
 
-console.log("Enrollments module iniciado")
+  console.log("Enrollments module iniciado")
 
-attach()
+  attach()
 
-await loadEnrollments()
+  await loadEnrollments()
 
-const cancelBtn = document.getElementById("cancelEnrollmentBtn")
+  const cancelBtn = document.getElementById("cancelEnrollmentBtn")
+  if(cancelBtn){
+    cancelBtn.onclick = closeEnrollmentModal
+  }
 
-if(cancelBtn){
-cancelBtn.onclick = closeEnrollmentModal
-}
+  const modal = document.getElementById("enrollmentModal")
+  if(modal){
+    modal.addEventListener("click",(e)=>{
+      if(e.target === modal){
+        closeEnrollmentModal()
+      }
+    })
+  }
 
-const modal = document.getElementById("enrollmentModal")
-
-if(modal){
-modal.addEventListener("click",(e)=>{
-if(e.target === modal){
-closeEnrollmentModal()
-}
-})
-}
-
-const searchInput = document.getElementById("searchEnrollments");
-
-if (searchInput) {
-searchInput.addEventListener("input", () => {
-
-clearTimeout(searchTimeout);
-
-searchTimeout = setTimeout(() => {
-filterEnrollments();
-}, 300);
-
-});
-}
+  const searchInput = document.getElementById("searchEnrollments");
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        filterEnrollments();
+      }, 300);
+    });
+  }
 
 }
-
-
-
-
 
 /* =========================
 EVENTS
@@ -61,34 +50,29 @@ EVENTS
 
 function attach(){
 
-const newBtn = document.getElementById("newEnrollmentBtn")
-const modal = document.getElementById("enrollmentModal")
-const cancelBtn = document.getElementById("cancelEnrollmentBtn")
-const saveBtn = document.getElementById("saveEnrollmentBtn")
+  const newBtn = document.getElementById("newEnrollmentBtn")
+  const modal = document.getElementById("enrollmentModal")
+  const cancelBtn = document.getElementById("cancelEnrollmentBtn")
+  const saveBtn = document.getElementById("saveEnrollmentBtn")
 
-if(newBtn){
-newBtn.onclick = async () => {
+  if(newBtn){
+    newBtn.onclick = async () => {
+      editingEnrollmentId = null
+      resetEnrollmentForm()
+      await loadEnrollmentFormData()
+      modal.classList.remove("hidden")
+    }
+  }
 
-editingEnrollmentId = null
+  if(cancelBtn){
+    cancelBtn.onclick = () => {
+      modal.classList.add("hidden")
+    }
+  }
 
-resetEnrollmentForm()
-
-await loadEnrollmentFormData()
-
-modal.classList.remove("hidden")
-
-}
-}
-
-if(cancelBtn){
-cancelBtn.onclick = () => {
-modal.classList.add("hidden")
-}
-}
-
-if(saveBtn){
-saveBtn.onclick = saveEnrollment
-}
+  if(saveBtn){
+    saveBtn.onclick = saveEnrollment
+  }
 
 }
 
@@ -98,41 +82,33 @@ LOAD DATA
 
 async function loadEnrollments(){
 
-try {
+  try {
 
-const res = await apiRequest("/api/v1/enrollments");
+    const res = await apiRequest("/api/v1/enrollments");
 
-if(!res || !res.success){
-renderEnrollments([]);
-return;
-}
+    if(!res || !res.success){
+      renderEnrollments([]);
+      return;
+    }
 
-enrollmentsCache = res.data || [];
+    enrollmentsCache = res.data || [];
 
-const selectedStudentId = localStorage.getItem("selectedStudentId");
+    const selectedStudentId = localStorage.getItem("selectedStudentId");
 
-if(selectedStudentId){
+    if(selectedStudentId){
+      const filtered = enrollmentsCache.filter(e =>
+        String(e.student_id) === String(selectedStudentId)
+      );
+      renderEnrollments(filtered);
+      localStorage.removeItem("selectedStudentId");
+    } else {
+      renderEnrollments();
+    }
 
-const filtered = enrollmentsCache.filter(e =>
-String(e.student_id) === String(selectedStudentId)
-);
-
-renderEnrollments(filtered);
-
-localStorage.removeItem("selectedStudentId");
-
-} else {
-
-renderEnrollments();
-
-}
-
-} catch (err) {
-
-console.error(err);
-renderEnrollments([]);
-
-}
+  } catch (err) {
+    console.error(err);
+    renderEnrollments([]);
+  }
 
 }
 
@@ -141,155 +117,155 @@ FORM DATA
 ========================= */
 
 async function loadEnrollmentFormData(){
-await populateStudents()
-await populateClasses()
+  await populateStudents()
+  await populateClasses()
 }
 
 async function populateStudents(){
 
-const select = document.getElementById("editEnrollmentStudent")
-if(!select) return
+  const select = document.getElementById("editEnrollmentStudent")
+  if(!select) return
 
-try{
+  try{
+    const res = await apiRequest("/api/v1/students")
+    const list = res.data || []
 
-const res = await apiRequest("/api/v1/students")
-const list = res.data || []
+    select.innerHTML = `<option value="">Selecione...</option>`
 
-select.innerHTML = `<option value="">Selecione...</option>`
+    list.forEach(student=>{
+      const option = document.createElement("option")
+      option.value = student.id
+      option.textContent = student.name
+      select.appendChild(option)
+    })
 
-list.forEach(student=>{
-const option = document.createElement("option")
-option.value = student.id
-option.textContent = student.name
-select.appendChild(option)
-})
-
-}catch(err){
-console.error("Erro alunos", err)
-}
+  }catch(err){
+    console.error("Erro alunos", err)
+  }
 
 }
 
 async function populateClasses(){
 
-const select = document.getElementById("editEnrollmentClass")
-if(!select) return
+  const select = document.getElementById("editEnrollmentClass")
+  if(!select) return
 
-try{
+  try{
+    const res = await apiRequest("/api/v1/classes")
+    const list = res.data || []
 
-const res = await apiRequest("/api/v1/classes")
-const list = res.data || []
+    select.innerHTML = `<option value="">Selecione...</option>`
 
-select.innerHTML = `<option value="">Selecione...</option>`
+    list.forEach(cls=>{
+      const option = document.createElement("option")
+      option.value = cls.id
+      option.textContent = cls.name
+      select.appendChild(option)
+    })
 
-list.forEach(cls=>{
-const option = document.createElement("option")
-option.value = cls.id
-option.textContent = cls.name
-select.appendChild(option)
-})
-
-}catch(err){
-console.error("Erro turmas", err)
-}
+  }catch(err){
+    console.error("Erro turmas", err)
+  }
 
 }
 
 /* =========================
-SAVE (CORRIGIDO)
+SAVE
 ========================= */
 
 async function saveEnrollment(){
 
-const studentId = document.getElementById("editEnrollmentStudent").value
-const classId = document.getElementById("editEnrollmentClass").value
-const role = document.getElementById("editEnrollmentRole").value
-const type = document.getElementById("editEnrollmentType").value
-const fee = Number(document.getElementById("editEnrollmentFee").value || 0)
-const discount = Number(document.getElementById("editEnrollmentDiscount").value || 0)
-const status = document.getElementById("editEnrollmentStatus").value
+  const studentId = document.getElementById("editEnrollmentStudent").value
+  const classId   = document.getElementById("editEnrollmentClass").value
+  const role      = document.getElementById("editEnrollmentRole").value
+  const type      = document.getElementById("editEnrollmentType").value
+  const fee       = Number(document.getElementById("editEnrollmentFee").value || 0)
+  const discount  = Number(document.getElementById("editEnrollmentDiscount").value || 0)
+  const status    = document.getElementById("editEnrollmentStatus").value
 
-if(!studentId || !classId){
-alert("Selecione aluno e turma")
-return
+  if(!studentId || !classId){
+    Toast.warning("Selecione aluno e turma")
+    return
+  }
+
+  if(discount > fee){
+    Toast.warning("Desconto não pode ser maior que a mensalidade")
+    return
+  }
+
+  const finalPrice = Math.max(0, fee - discount)
+
+  const duplicate = enrollmentsCache.find(e =>
+    e.student_id === studentId &&
+    e.class_id === classId &&
+    e.id !== editingEnrollmentId
+  )
+
+  if(duplicate){
+    Toast.warning("Este aluno já está matriculado nesta turma")
+    return
+  }
+
+  try{
+
+    const endpoint = editingEnrollmentId
+      ? `/api/v1/enrollments/${editingEnrollmentId}`
+      : "/api/v1/enrollments"
+
+    const method = editingEnrollmentId ? "PUT" : "POST"
+
+    const res = await apiRequest(endpoint, method, {
+      student_id: studentId,
+      class_id:   classId,
+      role,
+      type,
+      monthly_fee: fee,
+      discount,
+      final_price: finalPrice,
+      status
+    })
+
+    if(!res || !res.success){
+      Toast.error("Erro ao salvar matrícula")
+      return
+    }
+
+    Toast.success(editingEnrollmentId ? "Matrícula atualizada!" : "Matrícula criada!")
+    editingEnrollmentId = null
+    closeEnrollmentModal()
+    await loadEnrollments()
+
+  }catch(err){
+    console.error(err)
+    Toast.error("Erro na API")
+  }
+
 }
 
 /* =========================
-VALIDAÇÃO FINANCEIRA
+CANCEL ENROLLMENT
 ========================= */
 
-if(discount > fee){
-alert("Desconto não pode ser maior que a mensalidade")
-return
-}
+async function cancelEnrollment(id){
 
-/* =========================
-CÁLCULO PROFISSIONAL
-========================= */
+  if(!confirm("Deseja cancelar esta matrícula?")) return
 
-const finalPrice = Math.max(0, fee - discount)
+  try{
 
-/* =========================
-BASE PARA MULTI MATRÍCULA (futuro)
-========================= */
+    const res = await apiRequest(`/api/v1/enrollments/${id}`, "DELETE")
 
-const studentActiveEnrollments = enrollmentsCache.filter(e =>
-String(e.student_id) === String(studentId) &&
-e.status === "active" &&
-e.id !== editingEnrollmentId
-)
+    if(!res || !res.success){
+      Toast.error("Erro ao cancelar matrícula")
+      return
+    }
 
-/* =========================
-DUPLICIDADE
-========================= */
+    Toast.success("Matrícula cancelada!")
+    await loadEnrollments()
 
-const duplicate = enrollmentsCache.find(e =>
-e.student_id === studentId &&
-e.class_id === classId &&
-e.id !== editingEnrollmentId
-)
-
-if(duplicate){
-alert("Este aluno já está matriculado nesta turma")
-return
-}
-
-try{
-
-const endpoint = editingEnrollmentId
-? `/api/v1/enrollments/${editingEnrollmentId}`
-: "/api/v1/enrollments"
-
-const method = editingEnrollmentId ? "PUT" : "POST"
-
-const res = await apiRequest(endpoint,method,{
-student_id: studentId,
-class_id: classId,
-role,
-type,
-monthly_fee: fee,
-discount,
-final_price: finalPrice, // 🔥 NOVO
-status
-})
-
-if(!res || !res.success){
-alert("Erro ao salvar matrícula")
-return
-}
-
-editingEnrollmentId = null
-
-closeEnrollmentModal()
-
-await loadEnrollments()
-
-}catch(err){
-
-console.error(err)
-alert("Erro na API")
-
-}
+  }catch(err){
+    console.error(err)
+    Toast.error("Erro na API")
+  }
 
 }
 
@@ -299,47 +275,73 @@ RENDER
 
 function renderEnrollments(list = enrollmentsCache){
 
-const tbody = document.querySelector("#enrollmentsTable tbody")
-if(!tbody) return
+  const tbody = document.querySelector("#enrollmentsTable tbody")
+  if(!tbody) return
 
-const total = list.length
-const active = list.filter(e => e.status === "active").length
-const inactive = total - active
+  const total    = list.length
+  const active   = list.filter(e => e.status === "active").length
+  const inactive = total - active
 
-const statTotal = document.getElementById("statTotal")
-const statActive = document.getElementById("statActive")
-const statInactive = document.getElementById("statInactive")
+  const statTotal    = document.getElementById("statTotal")
+  const statActive   = document.getElementById("statActive")
+  const statInactive = document.getElementById("statInactive")
 
-if(statTotal) statTotal.innerText = total
-if(statActive) statActive.innerText = active
-if(statInactive) statInactive.innerText = inactive
+  if(statTotal)    statTotal.innerText    = total
+  if(statActive)   statActive.innerText   = active
+  if(statInactive) statInactive.innerText = inactive
 
-if(list.length === 0){
-tbody.innerHTML = `<tr><td colspan="6">Nenhuma matrícula</td></tr>`
-return
+  if(list.length === 0){
+    tbody.innerHTML = `<tr><td colspan="6">Nenhuma matrícula</td></tr>`
+    return
+  }
+
+  tbody.innerHTML = ""
+
+  list.forEach(enrollment => {
+
+    const tr = document.createElement("tr")
+
+    tr.innerHTML = `
+      <td>${safe(enrollment.student_name)}</td>
+      <td>${safe(enrollment.class_name)}</td>
+      <td>${formatRole(enrollment.role || "-")}</td>
+      <td>${safe(enrollment.status)}</td>
+      <td>${formatDate(enrollment.created_at)}</td>
+      <td>
+        <button class="btn-edit">✏️</button>
+        <button class="btn-danger btn-cancel">✖</button>
+      </td>
+    `
+
+    // 🔥 CORRIGIDO: eventos conectados
+    tr.querySelector(".btn-edit").onclick = () => openEditEnrollment(enrollment)
+    tr.querySelector(".btn-cancel").onclick = () => cancelEnrollment(enrollment.id)
+
+    tbody.appendChild(tr)
+
+  })
+
 }
 
-tbody.innerHTML = ""
+/* =========================
+EDIT ENROLLMENT
+========================= */
 
-list.forEach(enrollment=>{
+async function openEditEnrollment(enrollment){
 
-const tr = document.createElement("tr")
+  editingEnrollmentId = enrollment.id
 
-tr.innerHTML = `
-<td>${safe(enrollment.student_name)}</td>
-<td>${safe(enrollment.class_name)}</td>
-<td>${formatRole(enrollment.role || "-")}</td>
-<td>${safe(enrollment.status)}</td>
-<td>${formatDate(enrollment.created_at)}</td>
-<td>
-<button class="btn-edit">✏️</button>
-<button class="btn-danger btn-cancel">✖</button>
-</td>
-`
+  await loadEnrollmentFormData()
 
-tbody.appendChild(tr)
+  document.getElementById("editEnrollmentStudent").value = enrollment.student_id
+  document.getElementById("editEnrollmentClass").value   = enrollment.class_id
+  document.getElementById("editEnrollmentRole").value    = enrollment.role    || "conductor"
+  document.getElementById("editEnrollmentType").value    = enrollment.type    || "individual"
+  document.getElementById("editEnrollmentFee").value     = enrollment.monthly_fee || 0
+  document.getElementById("editEnrollmentDiscount").value = enrollment.discount  || 0
+  document.getElementById("editEnrollmentStatus").value  = enrollment.status  || "active"
 
-})
+  document.getElementById("enrollmentModal").classList.remove("hidden")
 
 }
 
@@ -348,63 +350,63 @@ HELPERS
 ========================= */
 
 function closeEnrollmentModal(){
-const modal = document.getElementById("enrollmentModal")
-if(modal) modal.classList.add("hidden")
-resetEnrollmentForm()
-editingEnrollmentId = null
+  const modal = document.getElementById("enrollmentModal")
+  if(modal) modal.classList.add("hidden")
+  resetEnrollmentForm()
+  editingEnrollmentId = null
 }
 
 function formatRole(role){
-if(role === "leader" || role === "conductor") return "Condutor"
-if(role === "follower") return "Conduzida"
-return role || "-"
+  if(role === "leader" || role === "conductor") return "Condutor"
+  if(role === "follower") return "Conduzida"
+  return role || "-"
 }
 
 function formatDate(date){
-if(!date) return "-"
-return new Date(date).toLocaleDateString("pt-BR")
+  if(!date) return "-"
+  return new Date(date).toLocaleDateString("pt-BR")
 }
 
 function safe(value){
-if(value === null || value === undefined) return "-"
-return value
+  if(value === null || value === undefined) return "-"
+  return value
 }
 
 function resetEnrollmentForm(){
-document.getElementById("editEnrollmentStudent").value = ""
-document.getElementById("editEnrollmentClass").value = ""
-document.getElementById("editEnrollmentRole").value = "conductor"
-document.getElementById("editEnrollmentType").value = "individual"
-document.getElementById("editEnrollmentFee").value = ""
-document.getElementById("editEnrollmentDiscount").value = 0
-document.getElementById("editEnrollmentStatus").value = "active"
+  document.getElementById("editEnrollmentStudent").value  = ""
+  document.getElementById("editEnrollmentClass").value    = ""
+  document.getElementById("editEnrollmentRole").value     = "conductor"
+  document.getElementById("editEnrollmentType").value     = "individual"
+  document.getElementById("editEnrollmentFee").value      = ""
+  document.getElementById("editEnrollmentDiscount").value = 0
+  document.getElementById("editEnrollmentStatus").value   = "active"
 }
 
 let searchTimeout = null;
 
 function filterEnrollments(){
-const search = document.getElementById("searchEnrollments")
-if(!search) return
+  const search = document.getElementById("searchEnrollments")
+  if(!search) return
 
-const term = search.value.toLowerCase()
+  const term = search.value.toLowerCase()
 
-if(term === ""){
-renderEnrollments(enrollmentsCache)
-return
-}
+  if(term === ""){
+    renderEnrollments(enrollmentsCache)
+    return
+  }
 
-const filtered = enrollmentsCache.filter(e =>
-e.student_name.toLowerCase().includes(term) ||
-e.class_name.toLowerCase().includes(term)
-)
+  const filtered = enrollmentsCache.filter(e =>
+    e.student_name.toLowerCase().includes(term) ||
+    e.class_name.toLowerCase().includes(term)
+  )
 
-renderEnrollments(filtered)
+  renderEnrollments(filtered)
 }
 
 window.EnrollmentsModule = {
-init,
-loadEnrollments,
-saveEnrollment
+  init,
+  loadEnrollments,
+  saveEnrollment
 };
 
 })();
