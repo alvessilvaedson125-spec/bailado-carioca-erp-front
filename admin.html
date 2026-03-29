@@ -1,2 +1,78 @@
-<h2>Administração</h2>
-<p>Módulo em construção.</p>
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1>Administração</h1>
+      <p class="page-subtitle">Usuários e configurações do sistema</p>
+    </div>
+    <button id="newUserBtn" class="btn-primary">+ Novo Usuário</button>
+  </div>
+
+  <!-- TROCAR SENHA -->
+  <div class="admin-section">
+    <h3>Alterar minha senha</h3>
+    <div class="admin-password-form">
+      <input type="password" id="currentPassword" placeholder="Senha atual" />
+      <input type="password" id="newPassword" placeholder="Nova senha (mín. 6 caracteres)" />
+      <input type="password" id="confirmPassword" placeholder="Confirmar nova senha" />
+      <button id="changePasswordBtn" class="btn-primary">Salvar senha</button>
+    </div>
+  </div>
+
+  <!-- USUÁRIOS -->
+  <div class="table-container">
+    <h3>Usuários do sistema</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Perfil</th>
+          <th>Criado em</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="usersTable">
+        <tr><td colspan="5">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- MODAL NOVO USUÁRIO -->
+<div id="userModal" class="modal hidden">
+  <div class="modal-content">
+
+    <h2>Novo Usuário</h2>
+
+    <div class="form-group">
+      <label>Nome</label>
+      <input type="text" id="newUserName" placeholder="Nome completo" />
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="newUserEmail" placeholder="email@exemplo.com" />
+    </div>
+
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="newUserPassword" placeholder="Mínimo 6 caracteres" />
+    </div>
+
+    <div class="form-group">
+      <label>Perfil</label>
+      <select id="newUserRole">
+        <option value="operator">Operador</option>
+        <option value="admin">Administrador</option>
+      </select>
+    </div>
+
+    <div class="modal-actions">
+      <button id="cancelUserBtn" class="btn-secondary">Cancelar</button>
+      <button id="saveUserBtn" class="btn-primary">Criar usuário</button>
+    </div>
+
+  </div>
+</div>
