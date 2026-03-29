@@ -3,6 +3,7 @@
 let classesCache  = [];
 let unitsCache    = [];
 let teachersCache = [];
+let clickHandlerAttached = false; // 🔥 controle global
 
 // ===============================
 // UTILS
@@ -28,7 +29,6 @@ function createTeacherSelect(value = "") {
 
   removeBtn.onclick = () => {
     wrapper.remove();
-
     const all = document.querySelectorAll(".editClassTeacher");
     if (all.length === 0) {
       const container = document.getElementById("teachersContainer");
@@ -66,6 +66,47 @@ async function init(){
   ]);
 
   setupClassModal();
+  setupNewClassBtn();      // 🔥 botão Nova Turma aqui
+  setupAddTeacherBtn();    // 🔥 botão Adicionar Professor aqui
+}
+
+// ===============================
+// SETUP BOTÃO NOVA TURMA
+// ===============================
+
+function setupNewClassBtn(){
+  const btn = document.getElementById("newClassBtn");
+  if(btn){
+    btn.onclick = () => newClass();
+  }
+}
+
+// ===============================
+// SETUP BOTÃO ADICIONAR PROFESSOR
+// ===============================
+
+function setupAddTeacherBtn(){
+  const btn = document.getElementById("addTeacherBtn");
+  if(btn){
+    btn.onclick = async () => {
+      const container = document.getElementById("teachersContainer");
+      if(!container) return;
+
+      const { wrapper, select } = createTeacherSelect();
+      container.appendChild(wrapper);
+
+      const res = await apiRequest("/api/v1/teachers");
+      const teachers = res.data || [];
+
+      select.innerHTML = `<option value="">Selecione o professor</option>`;
+      teachers.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.id;
+        opt.textContent = t.name;
+        select.appendChild(opt);
+      });
+    };
+  }
 }
 
 // ===============================
@@ -80,7 +121,6 @@ async function loadClasses(){
   tableBody.innerHTML = "<tr><td colspan='8'>Carregando...</td></tr>";
 
   try{
-
     const res = await apiRequest("/api/v1/classes");
 
     if(!res.success){
@@ -95,7 +135,6 @@ async function loadClasses(){
     console.error(err);
     tableBody.innerHTML = "<tr><td colspan='8'>Erro na API</td></tr>";
   }
-
 }
 
 // ===============================
@@ -136,11 +175,8 @@ function renderClasses(list){
     `;
 
     tr.querySelector(".btn-edit").onclick = () => editClass(cls.id);
-
     tableBody.appendChild(tr);
-
   });
-
 }
 
 // ===============================
@@ -148,7 +184,6 @@ function renderClasses(list){
 // ===============================
 
 function filterClasses(){
-
   const search = document.getElementById("searchClasses");
   if(!search) return;
 
@@ -171,9 +206,7 @@ function filterClasses(){
 // ===============================
 
 async function loadUnitsForClasses(){
-
   try{
-
     const res = await apiRequest("/api/v1/units");
     unitsCache = res.data || [];
 
@@ -193,7 +226,6 @@ async function loadUnitsForClasses(){
     console.error("Erro ao carregar unidades", err);
     Toast.error("Erro ao carregar unidades");
   }
-
 }
 
 // ===============================
@@ -201,9 +233,7 @@ async function loadUnitsForClasses(){
 // ===============================
 
 async function loadTeachersForClasses(){
-
   try {
-
     const res = await apiRequest("/api/v1/teachers");
     teachersCache = res.data || [];
 
@@ -228,7 +258,6 @@ async function loadTeachersForClasses(){
     console.error("Erro ao carregar professores", err);
     Toast.error("Erro ao carregar professores");
   }
-
 }
 
 // ===============================
@@ -237,11 +266,11 @@ async function loadTeachersForClasses(){
 
 async function newClass(){
 
-  document.getElementById("editClassId").value    = "";
-  document.getElementById("editClassName").value  = "";
-  document.getElementById("editClassUnit").value  = "";
-  document.getElementById("editClassDay").value   = "";
-  document.getElementById("editClassTime").value  = "";
+  document.getElementById("editClassId").value   = "";
+  document.getElementById("editClassName").value = "";
+  document.getElementById("editClassUnit").value = "";
+  document.getElementById("editClassDay").value  = "";
+  document.getElementById("editClassTime").value = "";
 
   const container = document.getElementById("teachersContainer");
   container.innerHTML = "";
@@ -353,7 +382,6 @@ async function saveClass(){
   try{
 
     const payload = { name, teachers, unit_id, day_of_week, start_time };
-
     const endpoint = id ? `/api/v1/classes/${id}` : "/api/v1/classes";
     const method   = id ? "PUT" : "POST";
 
@@ -372,7 +400,6 @@ async function saveClass(){
     console.error(err);
     Toast.error("Erro na API");
   }
-
 }
 
 // ===============================
@@ -388,10 +415,10 @@ function setupClassModal(){
   if(cancelBtn) cancelBtn.onclick = closeClassModal;
 
   if(saveBtn){
-    saveBtn.addEventListener("click", (e) => {
+    saveBtn.onclick = (e) => {
       e.preventDefault();
       saveClass();
-    });
+    };
   }
 
   if(modal){
@@ -399,7 +426,6 @@ function setupClassModal(){
       if(e.target === modal) closeClassModal();
     });
   }
-
 }
 
 function closeClassModal(){
@@ -409,41 +435,6 @@ function closeClassModal(){
     modal.classList.add("hidden");
   }
 }
-
-// ===============================
-// EVENTS GLOBAIS
-// ===============================
-
-document.addEventListener("click", async (e) => {
-
-  // 🔥 Só executa se o módulo de turmas estiver ativo
-  if (!document.getElementById("classesTable")) return;
-
-  if (e.target.closest("#newClassBtn")) {
-    newClass();
-    return;
-  }
-
-  if (e.target.id === "addTeacherBtn") {
-    const container = document.getElementById("teachersContainer");
-    if(!container) return;
-
-    const { wrapper, select } = createTeacherSelect();
-    container.appendChild(wrapper);
-
-    const res = await apiRequest("/api/v1/teachers");
-    const teachers = res.data || [];
-
-    select.innerHTML = `<option value="">Selecione o professor</option>`;
-    teachers.forEach(t => {
-      const opt = document.createElement("option");
-      opt.value = t.id;
-      opt.textContent = t.name;
-      select.appendChild(opt);
-    });
-  }
-
-});
 
 // ===============================
 // EXPORTS
