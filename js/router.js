@@ -2,10 +2,32 @@ const content = document.getElementById("content")
 
 async function checkAuth() {
   try {
-    await apiRequest("/api/v1/auth/me")
+    const res = await apiRequest("/api/v1/auth/me")
+
+    if(!res || !res.success) throw new Error("Não autenticado")
+
+    // 🔥 Salva role sempre que valida sessão
+    localStorage.setItem("user_role", res.data?.role || "operator")
+
+    // 🔥 Mostra nome e role no header
+    const userNameEl = document.getElementById("user-name")
+    if(userNameEl){
+      const role = res.data?.role === "admin" ? "Admin" : "Operador"
+      userNameEl.innerText = role
+    }
+
+    // 🔥 Controle de menu por role
+    if(res.data?.role !== "admin"){
+      document.querySelectorAll(".menu-admin-only").forEach(el => {
+        el.style.display = "none"
+      })
+    }
+
     return true
+
   } catch {
     localStorage.removeItem("token")
+    localStorage.removeItem("user_role")
     window.location.href = "index.html"
     return false
   }
