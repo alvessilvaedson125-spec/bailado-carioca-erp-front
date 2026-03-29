@@ -8,23 +8,56 @@ let financeChartInstance = null;
   const el = (id) => document.getElementById(id);
   const setText = (id, val) => { if (el(id)) el(id).innerText = val; };
 
+  // ==============================
+  // INIT
+  // ==============================
+
   async function init() {
     console.log("Dashboard module iniciado");
 
     if (!el("financeChart")) return;
 
+    // 🔥 Remove listeners antigos antes de adicionar novos
+    const filterBtn = el("dash-filter-btn");
+    const clearBtn  = el("dash-clear-btn");
 
-    // Filtro de período
-el("dash-filter-btn")?.addEventListener("click", init);
-el("dash-clear-btn")?.addEventListener("click", () => {
-  const m = el("dash-month");
-  const y = el("dash-year");
-  if(m) m.value = "";
-  if(y) y.value = new Date().getFullYear().toString();
-  init();
-});
+    if(filterBtn) filterBtn.onclick = loadDashboard;
+    if(clearBtn)  clearBtn.onclick  = () => {
+      const m = el("dash-month");
+      const y = el("dash-year");
+      if(m) m.value = "";
+      if(y) y.value = new Date().getFullYear().toString();
+      loadDashboard();
+    };
+
+    await loadDashboard();
+  }
+
+  // ==============================
+  // LOAD DASHBOARD
+  // ==============================
+
+  async function loadDashboard(){
+
+    // 🔥 Limpa classes de cor antes de re-renderizar
+    const efCard   = el("dash-eficiencia-card");
+    const inadCard = el("dash-inad-card");
+    if(efCard)   efCard.classList.remove("kpi-green", "kpi-yellow", "kpi-red");
+    if(inadCard) inadCard.classList.remove("kpi-green", "kpi-yellow", "kpi-red");
 
     try {
+
+      // 🔥 FILTRO DE PERÍODO
+      const dashMonth = el("dash-month")?.value;
+      const dashYear  = el("dash-year")?.value;
+
+      const periodParams = [];
+      if(dashMonth) periodParams.push(`competence_month=${dashMonth}`);
+      if(dashYear)  periodParams.push(`competence_year=${dashYear}`);
+
+      const paymentsUrl = periodParams.length
+        ? `/api/v1/payments?${periodParams.join("&")}`
+        : "/api/v1/payments";
 
       const [
         studentsRes,
@@ -37,7 +70,7 @@ el("dash-clear-btn")?.addEventListener("click", () => {
         apiRequest("/api/v1/students"),
         apiRequest("/api/v1/classes"),
         apiRequest("/api/v1/enrollments"),
-        apiRequest("/api/v1/payments"),
+        apiRequest(paymentsUrl),
         apiRequest("/api/v1/cash"),
         apiRequest("/api/v1/payments/by-class")
       ]);
@@ -49,20 +82,22 @@ el("dash-clear-btn")?.addEventListener("click", () => {
       const cash        = cashRes?.success        ? cashRes.data        : [];
       const byClass     = byClassRes?.success     ? byClassRes.data     : [];
 
+      // 🔥 ONBOARDING — sistema vazio
+      if(students.length === 0 && classes.length === 0 && payments.length === 0){
+        renderOnboarding();
+        return;
+      }
+
       // ==============================
       // CÁLCULO FINANCEIRO
       // ==============================
 
       const finance = calculateFinance({ payments, cash });
 
-      const { esperado, recebido }    = finance.receita;
-      const { atrasado, defaultRate } = finance.inadimplencia;
+      const { esperado, recebido }      = finance.receita;
+      const { atrasado, defaultRate }   = finance.inadimplencia;
       const { entries, exits, balance } = finance.caixa;
-      const total                     = finance.total;
-
-      // ==============================
-      // EFICIÊNCIA
-      // ==============================
+      const total                       = finance.total;
 
       const eficiencia = esperado > 0
         ? (recebido / esperado) * 100
@@ -72,20 +107,18 @@ el("dash-clear-btn")?.addEventListener("click", () => {
       // RENDER LINHA 1 — KPIs
       // ==============================
 
-      setText("dash-recebido",     fmt(recebido));
-      setText("dash-esperado",     fmt(esperado));
-      setText("dash-eficiencia",   eficiencia.toFixed(1) + "%");
+      setText("dash-recebido",      fmt(recebido));
+      setText("dash-esperado",      fmt(esperado));
+      setText("dash-eficiencia",    eficiencia.toFixed(1) + "%");
       setText("dash-inadimplencia", defaultRate.toFixed(1) + "%");
-      setText("dash-atrasado",     fmt(atrasado));
+      setText("dash-atrasado",      fmt(atrasado));
 
-      // Trend recebido
       const trendEl = el("dash-recebido-trend");
       if (trendEl) {
         trendEl.innerText = recebido > 0 ? "↗️ em dia" : "↘️ sem receita";
       }
 
-      // Eficiência — borda + label
-      const efCard  = el("dash-eficiencia-card");
+      // Eficiência — cor e label
       const efLabel = el("dash-eficiencia-label");
 
       if (eficiencia >= 70) {
@@ -99,8 +132,7 @@ el("dash-clear-btn")?.addEventListener("click", () => {
         if (efLabel) efLabel.innerText = "🔴 Abaixo do ideal";
       }
 
-      // Inadimplência — borda
-      const inadCard = el("dash-inad-card");
+      // Inadimplência — cor
       if (inadCard) {
         if (defaultRate >= 20)      inadCard.classList.add("kpi-red");
         else if (defaultRate >= 10) inadCard.classList.add("kpi-yellow");
@@ -116,7 +148,6 @@ el("dash-clear-btn")?.addEventListener("click", () => {
       setText("dash-saldo",    fmt(balance));
       setText("dash-total",    fmt(total));
 
-      // Status geral
       const statusEl = el("dash-status");
       if (statusEl) {
         if (eficiencia >= 70 && defaultRate < 10) {
@@ -131,7 +162,6 @@ el("dash-clear-btn")?.addEventListener("click", () => {
         }
       }
 
-      // Operacional
       setText("dash-alunos",     students.length);
       setText("dash-turmas",     classes.length);
       setText("dash-matriculas", enrollments.length);
@@ -152,6 +182,80 @@ el("dash-clear-btn")?.addEventListener("click", () => {
       console.error("Erro dashboard:", err);
       setText("dash-total", "R$ 0,00");
     }
+  }
+
+  // ==============================
+  // ONBOARDING
+  // ==============================
+
+  function renderOnboarding(){
+
+    // Zera KPIs
+    ["dash-recebido","dash-esperado","dash-eficiencia",
+     "dash-inadimplencia","dash-atrasado","dash-entradas",
+     "dash-saidas","dash-saldo","dash-total"].forEach(id => setText(id, "—"));
+
+    setText("dash-alunos",     "0");
+    setText("dash-turmas",     "0");
+    setText("dash-matriculas", "0");
+
+    const statusEl = el("dash-status");
+    if(statusEl){
+      statusEl.innerText = "Novo";
+      statusEl.className = "dash-status-badge gray";
+    }
+
+    // Ranking com onboarding
+    const ranking = el("dash-ranking");
+    if(ranking){
+      ranking.innerHTML = `
+        <div class="onboarding-empty">
+          <div class="onboarding-icon">🏫</div>
+          <h3>Bem-vindo ao Bailado Carioca!</h3>
+          <p>Para começar a usar o sistema, siga os passos abaixo:</p>
+          <div class="onboarding-steps">
+            <div class="onboarding-step">
+              <span class="onboarding-num">1</span>
+              <div>
+                <strong>Cadastre uma Unidade</strong>
+                <p>Ex: Copacabana, Botafogo</p>
+              </div>
+            </div>
+            <div class="onboarding-step">
+              <span class="onboarding-num">2</span>
+              <div>
+                <strong>Cadastre um Professor</strong>
+                <p>Vincule ao professor da turma</p>
+              </div>
+            </div>
+            <div class="onboarding-step">
+              <span class="onboarding-num">3</span>
+              <div>
+                <strong>Crie uma Turma</strong>
+                <p>Ex: Forró iniciante, Terça 20h</p>
+              </div>
+            </div>
+            <div class="onboarding-step">
+              <span class="onboarding-num">4</span>
+              <div>
+                <strong>Cadastre Alunos</strong>
+                <p>E faça as matrículas nas turmas</p>
+              </div>
+            </div>
+            <div class="onboarding-step">
+              <span class="onboarding-num">5</span>
+              <div>
+                <strong>Gere as Mensalidades</strong>
+                <p>Em Pagamentos → Gerar mensalidades</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Gráfico vazio
+    renderChart([]);
   }
 
   // ==============================
