@@ -416,6 +416,9 @@ function closeClassModal(){
 
 document.addEventListener("click", async (e) => {
 
+  // 🔥 Só executa se o módulo de turmas estiver ativo
+  if (!document.getElementById("classesTable")) return;
+
   if (e.target.closest("#newClassBtn")) {
     newClass();
     return;
@@ -423,6 +426,8 @@ document.addEventListener("click", async (e) => {
 
   if (e.target.id === "addTeacherBtn") {
     const container = document.getElementById("teachersContainer");
+    if(!container) return;
+
     const { wrapper, select } = createTeacherSelect();
     container.appendChild(wrapper);
 
