@@ -131,7 +131,7 @@
     const name = document.getElementById("editUnitName").value.trim();
 
     if(!name){
-      alert("Informe o nome da unidade");
+      Toast.warning("Informe o nome da unidade");
       return;
     }
 
@@ -142,16 +142,17 @@
       const res = await apiRequest(endpoint, method, { name });
 
       if(!res || !res.success){
-        alert("Erro ao salvar unidade");
+        Toast.error("Erro ao salvar unidade");
         return;
       }
 
+      Toast.success(id ? "Unidade atualizada!" : "Unidade criada!");
       closeUnitModal();
       await loadUnits();
 
     }catch(err){
       console.error(err);
-      alert("Erro na API");
+      Toast.error("Erro na API");
     }
   }
 
@@ -166,15 +167,16 @@
       const res = await apiRequest(`/api/v1/units/${id}`, "DELETE");
 
       if(!res || !res.success){
-        alert("Erro ao excluir unidade");
+        Toast.error("Erro ao excluir unidade");
         return;
       }
 
+      Toast.success("Unidade excluída!");
       await loadUnits();
 
     }catch(err){
       console.error(err);
-      alert("Erro na API");
+      Toast.error("Erro na API");
     }
   }
 
