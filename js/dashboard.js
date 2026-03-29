@@ -17,7 +17,6 @@ let financeChartInstance = null;
 
     if (!el("financeChart")) return;
 
-    // 🔥 Remove listeners antigos antes de adicionar novos
     const filterBtn = el("dash-filter-btn");
     const clearBtn  = el("dash-clear-btn");
 
@@ -39,7 +38,6 @@ let financeChartInstance = null;
 
   async function loadDashboard(){
 
-    // 🔥 Limpa classes de cor antes de re-renderizar
     const efCard   = el("dash-eficiencia-card");
     const inadCard = el("dash-inad-card");
     if(efCard)   efCard.classList.remove("kpi-green", "kpi-yellow", "kpi-red");
@@ -47,7 +45,6 @@ let financeChartInstance = null;
 
     try {
 
-      // 🔥 FILTRO DE PERÍODO
       const dashMonth = el("dash-month")?.value;
       const dashYear  = el("dash-year")?.value;
 
@@ -65,14 +62,16 @@ let financeChartInstance = null;
         enrollmentsRes,
         paymentsRes,
         cashRes,
-        byClassRes
+        byClassRes,
+        attendanceRes
       ] = await Promise.all([
         apiRequest("/api/v1/students"),
         apiRequest("/api/v1/classes"),
         apiRequest("/api/v1/enrollments"),
         apiRequest(paymentsUrl),
         apiRequest("/api/v1/cash"),
-        apiRequest("/api/v1/payments/by-class")
+        apiRequest("/api/v1/payments/by-class"),
+        apiRequest("/api/v1/attendance/dashboard")
       ]);
 
       const students    = studentsRes?.success    ? studentsRes.data    : [];
@@ -81,8 +80,9 @@ let financeChartInstance = null;
       const payments    = paymentsRes?.success    ? paymentsRes.data    : [];
       const cash        = cashRes?.success        ? cashRes.data        : [];
       const byClass     = byClassRes?.success     ? byClassRes.data     : [];
+      const attendance  = attendanceRes?.success  ? attendanceRes.data  : null;
 
-      // 🔥 ONBOARDING — sistema vazio
+      // ONBOARDING
       if(students.length === 0 && classes.length === 0 && payments.length === 0){
         renderOnboarding();
         return;
@@ -118,7 +118,6 @@ let financeChartInstance = null;
         trendEl.innerText = recebido > 0 ? "↗️ em dia" : "↘️ sem receita";
       }
 
-      // Eficiência — cor e label
       const efLabel = el("dash-eficiencia-label");
 
       if (eficiencia >= 70) {
@@ -132,7 +131,6 @@ let financeChartInstance = null;
         if (efLabel) efLabel.innerText = "🔴 Abaixo do ideal";
       }
 
-      // Inadimplência — cor
       if (inadCard) {
         if (defaultRate >= 20)      inadCard.classList.add("kpi-red");
         else if (defaultRate >= 10) inadCard.classList.add("kpi-yellow");
@@ -167,6 +165,35 @@ let financeChartInstance = null;
       setText("dash-matriculas", enrollments.length);
 
       // ==============================
+      // RENDER FREQUÊNCIA
+      // ==============================
+
+      const freqEl    = el("dash-frequencia");
+      const freqLabel = el("dash-frequencia-label");
+
+      if(attendance && Number(attendance.total_records) > 0){
+        const freq = Number(attendance.avg_frequency);
+
+        setText("dash-frequencia", freq.toFixed(1) + "%");
+
+        if(freqEl){
+          freqEl.style.color = freq >= 75 ? "#16a34a"
+            : freq >= 50 ? "#ca8a04"
+            : "#dc2626";
+        }
+
+        if(freqLabel){
+          freqLabel.innerText = freq >= 75 ? "✅ Boa frequência"
+            : freq >= 50 ? "⚠️ Atenção"
+            : "🔴 Frequência baixa";
+        }
+
+      } else {
+        setText("dash-frequencia", "—");
+        if(freqLabel) freqLabel.innerText = "Sem aulas registradas";
+      }
+
+      // ==============================
       // RENDER LINHA 3 — GRÁFICO
       // ==============================
 
@@ -190,14 +217,17 @@ let financeChartInstance = null;
 
   function renderOnboarding(){
 
-    // Zera KPIs
     ["dash-recebido","dash-esperado","dash-eficiencia",
      "dash-inadimplencia","dash-atrasado","dash-entradas",
-     "dash-saidas","dash-saldo","dash-total"].forEach(id => setText(id, "—"));
+     "dash-saidas","dash-saldo","dash-total",
+     "dash-frequencia"].forEach(id => setText(id, "—"));
 
     setText("dash-alunos",     "0");
     setText("dash-turmas",     "0");
     setText("dash-matriculas", "0");
+
+    const freqLabel = el("dash-frequencia-label");
+    if(freqLabel) freqLabel.innerText = "Sem aulas registradas";
 
     const statusEl = el("dash-status");
     if(statusEl){
@@ -205,7 +235,6 @@ let financeChartInstance = null;
       statusEl.className = "dash-status-badge gray";
     }
 
-    // Ranking com onboarding
     const ranking = el("dash-ranking");
     if(ranking){
       ranking.innerHTML = `
@@ -254,7 +283,6 @@ let financeChartInstance = null;
       `;
     }
 
-    // Gráfico vazio
     renderChart([]);
   }
 
