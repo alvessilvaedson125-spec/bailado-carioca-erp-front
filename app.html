@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bailado Carioca ERP</title>
-
   <link rel="stylesheet" href="/css/style.css">
 </head>
 
@@ -17,7 +16,6 @@
     <div class="header-left">
       Bailado Carioca — Gestão Escolar
     </div>
-
     <div class="header-right">
       <span id="user-name"></span>
       <button id="logout-btn">Logout</button>
@@ -38,7 +36,7 @@
         <li data-page="units">Unidades</li>
         <li data-page="reports">Relatórios</li>
         <li data-page="attendance">Presença</li>
-        <li data-page="admin">Administração</li>
+        <li data-page="admin" class="menu-admin-only">Administração</li>
       </ul>
     </aside>
 
@@ -78,13 +76,23 @@
 <!-- DASHBOARD -->
 <script src="/js/dashboard.js"></script>
 
-
 <script>
 (function () {
   const token = localStorage.getItem("token");
 
   if (!token) {
     window.location.replace("/index.html");
+    return;
+  }
+
+  // 🔥 Controle de menu por role
+  const role = localStorage.getItem("user_role");
+
+  if (role !== "admin") {
+    // Esconde Administração para não-admins
+    document.querySelectorAll(".menu-admin-only").forEach(el => {
+      el.style.display = "none";
+    });
   }
 })();
 </script>
