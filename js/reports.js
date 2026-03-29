@@ -18,7 +18,32 @@
     el("btnGenerateReport")?.addEventListener("click", loadReport);
     el("rep-filter-status")?.addEventListener("change", renderPaymentsTable);
 
+    await populateClasses();
     await loadReport();
+  }
+
+  // ===============================
+  // POPULAR TURMAS
+  // ===============================
+
+  async function populateClasses(){
+    const select = el("report-class");
+    if(!select) return;
+
+    try{
+      const res = await apiRequest("/api/v1/classes");
+      const list = res?.success ? res.data : [];
+
+      list.forEach(c => {
+        const option = document.createElement("option");
+        option.value = c.id;
+        option.textContent = c.name;
+        select.appendChild(option);
+      });
+
+    }catch(err){
+      console.error("Erro ao carregar turmas:", err);
+    }
   }
 
   // ===============================
@@ -26,22 +51,26 @@
   // ===============================
 
   async function loadReport(){
-    const month = el("report-month")?.value;
-    const year  = el("report-year")?.value;
+    const month   = el("report-month")?.value;
+    const year    = el("report-year")?.value;
+    const classId = el("report-class")?.value;
 
-    setText("rep-esperado",  "Carregando...");
-    setText("rep-recebido",  "—");
-    setText("rep-pendente",  "—");
-    setText("rep-atrasado",  "—");
-    setText("rep-total",     "—");
+    setText("rep-esperado", "Carregando...");
+    setText("rep-recebido", "—");
+    setText("rep-pendente", "—");
+    setText("rep-atrasado", "—");
+    setText("rep-total",    "—");
 
     try{
 
-      let paymentsUrl = "/api/v1/payments";
       const params = [];
-      if(month) params.push(`competence_month=${month}`);
-      if(year)  params.push(`competence_year=${year}`);
-      if(params.length) paymentsUrl += "?" + params.join("&");
+      if(month)   params.push(`competence_month=${month}`);
+      if(year)    params.push(`competence_year=${year}`);
+      if(classId) params.push(`class_id=${classId}`);
+
+      const paymentsUrl = params.length
+        ? `/api/v1/payments?${params.join("&")}`
+        : "/api/v1/payments";
 
       const [paymentsRes, cashRes, rankingRes] = await Promise.all([
         apiRequest(paymentsUrl),
@@ -53,6 +82,11 @@
       cashCache     = cashRes?.success     ? cashRes.data     : [];
       rankingCache  = rankingRes?.success  ? rankingRes.data  : [];
 
+      // 🔥 Se filtrou por turma, filtra ranking também no frontend
+      const rankingFiltered = classId
+        ? rankingCache.filter(r => r.class_id === classId)
+        : rankingCache;
+
       const finance = calculateFinance({
         payments: paymentsCache,
         cash: cashCache
@@ -62,7 +96,7 @@
       renderGauge(finance);
       renderCaixa(finance);
       renderTotal(finance);
-      renderRanking(rankingCache);
+      renderRanking(rankingFiltered);
       renderPaymentsTable();
 
     }catch(err){
@@ -146,7 +180,7 @@
     const container = el("rep-ranking");
     if(!container) return;
 
-    if(!data.length){
+    if(!data || !data.length){
       container.innerHTML = `<p class="empty-state">Nenhum dado disponível</p>`;
       return;
     }
@@ -160,6 +194,10 @@
         : 0;
       const width = (c.total_received / max) * 100;
 
+      let cor = "#ef4444";
+      if(eficiencia >= 70) cor = "#22c55e";
+      else if(eficiencia >= 60) cor = "#f59e0b";
+
       return `
         <div class="ranking-item">
           <div class="ranking-header">
@@ -167,7 +205,7 @@
             <strong>${fmt(c.total_received)}</strong>
           </div>
           <div class="ranking-bar">
-            <div class="ranking-fill" style="width:${width}%"></div>
+            <div class="ranking-fill" style="width:${width}%; background:${cor}"></div>
           </div>
           <small>${eficiencia.toFixed(0)}% de eficiência</small>
         </div>
@@ -185,7 +223,18 @@
 
     const statusFilter = el("rep-filter-status")?.value || "";
 
-    let list = paymentsCache;
+    let list = [...paymentsCache];
+
+    // Ordenar por risco: vencido → pendente → pago
+    list.sort((a, b) => {
+      const order = { overdue: 0, pending: 1, paid: 2 };
+      const getOrder = (p) => {
+        if(p.status === "paid") return 2;
+        if(new Date(p.due_date) < new Date()) return 0;
+        return 1;
+      };
+      return getOrder(a) - getOrder(b);
+    });
 
     if(statusFilter){
       list = list.filter(p => {
@@ -206,9 +255,11 @@
     list.forEach(p => {
       const tr = document.createElement("tr");
 
+      const isOverdue = p.status === "pending" && new Date(p.due_date) < new Date();
+
       const status = p.status === "paid"
         ? `<span class="badge green">Pago</span>`
-        : new Date(p.due_date) < new Date()
+        : isOverdue
           ? `<span class="badge red">Vencido</span>`
           : `<span class="badge orange">Pendente</span>`;
 
@@ -219,6 +270,9 @@
         <td>${fmt(p.final_amount)}</td>
         <td>${status}</td>
       `;
+
+      // 🔥 destaca linha vencida
+      if(isOverdue) tr.style.background = "#fff5f5";
 
       tbody.appendChild(tr);
     });
