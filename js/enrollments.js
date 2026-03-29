@@ -3,6 +3,9 @@
 let enrollmentsCache = []
 let editingEnrollmentId = null
 let initDone = false;
+let currentPage = 1;
+let currentList = [];
+const PAGE_SIZE = 15;
 
 async function init(){
 
@@ -37,6 +40,7 @@ async function init(){
     searchInput.addEventListener("input", () => {
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => {
+        currentPage = 1;
         filterEnrollments();
       }, 300);
     });
@@ -50,10 +54,10 @@ EVENTS
 
 function attach(){
 
-  const newBtn = document.getElementById("newEnrollmentBtn")
-  const modal = document.getElementById("enrollmentModal")
+  const newBtn   = document.getElementById("newEnrollmentBtn")
+  const modal    = document.getElementById("enrollmentModal")
   const cancelBtn = document.getElementById("cancelEnrollmentBtn")
-  const saveBtn = document.getElementById("saveEnrollmentBtn")
+  const saveBtn  = document.getElementById("saveEnrollmentBtn")
 
   if(newBtn){
     newBtn.onclick = async () => {
@@ -99,9 +103,11 @@ async function loadEnrollments(){
       const filtered = enrollmentsCache.filter(e =>
         String(e.student_id) === String(selectedStudentId)
       );
+      currentPage = 1;
       renderEnrollments(filtered);
       localStorage.removeItem("selectedStudentId");
     } else {
+      currentPage = 1;
       renderEnrollments();
     }
 
@@ -215,8 +221,8 @@ async function saveEnrollment(){
     const method = editingEnrollmentId ? "PUT" : "POST"
 
     const res = await apiRequest(endpoint, method, {
-      student_id: studentId,
-      class_id:   classId,
+      student_id:  studentId,
+      class_id:    classId,
       role,
       type,
       monthly_fee: fee,
@@ -278,6 +284,9 @@ function renderEnrollments(list = enrollmentsCache){
   const tbody = document.querySelector("#enrollmentsTable tbody")
   if(!tbody) return
 
+  // Salva lista atual para paginação
+  currentList = list;
+
   const total    = list.length
   const active   = list.filter(e => e.status === "active").length
   const inactive = total - active
@@ -292,12 +301,21 @@ function renderEnrollments(list = enrollmentsCache){
 
   if(list.length === 0){
     tbody.innerHTML = `<tr><td colspan="6">Nenhuma matrícula</td></tr>`
+    renderPagination(0)
     return
   }
 
+  // 🔥 PAGINAÇÃO
+  const totalPages = Math.ceil(list.length / PAGE_SIZE);
+  if(currentPage > totalPages) currentPage = 1;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const end   = start + PAGE_SIZE;
+  const page  = list.slice(start, end);
+
   tbody.innerHTML = ""
 
-  list.forEach(enrollment => {
+  page.forEach(enrollment => {
 
     const tr = document.createElement("tr")
 
@@ -313,13 +331,65 @@ function renderEnrollments(list = enrollmentsCache){
       </td>
     `
 
-    // 🔥 CORRIGIDO: eventos conectados
-    tr.querySelector(".btn-edit").onclick = () => openEditEnrollment(enrollment)
-    tr.querySelector(".btn-cancel").onclick = () => cancelEnrollment(enrollment.id)
+    tr.querySelector(".btn-edit").onclick    = () => openEditEnrollment(enrollment)
+    tr.querySelector(".btn-cancel").onclick  = () => cancelEnrollment(enrollment.id)
 
     tbody.appendChild(tr)
 
   })
+
+  renderPagination(list.length)
+
+}
+
+/* =========================
+PAGINAÇÃO
+========================= */
+
+function renderPagination(total){
+
+  let container = document.getElementById("enrollmentsPagination");
+
+  if(!container){
+    container = document.createElement("div");
+    container.id = "enrollmentsPagination";
+    container.className = "pagination";
+    const table = document.getElementById("enrollmentsTable");
+    if(table) table.after(container);
+  }
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  if(totalPages <= 1){
+    container.innerHTML = "";
+    return;
+  }
+
+  const start = ((currentPage - 1) * PAGE_SIZE) + 1;
+  const end   = Math.min(currentPage * PAGE_SIZE, total);
+
+  container.innerHTML = `
+    <div class="pagination-info">${start}–${end} de ${total} matrículas</div>
+    <div class="pagination-controls">
+      <button class="pagination-btn" id="enrollmentsPrev" ${currentPage === 1 ? "disabled" : ""}>← Anterior</button>
+      <span class="pagination-page">${currentPage} / ${totalPages}</span>
+      <button class="pagination-btn" id="enrollmentsNext" ${currentPage === totalPages ? "disabled" : ""}>Próximo →</button>
+    </div>
+  `;
+
+  document.getElementById("enrollmentsPrev").onclick = () => {
+    if(currentPage > 1){
+      currentPage--;
+      renderEnrollments(currentList);
+    }
+  };
+
+  document.getElementById("enrollmentsNext").onclick = () => {
+    if(currentPage < totalPages){
+      currentPage++;
+      renderEnrollments(currentList);
+    }
+  };
 
 }
 
@@ -333,13 +403,13 @@ async function openEditEnrollment(enrollment){
 
   await loadEnrollmentFormData()
 
-  document.getElementById("editEnrollmentStudent").value = enrollment.student_id
-  document.getElementById("editEnrollmentClass").value   = enrollment.class_id
-  document.getElementById("editEnrollmentRole").value    = enrollment.role    || "conductor"
-  document.getElementById("editEnrollmentType").value    = enrollment.type    || "individual"
-  document.getElementById("editEnrollmentFee").value     = enrollment.monthly_fee || 0
-  document.getElementById("editEnrollmentDiscount").value = enrollment.discount  || 0
-  document.getElementById("editEnrollmentStatus").value  = enrollment.status  || "active"
+  document.getElementById("editEnrollmentStudent").value  = enrollment.student_id
+  document.getElementById("editEnrollmentClass").value    = enrollment.class_id
+  document.getElementById("editEnrollmentRole").value     = enrollment.role     || "conductor"
+  document.getElementById("editEnrollmentType").value     = enrollment.type     || "individual"
+  document.getElementById("editEnrollmentFee").value      = enrollment.monthly_fee || 0
+  document.getElementById("editEnrollmentDiscount").value = enrollment.discount || 0
+  document.getElementById("editEnrollmentStatus").value   = enrollment.status   || "active"
 
   document.getElementById("enrollmentModal").classList.remove("hidden")
 

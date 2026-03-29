@@ -2,6 +2,8 @@
 
 let studentsCache = [];
 let enrollmentsMap = {};
+let currentPage = 1;
+const PAGE_SIZE = 15;
 
 async function init(){
 
@@ -11,7 +13,10 @@ async function init(){
 
   const search = document.getElementById("searchStudents");
   if(search){
-    search.addEventListener("input", filterStudents);
+    search.addEventListener("input", () => {
+      currentPage = 1;
+      filterStudents();
+    });
   }
 
   const newBtn = document.getElementById("newStudentBtn");
@@ -47,6 +52,7 @@ async function loadData(){
 
     buildEnrollmentsMap(enrollmentsRes);
 
+    currentPage = 1;
     renderStudents(studentsCache);
 
   }catch(err){
@@ -89,10 +95,19 @@ function renderStudents(list){
 
   if(list.length === 0){
     tableBody.innerHTML = "<tr><td colspan='4'>Nenhum aluno encontrado</td></tr>";
+    renderPagination(0);
     return;
   }
 
-  list.forEach(student => {
+  // 🔥 PAGINAÇÃO
+  const totalPages = Math.ceil(list.length / PAGE_SIZE);
+  if(currentPage > totalPages) currentPage = 1;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const end   = start + PAGE_SIZE;
+  const page  = list.slice(start, end);
+
+  page.forEach(student => {
 
     const tr = document.createElement("tr");
 
@@ -114,13 +129,8 @@ function renderStudents(list){
           </div>
         </div>
       </td>
-
       <td>${student.email}</td>
-
-      <td>
-        ${statusBadge}
-      </td>
-
+      <td>${statusBadge}</td>
       <td>
         <button class="btn-edit">✏️ Editar</button>
         <button class="btn-secondary">👁 Ver</button>
@@ -136,6 +146,59 @@ function renderStudents(list){
     tableBody.appendChild(tr);
 
   });
+
+  renderPagination(list.length, list);
+
+}
+
+// ===============================
+// PAGINAÇÃO
+// ===============================
+
+function renderPagination(total, list = []){
+
+  let container = document.getElementById("studentsPagination");
+
+  if(!container){
+    container = document.createElement("div");
+    container.id = "studentsPagination";
+    container.className = "pagination";
+    const table = document.getElementById("studentsTable");
+    if(table) table.after(container);
+  }
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  if(totalPages <= 1){
+    container.innerHTML = "";
+    return;
+  }
+
+  const start = ((currentPage - 1) * PAGE_SIZE) + 1;
+  const end   = Math.min(currentPage * PAGE_SIZE, total);
+
+  container.innerHTML = `
+    <div class="pagination-info">${start}–${end} de ${total} alunos</div>
+    <div class="pagination-controls">
+      <button class="pagination-btn" id="studentsPrev" ${currentPage === 1 ? "disabled" : ""}>← Anterior</button>
+      <span class="pagination-page">${currentPage} / ${totalPages}</span>
+      <button class="pagination-btn" id="studentsNext" ${currentPage === totalPages ? "disabled" : ""}>Próximo →</button>
+    </div>
+  `;
+
+  document.getElementById("studentsPrev").onclick = () => {
+    if(currentPage > 1){
+      currentPage--;
+      renderStudents(list);
+    }
+  };
+
+  document.getElementById("studentsNext").onclick = () => {
+    if(currentPage < totalPages){
+      currentPage++;
+      renderStudents(list);
+    }
+  };
 
 }
 
@@ -204,22 +267,15 @@ function newStudent(){
 function setupModal(){
 
   const cancelBtn = document.getElementById("cancelStudentBtn");
-  const saveBtn = document.getElementById("saveStudentBtn");
-  const modal = document.getElementById("studentModal");
+  const saveBtn   = document.getElementById("saveStudentBtn");
+  const modal     = document.getElementById("studentModal");
 
-  if(cancelBtn){
-    cancelBtn.onclick = closeModal;
-  }
-
-  if(saveBtn){
-    saveBtn.onclick = saveStudent;
-  }
+  if(cancelBtn) cancelBtn.onclick = closeModal;
+  if(saveBtn)   saveBtn.onclick   = saveStudent;
 
   if(modal){
     modal.addEventListener("click",(e)=>{
-      if(e.target === modal){
-        closeModal();
-      }
+      if(e.target === modal) closeModal();
     });
   }
 
@@ -231,8 +287,8 @@ function closeModal(){
 
 async function saveStudent(){
 
-  const id = document.getElementById("editStudentId").value;
-  const name = document.getElementById("editStudentName").value;
+  const id    = document.getElementById("editStudentId").value;
+  const name  = document.getElementById("editStudentName").value;
   const email = document.getElementById("editStudentEmail").value;
   const phone = document.getElementById("editStudentPhone").value;
 
@@ -243,11 +299,8 @@ async function saveStudent(){
 
   try{
 
-    const endpoint = id
-      ? `/api/v1/students/${id}`
-      : "/api/v1/students";
-
-    const method = id ? "PUT" : "POST";
+    const endpoint = id ? `/api/v1/students/${id}` : "/api/v1/students";
+    const method   = id ? "PUT" : "POST";
 
     const res = await apiRequest(endpoint, method, { name, email, phone });
 
