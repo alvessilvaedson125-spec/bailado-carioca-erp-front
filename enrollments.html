@@ -1,17 +1,13 @@
 <div class="page-header">
   <h2>Matrículas</h2>
 
-
-<div class="enrollments-header">
-
-  <input
-    type="text"
-    id="searchEnrollments"
-    placeholder="🔍 Buscar por aluno ou turma..."
-  />
-
-</div>
-
+  <div class="enrollments-header">
+    <input
+      type="text"
+      id="searchEnrollments"
+      placeholder="🔍 Buscar por aluno ou turma..."
+    />
+  </div>
 
   <div class="page-actions">
     <button id="newEnrollmentBtn" class="btn-primary">
@@ -21,115 +17,114 @@
 </div>
 
 <div class="enrollments-stats">
-
   <div class="stat-card">
     <span>Total</span>
     <strong id="statTotal">0</strong>
   </div>
-
   <div class="stat-card">
     <span>Ativas</span>
     <strong id="statActive">0</strong>
   </div>
-
   <div class="stat-card">
     <span>Inativas</span>
     <strong id="statInactive">0</strong>
   </div>
-
+  <div class="stat-card">
+    <span>Bolsistas</span>
+    <strong id="statScholarship">0</strong>
+  </div>
 </div>
 
 <div class="table-container">
   <table id="enrollmentsTable">
-
     <thead>
-<tr>
-<th>Aluno</th>
-<th>Turma</th>
-<th>Papel</th>
-<th>Status</th>
-<th>Criado em</th>
-<th>Ações</th>
-</tr>
-</thead>
-
+      <tr>
+        <th>Aluno</th>
+        <th>Turma</th>
+        <th>Papel</th>
+        <th>Bolsista</th>
+        <th>Status</th>
+        <th>Criado em</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
     <tbody>
       <tr>
-        <td colspan="6">Carregando...</td>
+        <td colspan="7">Carregando...</td>
       </tr>
     </tbody>
-
   </table>
 </div>
 
 <!-- Modal matrícula -->
-
 <div id="enrollmentModal" class="modal hidden">
-
   <div class="modal-content">
 
-    <h3>Nova Matrícula</h3>
+    <h3 id="enrollmentModalTitle">Nova Matrícula</h3>
 
     <input type="hidden" id="editEnrollmentId">
 
     <div class="form-group">
-<label>Aluno</label>
-<select id="editEnrollmentStudent" class="form-control"></select>
-</div>
+      <label>Aluno</label>
+      <select id="editEnrollmentStudent" class="form-control"></select>
+    </div>
 
-<div class="form-group">
-<label>Turma</label>
-<select id="editEnrollmentClass" class="form-control"></select>
-</div>
+    <div class="form-group">
+      <label>Turma</label>
+      <select id="editEnrollmentClass" class="form-control"></select>
+    </div>
 
-<div class="form-group">
-<label>Papel</label>
-<select id="editEnrollmentRole" class="form-control">
-<option value="leader">Condutor</option>
-<option value="follower">Conduzida</option>
-</select>
-</div>
+    <div class="form-group">
+      <label>Papel</label>
+      <select id="editEnrollmentRole" class="form-control">
+        <option value="conductor">Condutor</option>
+        <option value="follower">Conduzida</option>
+      </select>
+    </div>
 
-<div class="form-group">
-<label>Tipo de matrícula</label>
-<select id="editEnrollmentType" class="form-control">
-<option value="individual">Individual</option>
-<option value="couple">Casal</option>
-<option value="scholarship">Bolsista</option>
-</select>
-</div>
+    <div class="form-group">
+      <label>Tipo de matrícula</label>
+      <select id="editEnrollmentType" class="form-control">
+        <option value="individual">Individual</option>
+        <option value="couple">Casal</option>
+      </select>
+    </div>
 
-<div class="form-group">
-<label>Mensalidade</label>
-<input id="editEnrollmentFee" type="number" class="form-control" placeholder="Ex: 120">
-</div>
+    <div class="form-group">
+      <label>Mensalidade (R$)</label>
+      <input id="editEnrollmentFee" type="number" class="form-control" placeholder="Ex: 120">
+    </div>
 
-<div class="form-group">
-<label>Desconto (%)</label>
-<input id="editEnrollmentDiscount" type="number" class="form-control" placeholder="0">
-</div>
+    <div class="form-group">
+      <label>Desconto (%)</label>
+      <input id="editEnrollmentDiscount" type="number" class="form-control" placeholder="0" min="0" max="100">
+    </div>
 
-<div class="form-group">
-<label>Status</label>
-<select id="editEnrollmentStatus" class="form-control">
-<option value="active">Ativo</option>
-<option value="paused">Pausado</option>
-<option value="cancelled">Cancelado</option>
-</select>
-</div>
+    <!-- 🔥 BOLSISTA -->
+    <div class="form-group">
+      <label>Bolsista</label>
+      <div class="scholarship-toggle">
+        <label class="toggle-label">
+          <input type="checkbox" id="editEnrollmentScholarship" />
+          <span class="toggle-text">Este aluno possui bolsa</span>
+        </label>
+        <p class="scholarship-hint" id="scholarshipHint"></p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Status</label>
+      <select id="editEnrollmentStatus" class="form-control">
+        <option value="active">Ativo</option>
+        <option value="paused">Pausado</option>
+        <option value="cancelled">Cancelado</option>
+      </select>
+    </div>
 
     <div class="modal-actions">
-
-      <button id="cancelEnrollmentBtn" class="btn-secondary">
-        Cancelar
-      </button>
-
-      <button id="saveEnrollmentBtn" class="btn-primary">
-        Salvar
-      </button>
-
+      <button id="cancelEnrollmentBtn" class="btn-secondary">Cancelar</button>
+      <button id="saveEnrollmentBtn" class="btn-primary">Salvar</button>
     </div>
 
   </div>
-
 </div>

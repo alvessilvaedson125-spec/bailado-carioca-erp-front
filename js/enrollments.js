@@ -18,20 +18,17 @@ async function init(){
   console.log("Enrollments module iniciado")
 
   attach()
+  setupScholarshipHint()
 
   await loadEnrollments()
 
   const cancelBtn = document.getElementById("cancelEnrollmentBtn")
-  if(cancelBtn){
-    cancelBtn.onclick = closeEnrollmentModal
-  }
+  if(cancelBtn) cancelBtn.onclick = closeEnrollmentModal
 
   const modal = document.getElementById("enrollmentModal")
   if(modal){
     modal.addEventListener("click",(e)=>{
-      if(e.target === modal){
-        closeEnrollmentModal()
-      }
+      if(e.target === modal) closeEnrollmentModal()
     })
   }
 
@@ -49,28 +46,63 @@ async function init(){
 }
 
 /* =========================
+SCHOLARSHIP HINT
+========================= */
+
+function setupScholarshipHint(){
+  const checkbox = document.getElementById("editEnrollmentScholarship");
+  const discount = document.getElementById("editEnrollmentDiscount");
+  const hint     = document.getElementById("scholarshipHint");
+
+  if(!checkbox) return;
+
+  function updateHint(){
+    if(!hint) return;
+    if(!checkbox.checked){
+      hint.innerText = "";
+      return;
+    }
+
+    const d = Number(discount?.value || 0);
+    if(d === 100){
+      hint.innerText = "⚠️ Bolsa integral — não entra nos recebimentos";
+      hint.style.color = "#dc2626";
+    } else if(d > 0){
+      hint.innerText = `✅ Bolsa parcial de ${d}% — entra nos recebimentos com desconto`;
+      hint.style.color = "#16a34a";
+    } else {
+      hint.innerText = "ℹ️ Bolsista sem desconto definido";
+      hint.style.color = "#6b7280";
+    }
+  }
+
+  checkbox.addEventListener("change", updateHint);
+  discount?.addEventListener("input", updateHint);
+}
+
+/* =========================
 EVENTS
 ========================= */
 
 function attach(){
 
-  const newBtn   = document.getElementById("newEnrollmentBtn")
-  const modal    = document.getElementById("enrollmentModal")
+  const newBtn    = document.getElementById("newEnrollmentBtn")
+  const modal     = document.getElementById("enrollmentModal")
   const cancelBtn = document.getElementById("cancelEnrollmentBtn")
-  const saveBtn  = document.getElementById("saveEnrollmentBtn")
+  const saveBtn   = document.getElementById("saveEnrollmentBtn")
 
   if(newBtn){
     newBtn.onclick = async () => {
       editingEnrollmentId = null
       resetEnrollmentForm()
       await loadEnrollmentFormData()
-      modal.classList.remove("hidden")
+      if(modal) modal.classList.remove("hidden")
     }
   }
 
   if(cancelBtn){
     cancelBtn.onclick = () => {
-      modal.classList.add("hidden")
+      if(modal) modal.classList.add("hidden")
     }
   }
 
@@ -128,7 +160,6 @@ async function loadEnrollmentFormData(){
 }
 
 async function populateStudents(){
-
   const select = document.getElementById("editEnrollmentStudent")
   if(!select) return
 
@@ -148,11 +179,9 @@ async function populateStudents(){
   }catch(err){
     console.error("Erro alunos", err)
   }
-
 }
 
 async function populateClasses(){
-
   const select = document.getElementById("editEnrollmentClass")
   if(!select) return
 
@@ -172,7 +201,6 @@ async function populateClasses(){
   }catch(err){
     console.error("Erro turmas", err)
   }
-
 }
 
 /* =========================
@@ -181,25 +209,41 @@ SAVE
 
 async function saveEnrollment(){
 
-  const studentId = document.getElementById("editEnrollmentStudent").value
-  const classId   = document.getElementById("editEnrollmentClass").value
-  const role      = document.getElementById("editEnrollmentRole").value
-  const type      = document.getElementById("editEnrollmentType").value
-  const fee       = Number(document.getElementById("editEnrollmentFee").value || 0)
-  const discount  = Number(document.getElementById("editEnrollmentDiscount").value || 0)
-  const status    = document.getElementById("editEnrollmentStatus").value
+  const studentId  = document.getElementById("editEnrollmentStudent").value
+  const classId    = document.getElementById("editEnrollmentClass").value
+  const role       = document.getElementById("editEnrollmentRole").value
+  const type       = document.getElementById("editEnrollmentType").value
+  const fee        = Number(document.getElementById("editEnrollmentFee").value || 0)
+  const discount   = Number(document.getElementById("editEnrollmentDiscount").value || 0)
+  const status     = document.getElementById("editEnrollmentStatus").value
+  const scholarship = document.getElementById("editEnrollmentScholarship").checked
 
   if(!studentId || !classId){
     Toast.warning("Selecione aluno e turma")
     return
   }
 
-  if(discount > fee){
+  if(discount > 100){
+    Toast.warning("Desconto não pode ser maior que 100%")
+    return
+  }
+
+  if(discount > fee && fee > 0){
     Toast.warning("Desconto não pode ser maior que a mensalidade")
     return
   }
 
-  const finalPrice = Math.max(0, fee - discount)
+  // 🔥 Bolsista integral — aviso
+  if(scholarship && discount === 100 && fee > 0){
+    const ok = confirm(
+      "Este aluno tem bolsa integral (100% de desconto).\n" +
+      "Ele não entrará nos recebimentos financeiros.\n\n" +
+      "Confirmar?"
+    );
+    if(!ok) return;
+  }
+
+  const finalPrice = Math.max(0, fee - (fee * discount / 100))
 
   const duplicate = enrollmentsCache.find(e =>
     e.student_id === studentId &&
@@ -228,7 +272,8 @@ async function saveEnrollment(){
       monthly_fee: fee,
       discount,
       final_price: finalPrice,
-      status
+      status,
+      scholarship  // 🔥 NOVO
     })
 
     if(!res || !res.success){
@@ -284,28 +329,30 @@ function renderEnrollments(list = enrollmentsCache){
   const tbody = document.querySelector("#enrollmentsTable tbody")
   if(!tbody) return
 
-  // Salva lista atual para paginação
   currentList = list;
 
-  const total    = list.length
-  const active   = list.filter(e => e.status === "active").length
-  const inactive = total - active
+  const total      = list.length
+  const active     = list.filter(e => e.status === "active").length
+  const inactive   = total - active
+  const scholarship = list.filter(e => e.scholarship === 1).length
 
-  const statTotal    = document.getElementById("statTotal")
-  const statActive   = document.getElementById("statActive")
-  const statInactive = document.getElementById("statInactive")
+  const statTotal      = document.getElementById("statTotal")
+  const statActive     = document.getElementById("statActive")
+  const statInactive   = document.getElementById("statInactive")
+  const statScholarship = document.getElementById("statScholarship")
 
-  if(statTotal)    statTotal.innerText    = total
-  if(statActive)   statActive.innerText   = active
-  if(statInactive) statInactive.innerText = inactive
+  if(statTotal)       statTotal.innerText      = total
+  if(statActive)      statActive.innerText      = active
+  if(statInactive)    statInactive.innerText    = inactive
+  if(statScholarship) statScholarship.innerText = scholarship
 
   if(list.length === 0){
-    tbody.innerHTML = `<tr><td colspan="6">Nenhuma matrícula</td></tr>`
+    tbody.innerHTML = `<tr><td colspan="7">Nenhuma matrícula</td></tr>`
     renderPagination(0)
     return
   }
 
-  // 🔥 PAGINAÇÃO
+  // Paginação
   const totalPages = Math.ceil(list.length / PAGE_SIZE);
   if(currentPage > totalPages) currentPage = 1;
 
@@ -319,10 +366,21 @@ function renderEnrollments(list = enrollmentsCache){
 
     const tr = document.createElement("tr")
 
+    // 🔥 Badge bolsista
+    const isScholarship = enrollment.scholarship === 1;
+    const isIntegral    = isScholarship && Number(enrollment.discount) === 100;
+
+    const scholarshipBadge = isScholarship
+      ? isIntegral
+        ? `<span class="badge red">Integral</span>`
+        : `<span class="badge blue">Parcial ${enrollment.discount}%</span>`
+      : `<span class="badge gray">—</span>`;
+
     tr.innerHTML = `
       <td>${safe(enrollment.student_name)}</td>
       <td>${safe(enrollment.class_name)}</td>
       <td>${formatRole(enrollment.role || "-")}</td>
+      <td>${scholarshipBadge}</td>
       <td>${safe(enrollment.status)}</td>
       <td>${formatDate(enrollment.created_at)}</td>
       <td>
@@ -331,8 +389,8 @@ function renderEnrollments(list = enrollmentsCache){
       </td>
     `
 
-    tr.querySelector(".btn-edit").onclick    = () => openEditEnrollment(enrollment)
-    tr.querySelector(".btn-cancel").onclick  = () => cancelEnrollment(enrollment.id)
+    tr.querySelector(".btn-edit").onclick   = () => openEditEnrollment(enrollment)
+    tr.querySelector(".btn-cancel").onclick = () => cancelEnrollment(enrollment.id)
 
     tbody.appendChild(tr)
 
@@ -378,17 +436,11 @@ function renderPagination(total){
   `;
 
   document.getElementById("enrollmentsPrev").onclick = () => {
-    if(currentPage > 1){
-      currentPage--;
-      renderEnrollments(currentList);
-    }
+    if(currentPage > 1){ currentPage--; renderEnrollments(currentList); }
   };
 
   document.getElementById("enrollmentsNext").onclick = () => {
-    if(currentPage < totalPages){
-      currentPage++;
-      renderEnrollments(currentList);
-    }
+    if(currentPage < totalPages){ currentPage++; renderEnrollments(currentList); }
   };
 
 }
@@ -403,13 +455,34 @@ async function openEditEnrollment(enrollment){
 
   await loadEnrollmentFormData()
 
-  document.getElementById("editEnrollmentStudent").value  = enrollment.student_id
-  document.getElementById("editEnrollmentClass").value    = enrollment.class_id
-  document.getElementById("editEnrollmentRole").value     = enrollment.role     || "conductor"
-  document.getElementById("editEnrollmentType").value     = enrollment.type     || "individual"
-  document.getElementById("editEnrollmentFee").value      = enrollment.monthly_fee || 0
-  document.getElementById("editEnrollmentDiscount").value = enrollment.discount || 0
-  document.getElementById("editEnrollmentStatus").value   = enrollment.status   || "active"
+  document.getElementById("editEnrollmentStudent").value    = enrollment.student_id
+  document.getElementById("editEnrollmentClass").value      = enrollment.class_id
+  document.getElementById("editEnrollmentRole").value       = enrollment.role       || "conductor"
+  document.getElementById("editEnrollmentType").value       = enrollment.type       || "individual"
+  document.getElementById("editEnrollmentFee").value        = enrollment.monthly_fee || 0
+  document.getElementById("editEnrollmentDiscount").value   = enrollment.discount   || 0
+  document.getElementById("editEnrollmentStatus").value     = enrollment.status     || "active"
+
+  // 🔥 Bolsista
+  const scholarshipEl = document.getElementById("editEnrollmentScholarship")
+  if(scholarshipEl) scholarshipEl.checked = enrollment.scholarship === 1
+
+  // Atualiza hint
+  const hint = document.getElementById("scholarshipHint")
+  if(hint && enrollment.scholarship === 1){
+    const d = Number(enrollment.discount || 0);
+    if(d === 100){
+      hint.innerText = "⚠️ Bolsa integral — não entra nos recebimentos";
+      hint.style.color = "#dc2626";
+    } else {
+      hint.innerText = `✅ Bolsa parcial de ${d}%`;
+      hint.style.color = "#16a34a";
+    }
+  }
+
+  // Título do modal
+  const title = document.getElementById("enrollmentModalTitle")
+  if(title) title.innerText = "Editar Matrícula"
 
   document.getElementById("enrollmentModal").classList.remove("hidden")
 
@@ -450,6 +523,16 @@ function resetEnrollmentForm(){
   document.getElementById("editEnrollmentFee").value      = ""
   document.getElementById("editEnrollmentDiscount").value = 0
   document.getElementById("editEnrollmentStatus").value   = "active"
+
+  // 🔥 Reset bolsista
+  const scholarshipEl = document.getElementById("editEnrollmentScholarship")
+  if(scholarshipEl) scholarshipEl.checked = false
+
+  const hint = document.getElementById("scholarshipHint")
+  if(hint) hint.innerText = ""
+
+  const title = document.getElementById("enrollmentModalTitle")
+  if(title) title.innerText = "Nova Matrícula"
 }
 
 let searchTimeout = null;
