@@ -7,6 +7,28 @@
 
     await checkAuth();
 
+    // 🔥 Bloqueia operador de acessar admin
+    const role = localStorage.getItem("user_role");
+    if(role !== "admin"){
+      const page = document.querySelector(".page");
+      if(page){
+        page.innerHTML = `
+          <div class="page-header">
+            <div>
+              <h1>Administração</h1>
+              <p class="page-subtitle">Acesso restrito</p>
+            </div>
+          </div>
+          <div style="text-align:center; padding:60px 20px;">
+            <div style="font-size:48px; margin-bottom:16px;">🔒</div>
+            <h3 style="font-size:18px; color:#1e293b; margin-bottom:8px;">Acesso restrito</h3>
+            <p style="color:#6b7280;">Esta área é exclusiva para administradores.</p>
+          </div>
+        `;
+      }
+      return;
+    }
+
     document.getElementById("newUserBtn")?.addEventListener("click", openUserModal);
     document.getElementById("cancelUserBtn")?.addEventListener("click", closeUserModal);
     document.getElementById("saveUserBtn")?.addEventListener("click", saveUser);
@@ -92,10 +114,10 @@
   // ===============================
 
   function openUserModal(){
-    document.getElementById("newUserName").value = "";
-    document.getElementById("newUserEmail").value = "";
+    document.getElementById("newUserName").value    = "";
+    document.getElementById("newUserEmail").value   = "";
     document.getElementById("newUserPassword").value = "";
-    document.getElementById("newUserRole").value = "operator";
+    document.getElementById("newUserRole").value    = "operator";
     document.getElementById("userModal").classList.remove("hidden");
   }
 
@@ -194,7 +216,7 @@
     try{
       const res = await apiRequest("/api/v1/admin/change-password", "POST", {
         current_password: current,
-        new_password: next
+        new_password:     next
       });
 
       if(!res || !res.success){
@@ -205,7 +227,7 @@
       Toast.success("Senha alterada com sucesso!");
 
       document.getElementById("currentPassword").value = "";
-      document.getElementById("newPassword").value = "";
+      document.getElementById("newPassword").value     = "";
       document.getElementById("confirmPassword").value = "";
 
     }catch(err){
