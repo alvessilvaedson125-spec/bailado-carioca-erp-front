@@ -13,6 +13,17 @@ let financeChartInstance = null;
 
     if (!el("financeChart")) return;
 
+
+    // Filtro de período
+el("dash-filter-btn")?.addEventListener("click", init);
+el("dash-clear-btn")?.addEventListener("click", () => {
+  const m = el("dash-month");
+  const y = el("dash-year");
+  if(m) m.value = "";
+  if(y) y.value = new Date().getFullYear().toString();
+  init();
+});
+
     try {
 
       const [
