@@ -293,3 +293,18 @@
   font-size: 14px;
   padding: 24px;
 }
+
+/* ================================
+   GAUGE LEGEND
+   ================================ */
+
+.legend-dot {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-dot.green  { color: #22c55e; }
+.legend-dot.orange { color: #f59e0b; }
+.legend-dot.red    { color: #ef4444; }
