@@ -10,10 +10,14 @@
       placeholder="🔍 Buscar por aluno ou turma..."
       class="search-input"
     />
-    <button id="newEnrollmentBtn" class="btn-primary">+ Nova Matrícula</button>
+    <div style="display:flex; gap:8px;">
+      <button id="newScholarshipBtn" class="btn-secondary">+ Nova Bolsa</button>
+      <button id="newEnrollmentBtn" class="btn-primary">+ Nova Matrícula</button>
+    </div>
   </div>
 </div>
 
+<!-- STATS -->
 <div class="enrollments-stats">
   <div class="stat-card">
     <span>Total</span>
@@ -31,31 +35,46 @@
     <span>Bolsistas</span>
     <strong id="statScholarship">0</strong>
   </div>
+  <div class="stat-card red">
+    <span>Impacto bolsas</span>
+    <strong id="statImpact">R$ 0,00</strong>
+  </div>
 </div>
 
-<!-- 🔥 Cards por turma -->
-<div id="enrollmentsByClass">
-  <p style="color:#6b7280; text-align:center; padding:40px 0;">Carregando...</p>
+<!-- ABAS -->
+<div class="enrollments-tabs">
+  <button class="enrollment-tab active" data-tab="regular">Matrículas</button>
+  <button class="enrollment-tab" data-tab="scholarship">Bolsistas</button>
 </div>
 
-<!-- Modal matrícula -->
+<!-- CONTEÚDO MATRÍCULAS -->
+<div id="tabRegular">
+  <div id="enrollmentsByClass">
+    <p style="color:#6b7280; text-align:center; padding:40px 0;">Carregando...</p>
+  </div>
+</div>
+
+<!-- CONTEÚDO BOLSISTAS -->
+<div id="tabScholarship" style="display:none;">
+  <div id="scholarshipsList">
+    <p style="color:#6b7280; text-align:center; padding:40px 0;">Carregando...</p>
+  </div>
+</div>
+
+<!-- MODAL MATRÍCULA -->
 <div id="enrollmentModal" class="modal hidden">
   <div class="modal-content">
-
     <h3 id="enrollmentModalTitle">Nova Matrícula</h3>
-
     <input type="hidden" id="editEnrollmentId">
 
     <div class="form-group">
       <label>Aluno</label>
       <select id="editEnrollmentStudent" class="form-control"></select>
     </div>
-
     <div class="form-group">
       <label>Turma</label>
       <select id="editEnrollmentClass" class="form-control"></select>
     </div>
-
     <div class="form-group">
       <label>Papel</label>
       <select id="editEnrollmentRole" class="form-control">
@@ -65,7 +84,6 @@
         <option value="follower_m">Conduzido</option>
       </select>
     </div>
-
     <div class="form-group">
       <label>Tipo de matrícula</label>
       <select id="editEnrollmentType" class="form-control">
@@ -73,28 +91,14 @@
         <option value="couple">Casal</option>
       </select>
     </div>
-
     <div class="form-group">
       <label>Mensalidade (R$)</label>
       <input id="editEnrollmentFee" type="number" class="form-control" placeholder="Ex: 120">
     </div>
-
     <div class="form-group">
       <label>Desconto (%)</label>
       <input id="editEnrollmentDiscount" type="number" class="form-control" placeholder="0" min="0" max="100">
     </div>
-
-    <div class="form-group">
-      <label>Bolsista</label>
-      <div class="scholarship-toggle">
-        <label class="toggle-label">
-          <input type="checkbox" id="editEnrollmentScholarship" />
-          <span class="toggle-text">Este aluno possui bolsa</span>
-        </label>
-        <p class="scholarship-hint" id="scholarshipHint"></p>
-      </div>
-    </div>
-
     <div class="form-group">
       <label>Status</label>
       <select id="editEnrollmentStatus" class="form-control">
@@ -103,11 +107,66 @@
         <option value="cancelled">Cancelado</option>
       </select>
     </div>
-
     <div class="modal-actions">
       <button id="cancelEnrollmentBtn" class="btn-secondary">Cancelar</button>
       <button id="saveEnrollmentBtn" class="btn-primary">Salvar</button>
     </div>
+  </div>
+</div>
 
+<!-- MODAL BOLSA -->
+<div id="scholarshipModal" class="modal hidden">
+  <div class="modal-content">
+    <h3 id="scholarshipModalTitle">Nova Bolsa</h3>
+    <input type="hidden" id="editScholarshipId">
+
+    <div class="form-group">
+      <label>Aluno</label>
+      <select id="editScholarshipStudent" class="form-control"></select>
+    </div>
+    <div class="form-group">
+      <label>Turma</label>
+      <select id="editScholarshipClass" class="form-control"></select>
+    </div>
+    <div class="form-group">
+      <label>Papel</label>
+      <select id="editScholarshipRole" class="form-control">
+        <option value="conductor_m">Condutor</option>
+        <option value="conductor_f">Condutora</option>
+        <option value="follower_f">Conduzida</option>
+        <option value="follower_m">Conduzido</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Tipo de bolsa</label>
+      <select id="editScholarshipType" class="form-control" onchange="EnrollmentsModule.updateScholarshipType()">
+        <option value="100">Integral (100%)</option>
+        <option value="partial">Parcial</option>
+      </select>
+    </div>
+    <div class="form-group" id="scholarshipDiscountGroup" style="display:none;">
+      <label>Desconto (%)</label>
+      <input id="editScholarshipDiscount" type="number" class="form-control" placeholder="Ex: 50" min="1" max="99">
+    </div>
+    <div class="form-group">
+      <label>Mensalidade original (R$)</label>
+      <input id="editScholarshipFee" type="number" class="form-control" placeholder="Ex: 170">
+      <small style="color:#6b7280; font-size:12px;">Usado para calcular o impacto financeiro</small>
+    </div>
+    <div class="scholarship-impact" id="scholarshipImpact" style="display:none;">
+      <span id="scholarshipImpactText"></span>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="editScholarshipStatus" class="form-control">
+        <option value="active">Ativo</option>
+        <option value="paused">Pausado</option>
+        <option value="cancelled">Cancelado</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button id="cancelScholarshipBtn" class="btn-secondary">Cancelar</button>
+      <button id="saveScholarshipBtn" class="btn-primary">Salvar bolsa</button>
+    </div>
   </div>
 </div>

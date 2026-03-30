@@ -366,3 +366,143 @@
   padding: 16px 0;
   text-align: center;
 }
+
+/* ================================
+   ABAS
+   ================================ */
+
+.enrollments-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.enrollment-tab {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: 0.2s;
+}
+
+.enrollment-tab.active {
+  color: #6366f1;
+  border-bottom-color: #6366f1;
+}
+
+.enrollment-tab:hover {
+  color: #4f46e5;
+}
+
+/* ================================
+   CARD BOLSISTA
+   ================================ */
+
+.scholarship-item-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+
+.scholarship-item-card.integral { border-left-color: #dc2626; }
+.scholarship-item-card.parcial  { border-left-color: #f59e0b; }
+
+.scholarship-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.scholarship-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.scholarship-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.scholarship-card-actions .btn-enrollment-edit,
+.scholarship-card-actions .btn-enrollment-cancel {
+  width: auto;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.scholarship-card-impact {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.impact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.impact-item span {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.impact-item strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.impact-item.red strong { color: #dc2626; }
+
+/* ================================
+   BADGES BOLSA
+   ================================ */
+
+.scholarship-tipo {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.scholarship-tipo.integral { background: #fee2e2; color: #dc2626; }
+.scholarship-tipo.parcial  { background: #fef3c7; color: #d97706; }
+
+/* ================================
+   IMPACT PREVIEW NO MODAL
+   ================================ */
+
+.scholarship-impact {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #374151;
+}
+
+/* ================================
+   STAT CARD VERMELHO
+   ================================ */
+
+.stat-card.red strong {
+  color: #dc2626;
+}
