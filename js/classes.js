@@ -75,19 +75,13 @@ async function init(){
 }
 
 // ===============================
-// SETUP BOTÃO NOVA TURMA
+// SETUP BOTÕES
 // ===============================
 
 function setupNewClassBtn(){
   const btn = document.getElementById("newClassBtn");
-  if(btn){
-    btn.onclick = () => newClass();
-  }
+  if(btn) btn.onclick = () => newClass();
 }
-
-// ===============================
-// SETUP BOTÃO ADICIONAR PROFESSOR
-// ===============================
 
 function setupAddTeacherBtn(){
   const btn = document.getElementById("addTeacherBtn");
@@ -122,22 +116,30 @@ async function loadClasses(){
   const tableBody = document.querySelector("#classesTable tbody");
   if(!tableBody) return;
 
-  tableBody.innerHTML = "<tr><td colspan='8'>Carregando...</td></tr>";
+  tableBody.innerHTML = "<tr><td colspan='7'>Carregando...</td></tr>";
 
   try{
     const res = await apiRequest("/api/v1/classes");
 
     if(!res.success){
-      tableBody.innerHTML = "<tr><td colspan='8'>Erro ao carregar turmas</td></tr>";
+      tableBody.innerHTML = "<tr><td colspan='7'>Erro ao carregar turmas</td></tr>";
       return;
     }
 
     classesCache = res.data || [];
+
+    // 🔥 Contador
+    const countEl = document.getElementById("classesCount");
+    if(countEl){
+      const n = classesCache.length;
+      countEl.innerText = `${n} turma${n !== 1 ? "s" : ""} cadastrada${n !== 1 ? "s" : ""}`;
+    }
+
     renderClasses(classesCache);
 
   }catch(err){
     console.error(err);
-    tableBody.innerHTML = "<tr><td colspan='8'>Erro na API</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='7'>Erro na API</td></tr>";
   }
 }
 
@@ -153,7 +155,7 @@ function renderClasses(list){
   tableBody.innerHTML = "";
 
   if(list.length === 0){
-    tableBody.innerHTML = "<tr><td colspan='8'>Nenhuma turma encontrada</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='7'>Nenhuma turma encontrada</td></tr>";
     return;
   }
 
@@ -163,18 +165,26 @@ function renderClasses(list){
       ? cls.teacher_names.join(", ")
       : (cls.teacher_names || cls.teacher_name || "-");
 
+    // 🔥 Alunos unificado
+    const conductors = cls.conductors_count ?? 0;
+    const followers  = cls.followers_count  ?? 0;
+    const total      = conductors + followers;
+
+    const alunosLabel = total > 0
+      ? `${total} aluno${total !== 1 ? "s" : ""}`
+      : `<span style="color:#9ca3af">—</span>`;
+
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${safe(cls.name)}</td>
+      <td><strong>${safe(cls.name)}</strong></td>
       <td>${safe(teacherNames)}</td>
       <td>${safe(cls.unit_name)}</td>
       <td>${safe(cls.day_of_week)}</td>
       <td>${safe(cls.start_time)}</td>
-      <td>${cls.conductors_count ?? 0}</td>
-      <td>${cls.followers_count  ?? 0}</td>
+      <td>${alunosLabel}</td>
       <td>
-        <button class="btn-edit">Editar</button>
+        <button class="btn-edit">✏️ Editar</button>
       </td>
     `;
 
@@ -285,10 +295,10 @@ async function newClass(){
   await loadUnitsForClasses();
   await loadTeachersForClasses();
 
-  const title = document.querySelector("#classModal h3");
+  // 🔥 id em vez de querySelector
+  const title = document.getElementById("classModalTitle");
   if (title) title.innerText = "Nova Turma";
 
-  // 🔥 usa .active em vez de remover .hidden
   document.getElementById("classModal").classList.add("active");
 }
 
@@ -340,10 +350,10 @@ async function editClass(id){
     select.value = teacherIds[index] ?? "";
   });
 
-  const title = document.querySelector("#classModal h3");
+  // 🔥 id em vez de querySelector
+  const title = document.getElementById("classModalTitle");
   if (title) title.innerText = "Editar Turma";
 
-  // 🔥 usa .active em vez de remover .hidden
   document.getElementById("classModal").classList.add("active");
 }
 
@@ -436,9 +446,7 @@ function setupClassModal(){
 
 function closeClassModal(){
   const modal = document.getElementById("classModal");
-  if(modal){
-    modal.classList.remove("active");
-  }
+  if(modal) modal.classList.remove("active");
 }
 
 // ===============================

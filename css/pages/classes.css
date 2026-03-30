@@ -210,3 +210,8 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* CONTADOR */
+.classes-stats {
+  margin-bottom: 12px;
+}
