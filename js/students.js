@@ -28,6 +28,11 @@ async function init(){
 
   await loadData();
 }
+
+// ===============================
+// LOAD DATA
+// ===============================
+
 async function loadData(){
 
   const tableBody = document.querySelector("#studentsTable tbody");
@@ -51,10 +56,11 @@ async function loadData(){
 
     buildEnrollmentsMap(enrollmentsRes);
 
-    // 🔥 Atualiza contador
+    // 🔥 Contador
     const countEl = document.getElementById("studentsCount");
     if(countEl){
-      countEl.innerText = `${studentsCache.length} aluno${studentsCache.length !== 1 ? "s" : ""} cadastrado${studentsCache.length !== 1 ? "s" : ""}`;
+      const n = studentsCache.length;
+      countEl.innerText = `${n} aluno${n !== 1 ? "s" : ""} cadastrado${n !== 1 ? "s" : ""}`;
     }
 
     currentPage = 1;
@@ -67,6 +73,36 @@ async function loadData(){
 
 }
 
+// ===============================
+// ENROLLMENTS MAP
+// ===============================
+
+function buildEnrollmentsMap(res){
+
+  enrollmentsMap = {};
+
+  if(!res || !res.success || !res.data){
+    console.warn("Enrollments indisponível — mantendo estado neutro");
+    return;
+  }
+
+  res.data.forEach(enrollment => {
+    const studentId = enrollment.student_id;
+    if(enrollment.status === "active"){
+      enrollmentsMap[studentId] = true;
+    }
+  });
+
+}
+
+function isStudentActive(studentId){
+  return !!enrollmentsMap[studentId];
+}
+
+// ===============================
+// RENDER
+// ===============================
+
 function renderStudents(list){
 
   const tableBody = document.querySelector("#studentsTable tbody");
@@ -77,7 +113,7 @@ function renderStudents(list){
   // 🔥 Atualiza contador ao filtrar
   const countEl = document.getElementById("studentsCount");
   if(countEl){
-    const total = studentsCache.length;
+    const total   = studentsCache.length;
     const showing = list.length;
     if(showing === total){
       countEl.innerText = `${total} aluno${total !== 1 ? "s" : ""} cadastrado${total !== 1 ? "s" : ""}`;
@@ -88,7 +124,7 @@ function renderStudents(list){
 
   if(list.length === 0){
     tableBody.innerHTML = "<tr><td colspan='5'>Nenhum aluno encontrado</td></tr>";
-    renderPagination(0);
+    renderPagination(0, []);
     return;
   }
 
@@ -105,7 +141,7 @@ function renderStudents(list){
 
     const isActive = isStudentActive(student.id);
 
-    // 🔥 Badge inativo com cor vermelha suave
+    // 🔥 Badge inativo vermelho suave
     const statusBadge = isActive
       ? `<span class="badge green">Ativo</span>`
       : `<span class="badge red-soft">Inativo</span>`;
@@ -138,9 +174,10 @@ function renderStudents(list){
 
   });
 
-  renderPagination(list.length);
+  renderPagination(list.length, list);
 
 }
+
 // ===============================
 // PAGINAÇÃO
 // ===============================
@@ -192,6 +229,10 @@ function renderPagination(total, list = []){
 
 }
 
+// ===============================
+// NAVIGATION
+// ===============================
+
 function goToStudentEnrollments(studentId){
   localStorage.setItem("selectedStudentId", studentId);
   window.location.hash = "enrollments";
@@ -205,6 +246,10 @@ function getInitials(name){
     .join("")
     .toUpperCase();
 }
+
+// ===============================
+// FILTER
+// ===============================
 
 function filterStudents(){
 
@@ -227,13 +272,17 @@ function filterStudents(){
 
 }
 
+// ===============================
+// EDIT / NEW
+// ===============================
+
 function editStudent(id){
 
   const student = studentsCache.find(s => s.id === id);
   if(!student) return;
 
-  document.getElementById("editStudentId").value = student.id;
-  document.getElementById("editStudentName").value = student.name;
+  document.getElementById("editStudentId").value    = student.id;
+  document.getElementById("editStudentName").value  = student.name;
   document.getElementById("editStudentEmail").value = student.email;
   document.getElementById("editStudentPhone").value = student.phone || "";
 
@@ -244,8 +293,8 @@ function editStudent(id){
 
 function newStudent(){
 
-  document.getElementById("editStudentId").value = "";
-  document.getElementById("editStudentName").value = "";
+  document.getElementById("editStudentId").value    = "";
+  document.getElementById("editStudentName").value  = "";
   document.getElementById("editStudentEmail").value = "";
   document.getElementById("editStudentPhone").value = "";
 
@@ -253,6 +302,10 @@ function newStudent(){
   document.getElementById("studentModal").classList.remove("hidden");
 
 }
+
+// ===============================
+// MODAL
+// ===============================
 
 function setupModal(){
 
@@ -274,6 +327,10 @@ function setupModal(){
 function closeModal(){
   document.getElementById("studentModal").classList.add("hidden");
 }
+
+// ===============================
+// SAVE
+// ===============================
 
 async function saveStudent(){
 
