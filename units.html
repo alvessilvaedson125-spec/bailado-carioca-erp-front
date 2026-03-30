@@ -1,45 +1,43 @@
-<div class="page">
-
-  <div class="page-header">
-    <div>
-      <h1>Unidades</h1>
-      <p class="page-subtitle">Gerencie as unidades da escola</p>
-    </div>
-    <button id="newUnitBtn" class="btn-primary">+ Nova Unidade</button>
+<div class="page-header">
+  <div>
+    <h1>Unidades</h1>
+    <p class="page-subtitle">Gerencie as unidades da escola</p>
   </div>
+  <button id="newUnitBtn" class="btn-primary">+ Nova Unidade</button>
+</div>
 
-  <div class="search-bar">
-    <input
-      type="text"
-      id="searchUnit"
-      placeholder="🔍 Buscar unidade..."
-    />
-  </div>
+<!-- CONTADOR + BUSCA -->
+<div class="units-toolbar">
+  <span id="unitsCount" class="students-count">Carregando...</span>
+  <input
+    type="text"
+    id="searchUnit"
+    placeholder="🔍 Buscar unidade..."
+    class="search-input"
+  />
+</div>
 
-  <div class="table-container">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Criado em</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="unitsTable">
-        <tr>
-          <td colspan="3">Carregando...</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
+<div class="table-container">
+  <table id="unitsTable-container">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="unitsTable">
+      <tr>
+        <td colspan="2">Carregando...</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 <!-- MODAL -->
 <div id="unitModal" class="modal hidden">
   <div class="modal-content">
 
-    <h2 id="unitModalTitle">Nova Unidade</h2>
+    <h3 id="unitModalTitle">Nova Unidade</h3>
 
     <input type="hidden" id="editUnitId" />
 

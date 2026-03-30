@@ -89,3 +89,28 @@
   background: #dc2626;
   color: white;
 }
+
+/* UNITS TOOLBAR */
+.units-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* BOTÃO EXCLUIR SUAVE */
+.btn-danger-soft {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-danger-soft:hover {
+  background: #dc2626;
+  color: white;
+}

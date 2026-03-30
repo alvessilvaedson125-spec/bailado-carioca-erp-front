@@ -30,22 +30,30 @@
     const tbody = document.getElementById("unitsTable");
     if(!tbody) return;
 
-    tbody.innerHTML = `<tr><td colspan="3">Carregando...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="2">Carregando...</td></tr>`;
 
     try{
       const res = await apiRequest("/api/v1/units");
 
       if(!res || !res.success){
-        tbody.innerHTML = `<tr><td colspan="3">Erro ao carregar unidades</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="2">Erro ao carregar unidades</td></tr>`;
         return;
       }
 
       unitsCache = res.data || [];
+
+      // 🔥 Contador
+      const countEl = document.getElementById("unitsCount");
+      if(countEl){
+        const n = unitsCache.length;
+        countEl.innerText = `${n} unidade${n !== 1 ? "s" : ""} cadastrada${n !== 1 ? "s" : ""}`;
+      }
+
       renderUnits(unitsCache);
 
     }catch(err){
       console.error(err);
-      tbody.innerHTML = `<tr><td colspan="3">Erro na API</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="2">Erro na API</td></tr>`;
     }
   }
 
@@ -57,8 +65,20 @@
     const tbody = document.getElementById("unitsTable");
     if(!tbody) return;
 
+    // 🔥 Atualiza contador ao filtrar
+    const countEl = document.getElementById("unitsCount");
+    if(countEl){
+      const total   = unitsCache.length;
+      const showing = list.length;
+      if(showing === total){
+        countEl.innerText = `${total} unidade${total !== 1 ? "s" : ""} cadastrada${total !== 1 ? "s" : ""}`;
+      } else {
+        countEl.innerText = `${showing} de ${total} unidades`;
+      }
+    }
+
     if(list.length === 0){
-      tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Nenhuma unidade encontrada</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="2" class="empty-state">Nenhuma unidade encontrada</td></tr>`;
       return;
     }
 
@@ -81,15 +101,14 @@
             <strong>${safe(unit.name)}</strong>
           </div>
         </td>
-        <td>${formatDate(unit.created_at)}</td>
         <td>
           <button class="btn-edit">✏️ Editar</button>
-          <button class="btn-danger">🗑️ Excluir</button>
+          <button class="btn-danger-soft">🗑️ Excluir</button>
         </td>
       `;
 
-      tr.querySelector(".btn-edit").onclick = () => editUnit(unit.id);
-      tr.querySelector(".btn-danger").onclick = () => deleteUnit(unit.id);
+      tr.querySelector(".btn-edit").onclick        = () => editUnit(unit.id);
+      tr.querySelector(".btn-danger-soft").onclick = () => deleteUnit(unit.id);
 
       tbody.appendChild(tr);
     });
@@ -101,8 +120,8 @@
 
   function openNewUnitModal(){
     document.getElementById("unitModalTitle").innerText = "Nova Unidade";
-    document.getElementById("editUnitId").value = "";
-    document.getElementById("editUnitName").value = "";
+    document.getElementById("editUnitId").value         = "";
+    document.getElementById("editUnitName").value       = "";
     document.getElementById("unitModal").classList.remove("hidden");
   }
 
@@ -111,14 +130,14 @@
     if(!unit) return;
 
     document.getElementById("unitModalTitle").innerText = "Editar Unidade";
-    document.getElementById("editUnitId").value = unit.id;
-    document.getElementById("editUnitName").value = unit.name;
+    document.getElementById("editUnitId").value         = unit.id;
+    document.getElementById("editUnitName").value       = unit.name;
     document.getElementById("unitModal").classList.remove("hidden");
   }
 
   function closeUnitModal(){
     document.getElementById("unitModal").classList.add("hidden");
-    document.getElementById("editUnitId").value = "";
+    document.getElementById("editUnitId").value   = "";
     document.getElementById("editUnitName").value = "";
   }
 
@@ -127,7 +146,7 @@
   // ===============================
 
   async function saveUnit(){
-    const id = document.getElementById("editUnitId").value;
+    const id   = document.getElementById("editUnitId").value;
     const name = document.getElementById("editUnitName").value.trim();
 
     if(!name){
@@ -137,7 +156,7 @@
 
     try{
       const endpoint = id ? `/api/v1/units/${id}` : "/api/v1/units";
-      const method = id ? "PUT" : "POST";
+      const method   = id ? "PUT" : "POST";
 
       const res = await apiRequest(endpoint, method, { name });
 
@@ -202,11 +221,6 @@
   // ===============================
   // UTILS
   // ===============================
-
-  function formatDate(date){
-    if(!date) return "-";
-    return new Date(date).toLocaleDateString("pt-BR");
-  }
 
   function safe(value){
     if(value === null || value === undefined) return "-";
