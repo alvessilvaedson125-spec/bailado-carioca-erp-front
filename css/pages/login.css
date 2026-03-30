@@ -4,12 +4,14 @@
 
 .login-page {
   min-height: 100vh;
-  min-height: -webkit-fill-available; /* 🔥 fix iOS/Android */
+  min-height: -webkit-fill-available;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #0f172a, #1e293b);
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .login-card {
@@ -105,10 +107,14 @@
 @media (max-width: 480px) {
   .login-page {
     align-items: center;
-    padding: 24px 16px;
+    padding: 16px;
   }
 
   .login-card {
-    padding: 28px 20px;
+    padding: 24px 18px;
+  }
+
+  .login-header h1 {
+    font-size: 20px;
   }
 }
