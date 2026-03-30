@@ -1,18 +1,15 @@
 <div class="page-header">
-  <h2>Matrículas</h2>
-
+  <div>
+    <h1>Matrículas</h1>
+    <p class="page-subtitle">Gerencie as matrículas da escola</p>
+  </div>
   <div class="enrollments-header">
     <input
       type="text"
       id="searchEnrollments"
       placeholder="🔍 Buscar por aluno ou turma..."
     />
-  </div>
-
-  <div class="page-actions">
-    <button id="newEnrollmentBtn" class="btn-primary">
-      Nova Matrícula
-    </button>
+    <button id="newEnrollmentBtn" class="btn-primary">+ Nova Matrícula</button>
   </div>
 </div>
 
@@ -44,13 +41,12 @@
         <th>Papel</th>
         <th>Bolsista</th>
         <th>Status</th>
-        <th>Criado em</th>
         <th>Ações</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td colspan="7">Carregando...</td>
+        <td colspan="6">Carregando...</td>
       </tr>
     </tbody>
   </table>
@@ -74,11 +70,14 @@
       <select id="editEnrollmentClass" class="form-control"></select>
     </div>
 
+    <!-- 🔥 4 opções de papel -->
     <div class="form-group">
       <label>Papel</label>
       <select id="editEnrollmentRole" class="form-control">
-        <option value="conductor">Condutor</option>
-        <option value="follower">Conduzida</option>
+        <option value="conductor_m">Condutor</option>
+        <option value="conductor_f">Condutora</option>
+        <option value="follower_f">Conduzida</option>
+        <option value="follower_m">Conduzido</option>
       </select>
     </div>
 
@@ -100,7 +99,6 @@
       <input id="editEnrollmentDiscount" type="number" class="form-control" placeholder="0" min="0" max="100">
     </div>
 
-    <!-- 🔥 BOLSISTA -->
     <div class="form-group">
       <label>Bolsista</label>
       <div class="scholarship-toggle">

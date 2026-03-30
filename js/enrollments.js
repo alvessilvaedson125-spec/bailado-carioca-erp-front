@@ -323,7 +323,6 @@ async function cancelEnrollment(id){
 /* =========================
 RENDER
 ========================= */
-
 function renderEnrollments(list = enrollmentsCache){
 
   const tbody = document.querySelector("#enrollmentsTable tbody")
@@ -331,28 +330,27 @@ function renderEnrollments(list = enrollmentsCache){
 
   currentList = list;
 
-  const total      = list.length
-  const active     = list.filter(e => e.status === "active").length
-  const inactive   = total - active
+  const total       = list.length
+  const active      = list.filter(e => e.status === "active").length
+  const inactive    = total - active
   const scholarship = list.filter(e => e.scholarship === 1).length
 
-  const statTotal      = document.getElementById("statTotal")
-  const statActive     = document.getElementById("statActive")
-  const statInactive   = document.getElementById("statInactive")
+  const statTotal       = document.getElementById("statTotal")
+  const statActive      = document.getElementById("statActive")
+  const statInactive    = document.getElementById("statInactive")
   const statScholarship = document.getElementById("statScholarship")
 
-  if(statTotal)       statTotal.innerText      = total
+  if(statTotal)       statTotal.innerText       = total
   if(statActive)      statActive.innerText      = active
   if(statInactive)    statInactive.innerText    = inactive
   if(statScholarship) statScholarship.innerText = scholarship
 
   if(list.length === 0){
-    tbody.innerHTML = `<tr><td colspan="7">Nenhuma matrícula</td></tr>`
+    tbody.innerHTML = `<tr><td colspan="6">Nenhuma matrícula</td></tr>`
     renderPagination(0)
     return
   }
 
-  // Paginação
   const totalPages = Math.ceil(list.length / PAGE_SIZE);
   if(currentPage > totalPages) currentPage = 1;
 
@@ -366,7 +364,6 @@ function renderEnrollments(list = enrollmentsCache){
 
     const tr = document.createElement("tr")
 
-    // 🔥 Badge bolsista
     const isScholarship = enrollment.scholarship === 1;
     const isIntegral    = isScholarship && Number(enrollment.discount) === 100;
 
@@ -376,13 +373,19 @@ function renderEnrollments(list = enrollmentsCache){
         : `<span class="badge blue">Parcial ${enrollment.discount}%</span>`
       : `<span class="badge gray">—</span>`;
 
+    // 🔥 Status em português com badge
+    const statusBadge = enrollment.status === "active"
+      ? `<span class="badge green">Ativo</span>`
+      : enrollment.status === "paused"
+        ? `<span class="badge orange">Pausado</span>`
+        : `<span class="badge red">Cancelado</span>`;
+
     tr.innerHTML = `
-      <td>${safe(enrollment.student_name)}</td>
+      <td><strong>${safe(enrollment.student_name)}</strong></td>
       <td>${safe(enrollment.class_name)}</td>
       <td>${formatRole(enrollment.role || "-")}</td>
       <td>${scholarshipBadge}</td>
-      <td>${safe(enrollment.status)}</td>
-      <td>${formatDate(enrollment.created_at)}</td>
+      <td>${statusBadge}</td>
       <td>
         <button class="btn-edit">✏️</button>
         <button class="btn-danger btn-cancel">✖</button>
@@ -399,7 +402,6 @@ function renderEnrollments(list = enrollmentsCache){
   renderPagination(list.length)
 
 }
-
 /* =========================
 PAGINAÇÃO
 ========================= */
@@ -500,9 +502,11 @@ function closeEnrollmentModal(){
 }
 
 function formatRole(role){
-  if(role === "leader" || role === "conductor") return "Condutor"
-  if(role === "follower") return "Conduzida"
-  return role || "-"
+  if(role === "conductor_m" || role === "conductor") return "Condutor";
+  if(role === "conductor_f") return "Condutora";
+  if(role === "follower_f"  || role === "follower")  return "Conduzida";
+  if(role === "follower_m")  return "Conduzido";
+  return role || "-";
 }
 
 function formatDate(date){
@@ -514,17 +518,15 @@ function safe(value){
   if(value === null || value === undefined) return "-"
   return value
 }
-
 function resetEnrollmentForm(){
   document.getElementById("editEnrollmentStudent").value  = ""
   document.getElementById("editEnrollmentClass").value    = ""
-  document.getElementById("editEnrollmentRole").value     = "conductor"
+  document.getElementById("editEnrollmentRole").value     = "conductor_m" // 🔥 padrão atualizado
   document.getElementById("editEnrollmentType").value     = "individual"
   document.getElementById("editEnrollmentFee").value      = ""
   document.getElementById("editEnrollmentDiscount").value = 0
   document.getElementById("editEnrollmentStatus").value   = "active"
 
-  // 🔥 Reset bolsista
   const scholarshipEl = document.getElementById("editEnrollmentScholarship")
   if(scholarshipEl) scholarshipEl.checked = false
 
