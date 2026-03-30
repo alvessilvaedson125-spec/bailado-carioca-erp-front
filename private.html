@@ -1,0 +1,170 @@
+<div class="page-header">
+  <div>
+    <h1>Aulas Particulares</h1>
+    <p class="page-subtitle">Pacotes, sessões e pagamentos</p>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button id="newPackageBtn" class="btn-primary">+ Novo Pacote</button>
+    <button id="newSessionBtn" class="btn-secondary">+ Aula Avulsa</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="private-stats">
+  <div class="stat-card">
+    <span>Pacotes ativos</span>
+    <strong id="statPackages">0</strong>
+  </div>
+  <div class="stat-card">
+    <span>Sessões agendadas</span>
+    <strong id="statSessions">0</strong>
+  </div>
+  <div class="stat-card">
+    <span>Recebido</span>
+    <strong id="statPaid">R$ 0,00</strong>
+  </div>
+  <div class="stat-card red">
+    <span>Pendente</span>
+    <strong id="statPending">R$ 0,00</strong>
+  </div>
+</div>
+
+<!-- ABAS -->
+<div class="enrollments-tabs">
+  <button class="private-tab active" data-tab="packages">Pacotes</button>
+  <button class="private-tab" data-tab="sessions">Sessões</button>
+  <button class="private-tab" data-tab="payments">Pagamentos</button>
+</div>
+
+<!-- ABA PACOTES -->
+<div id="tabPackages">
+  <div id="packagesList">
+    <p style="color:#6b7280; text-align:center; padding:40px 0;">Carregando...</p>
+  </div>
+</div>
+
+<!-- ABA SESSÕES -->
+<div id="tabSessions" style="display:none;">
+  <div id="sessionsList">
+    <p style="color:#6b7280; text-align:center; padding:40px 0;">Carregando...</p>
+  </div>
+</div>
+
+<!-- ABA PAGAMENTOS -->
+<div id="tabPayments" style="display:none;">
+  <div id="privatePaymentsList">
+    <p style="color:#6b7280; text-align:center; padding:40px 0;">Carregando...</p>
+  </div>
+</div>
+
+<!-- MODAL PACOTE -->
+<div id="packageModal" class="modal hidden">
+  <div class="modal-content">
+    <h3 id="packageModalTitle">Novo Pacote</h3>
+
+    <div class="form-group">
+      <label>Aluno</label>
+      <select id="pkgStudent" class="form-control"></select>
+    </div>
+    <div class="form-group">
+      <label>Professor 1</label>
+      <select id="pkgTeacher1" class="form-control"></select>
+    </div>
+    <div class="form-group">
+      <label>Professor 2 (opcional)</label>
+      <select id="pkgTeacher2" class="form-control"></select>
+    </div>
+    <div class="form-group">
+      <label>Número de aulas</label>
+      <input id="pkgSessions" type="number" class="form-control" value="4" min="1">
+    </div>
+    <div class="form-group">
+      <label>Valor total (R$)</label>
+      <input id="pkgPrice" type="number" class="form-control" placeholder="Ex: 400">
+    </div>
+    <div class="form-group">
+      <label>Local</label>
+      <select id="pkgLocation" class="form-control">
+        <option value="bailado_laranjeiras">Bailado Laranjeiras</option>
+        <option value="student_home">Residência do aluno</option>
+      </select>
+    </div>
+    <div class="form-group" id="pkgLocationNotesGroup" style="display:none;">
+      <label>Endereço da residência</label>
+      <input id="pkgLocationNotes" type="text" class="form-control" placeholder="Rua, número, bairro...">
+    </div>
+    <div class="form-group">
+      <label>Data de início</label>
+      <input id="pkgStartDate" type="date" class="form-control">
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <input id="pkgNotes" type="text" class="form-control" placeholder="Opcional">
+    </div>
+
+    <div id="pkgPricePreview" class="private-price-preview" style="display:none;"></div>
+
+    <div class="modal-actions">
+      <button id="cancelPackageBtn" class="btn-secondary">Cancelar</button>
+      <button id="savePackageBtn" class="btn-primary">Salvar pacote</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SESSÃO -->
+<div id="sessionModal" class="modal hidden">
+  <div class="modal-content">
+    <h3 id="sessionModalTitle">Nova Sessão</h3>
+
+    <div class="form-group">
+      <label>Aluno</label>
+      <select id="sesStudent" class="form-control"></select>
+    </div>
+    <div class="form-group">
+      <label>Vincular ao pacote (opcional)</label>
+      <select id="sesPackage" class="form-control">
+        <option value="">Aula avulsa</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Professor 1</label>
+      <select id="sesTeacher1" class="form-control"></select>
+    </div>
+    <div class="form-group">
+      <label>Professor 2 (opcional)</label>
+      <select id="sesTeacher2" class="form-control"></select>
+    </div>
+    <div class="form-group">
+      <label>Data e hora</label>
+      <input id="sesScheduled" type="datetime-local" class="form-control">
+    </div>
+    <div class="form-group">
+      <label>Duração (minutos)</label>
+      <input id="sesDuration" type="number" class="form-control" value="60" min="30">
+    </div>
+    <div class="form-group" id="sesPriceGroup">
+      <label>Valor (R$) — apenas para avulsa</label>
+      <input id="sesPrice" type="number" class="form-control" placeholder="Ex: 120">
+    </div>
+    <div class="form-group">
+      <label>Local</label>
+      <select id="sesLocation" class="form-control">
+        <option value="bailado_laranjeiras">Bailado Laranjeiras</option>
+        <option value="student_home">Residência do aluno</option>
+      </select>
+    </div>
+    <div class="form-group" id="sesLocationNotesGroup" style="display:none;">
+      <label>Endereço da residência</label>
+      <input id="sesLocationNotes" type="text" class="form-control" placeholder="Rua, número, bairro...">
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <input id="sesNotes" type="text" class="form-control" placeholder="Opcional">
+    </div>
+
+    <div class="modal-actions">
+      <button id="cancelSessionBtn" class="btn-secondary">Cancelar</button>
+      <button id="saveSessionBtn" class="btn-primary">Salvar sessão</button>
+    </div>
+  </div>
+</div>

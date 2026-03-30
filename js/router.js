@@ -78,7 +78,8 @@ async function waitForModule(page) {
     cash:        "CashModule",
     reports:     "ReportsModule",
     admin:       "AdminModule",
-    attendance:  "AttendanceModule"
+    attendance:  "AttendanceModule",
+    private:     "PrivateModule" 
   }
 
   const moduleName = moduleMap[page]
@@ -112,7 +113,8 @@ function initModule(page) {
     cash:        window.CashModule,
     reports:     window.ReportsModule,
     admin:       window.AdminModule,
-    attendance:  window.AttendanceModule
+    attendance:  window.AttendanceModule,
+     private:     window.PrivateModule
   }
 
   const module = modules[page]
