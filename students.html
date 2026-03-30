@@ -1,18 +1,20 @@
 <div class="page-header">
   <div>
     <h1>Alunos</h1>
-    <p>Gerencie os alunos da escola</p>
+    <p class="page-subtitle">Gerencie os alunos da escola</p>
   </div>
+  <button id="newStudentBtn" class="btn-primary">+ Novo aluno</button>
+</div>
 
-  <button id="newStudentBtn" class="btn-primary btn-lg">
-    + Novo aluno
-  </button>
+<!-- CONTADOR -->
+<div class="students-stats">
+  <span id="studentsCount" class="students-count">Carregando...</span>
 </div>
 
 <div class="card search-card">
   <div class="search-box-modern">
     <span class="search-icon">🔍</span>
-    <input 
+    <input
       type="text"
       id="searchStudents"
       placeholder="Buscar por nome ou email..."
@@ -26,6 +28,7 @@
       <tr>
         <th>Aluno</th>
         <th>Email</th>
+        <th>Telefone</th>
         <th>Status</th>
         <th style="width:180px;">Ações</th>
       </tr>
@@ -67,12 +70,8 @@
     </div>
 
     <div class="modal-footer">
-      <button id="cancelStudentBtn" class="btn-secondary">
-        Cancelar
-      </button>
-      <button id="saveStudentBtn" class="btn-primary">
-        Salvar aluno
-      </button>
+      <button id="cancelStudentBtn" class="btn-secondary">Cancelar</button>
+      <button id="saveStudentBtn" class="btn-primary">Salvar aluno</button>
     </div>
 
   </div>

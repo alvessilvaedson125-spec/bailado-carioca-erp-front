@@ -119,3 +119,25 @@
   width: 100%;
   font-size: 14px;
 }
+
+/* ================================
+   CONTADOR
+   ================================ */
+
+.students-stats {
+  margin-bottom: 12px;
+}
+
+.students-count {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* ================================
+   BADGE INATIVO
+   ================================ */
+
+.badge.red-soft {
+  background: #fee2e2;
+  color: #dc2626;
+}

@@ -28,13 +28,12 @@ async function init(){
 
   await loadData();
 }
-
 async function loadData(){
 
   const tableBody = document.querySelector("#studentsTable tbody");
   if(!tableBody) return;
 
-  tableBody.innerHTML = "<tr><td colspan='4'>Carregando...</td></tr>";
+  tableBody.innerHTML = "<tr><td colspan='5'>Carregando...</td></tr>";
 
   try{
 
@@ -44,7 +43,7 @@ async function loadData(){
     ]);
 
     if(!studentsRes.success){
-      tableBody.innerHTML = "<tr><td colspan='4'>Erro ao carregar alunos</td></tr>";
+      tableBody.innerHTML = "<tr><td colspan='5'>Erro ao carregar alunos</td></tr>";
       return;
     }
 
@@ -52,38 +51,20 @@ async function loadData(){
 
     buildEnrollmentsMap(enrollmentsRes);
 
+    // 🔥 Atualiza contador
+    const countEl = document.getElementById("studentsCount");
+    if(countEl){
+      countEl.innerText = `${studentsCache.length} aluno${studentsCache.length !== 1 ? "s" : ""} cadastrado${studentsCache.length !== 1 ? "s" : ""}`;
+    }
+
     currentPage = 1;
     renderStudents(studentsCache);
 
   }catch(err){
-
     console.error(err);
-    tableBody.innerHTML = "<tr><td colspan='4'>Erro na API</td></tr>";
-
+    tableBody.innerHTML = "<tr><td colspan='5'>Erro na API</td></tr>";
   }
 
-}
-
-function buildEnrollmentsMap(res){
-
-  enrollmentsMap = {};
-
-  if(!res || !res.success || !res.data){
-    console.warn("Enrollments indisponível — mantendo estado neutro");
-    return;
-  }
-
-  res.data.forEach(enrollment => {
-    const studentId = enrollment.student_id;
-    if(enrollment.status === "active"){
-      enrollmentsMap[studentId] = true;
-    }
-  });
-
-}
-
-function isStudentActive(studentId){
-  return !!enrollmentsMap[studentId];
 }
 
 function renderStudents(list){
@@ -93,13 +74,24 @@ function renderStudents(list){
 
   tableBody.innerHTML = "";
 
+  // 🔥 Atualiza contador ao filtrar
+  const countEl = document.getElementById("studentsCount");
+  if(countEl){
+    const total = studentsCache.length;
+    const showing = list.length;
+    if(showing === total){
+      countEl.innerText = `${total} aluno${total !== 1 ? "s" : ""} cadastrado${total !== 1 ? "s" : ""}`;
+    } else {
+      countEl.innerText = `${showing} de ${total} alunos`;
+    }
+  }
+
   if(list.length === 0){
-    tableBody.innerHTML = "<tr><td colspan='4'>Nenhum aluno encontrado</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='5'>Nenhum aluno encontrado</td></tr>";
     renderPagination(0);
     return;
   }
 
-  // 🔥 PAGINAÇÃO
   const totalPages = Math.ceil(list.length / PAGE_SIZE);
   if(currentPage > totalPages) currentPage = 1;
 
@@ -113,23 +105,22 @@ function renderStudents(list){
 
     const isActive = isStudentActive(student.id);
 
+    // 🔥 Badge inativo com cor vermelha suave
     const statusBadge = isActive
       ? `<span class="badge green">Ativo</span>`
-      : `<span class="badge gray">Inativo</span>`;
+      : `<span class="badge red-soft">Inativo</span>`;
 
     tr.innerHTML = `
       <td>
         <div class="student-cell">
-          <div class="student-avatar">
-            ${getInitials(student.name)}
-          </div>
+          <div class="student-avatar">${getInitials(student.name)}</div>
           <div>
             <strong>${student.name}</strong>
-            <div class="student-meta">${student.phone || ""}</div>
           </div>
         </div>
       </td>
-      <td>${student.email}</td>
+      <td>${student.email || "-"}</td>
+      <td>${student.phone || "-"}</td>
       <td>${statusBadge}</td>
       <td>
         <button class="btn-edit">✏️ Editar</button>
@@ -147,10 +138,9 @@ function renderStudents(list){
 
   });
 
-  renderPagination(list.length, list);
+  renderPagination(list.length);
 
 }
-
 // ===============================
 // PAGINAÇÃO
 // ===============================
