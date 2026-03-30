@@ -10,11 +10,12 @@ async function checkAuth() {
     localStorage.setItem("user_role", res.data?.role || "operator")
 
     // 🔥 Mostra nome e role no header
-    const userNameEl = document.getElementById("user-name")
-    if(userNameEl){
-      const role = res.data?.role === "admin" ? "Admin" : "Operador"
-      userNameEl.innerText = role
-    }
+   const userNameEl = document.getElementById("user-name")
+if(userNameEl){
+  const name = res.data?.name || ""
+  const role = res.data?.role === "admin" ? "Admin" : "Operador"
+  userNameEl.innerText = name ? `${name} · ${role}` : role
+}
 
     // 🔥 Controle de menu por role
     if(res.data?.role !== "admin"){
