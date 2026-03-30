@@ -60,7 +60,9 @@ function getSelectedTeachers() {
 async function init(){
 
   if(initDone) {
-    await loadClasses(); // 🔥 recarrega ao voltar para a página
+    await loadClasses();
+    setupNewClassBtn();    // 🔥 re-registra ao voltar
+    setupAddTeacherBtn();  // 🔥 re-registra ao voltar
     return;
   }
   initDone = true;
@@ -76,7 +78,6 @@ async function init(){
   setupNewClassBtn();
   setupAddTeacherBtn();
 }
-
 // ===============================
 // SETUP BOTÕES
 // ===============================
