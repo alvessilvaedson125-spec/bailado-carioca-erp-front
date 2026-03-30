@@ -1,8 +1,9 @@
 (function(){
 
-let allEntries = [];
+let allEntries     = [];
 let currentEntries = [];
-let visibleItems = 5;
+let currentPage    = 1;
+const PAGE_SIZE    = 10;
 
 function formatDate(dateString) {
   if (!dateString) return "-";
@@ -45,7 +46,6 @@ async function loadEntries() {
     const res = await apiRequest("/api/v1/cash", "GET");
     const rawData = res?.data || [];
 
-    // Remove cancelados
     allEntries = rawData.filter(e => e.status !== "cancelled");
 
     let totalIn  = 0;
@@ -63,12 +63,11 @@ async function loadEntries() {
     safeSetText("cash-in",      fmt(totalIn));
     safeSetText("cash-out",     fmt(totalOut));
 
-    // Cor do saldo
     const balanceEl = document.getElementById("cash-balance");
     if(balanceEl) balanceEl.style.color = saldo >= 0 ? "#16a34a" : "#dc2626";
 
     currentEntries = allEntries;
-    visibleItems = 5;
+    currentPage    = 1;
     renderTable(allEntries);
 
   } catch (err) {
@@ -153,35 +152,35 @@ async function cancelCashEntry(id) {
 // ===============================
 // RENDER TABLE
 // ===============================
+
 function renderTable(data) {
   const tbody = document.getElementById("cash-body");
   if (!tbody) return;
 
   tbody.innerHTML = "";
 
-  const sliced = data.slice(0, visibleItems);
-
-  if (sliced.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="5" class="empty-state">Nenhuma movimentação encontrada</td>
-      </tr>
-    `;
-    renderShowMoreButton(0);
+  if(data.length === 0){
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Nenhuma movimentação encontrada</td></tr>`;
+    renderPagination(0);
     return;
   }
 
-  sliced.forEach(e => {
+  const totalPages = Math.ceil(data.length / PAGE_SIZE);
+  if(currentPage > totalPages) currentPage = 1;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const end   = start + PAGE_SIZE;
+  const page  = data.slice(start, end);
+
+  page.forEach(e => {
     const tr = document.createElement("tr");
 
     const isIn = e.type === "in";
 
-    // 🔥 Badge colorido para tipo
     const typeBadge = isIn
       ? `<span class="cash-type-in">Entrada</span>`
       : `<span class="cash-type-out">Saída</span>`;
 
-    // 🔥 Valor com cor
     const valueClass = isIn ? "cash-value-in" : "cash-value-out";
     const valueSign  = isIn ? "+" : "-";
 
@@ -196,44 +195,49 @@ function renderTable(data) {
     `;
 
     tr.querySelector(".btn-cancel-entry").onclick = () => cancelCashEntry(e.id);
-
     tbody.appendChild(tr);
   });
 
-  renderShowMoreButton(data.length);
+  renderPagination(data.length);
 }
+
 // ===============================
-// SHOW MORE
+// PAGINAÇÃO
 // ===============================
 
-function renderShowMoreButton(total) {
+function renderPagination(total){
 
   const container = document.getElementById("cash-show-more-container");
-  if (!container) return;
+  if(!container) return;
 
-  container.innerHTML = "";
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  if(total === 0) return;
-
-  const btn = document.createElement("button");
-  btn.className = "btn-secondary";
-  btn.style.marginTop = "10px";
-
-  if (visibleItems >= total) {
-    btn.innerText = `Mostrar menos (${total}/${total})`;
-    btn.onclick = () => {
-      visibleItems = 5;
-      renderTable(currentEntries);
-    };
-  } else {
-    btn.innerText = `Mostrar mais (${visibleItems}/${total})`;
-    btn.onclick = () => {
-      visibleItems += 5;
-      renderTable(currentEntries);
-    };
+  if(totalPages <= 1){
+    container.innerHTML = "";
+    return;
   }
 
-  container.appendChild(btn);
+  const start = ((currentPage - 1) * PAGE_SIZE) + 1;
+  const end   = Math.min(currentPage * PAGE_SIZE, total);
+
+  container.innerHTML = `
+    <div class="pagination">
+      <div class="pagination-info">${start}–${end} de ${total} movimentações</div>
+      <div class="pagination-controls">
+        <button class="pagination-btn" id="cashPrev" ${currentPage === 1 ? "disabled" : ""}>← Anterior</button>
+        <span class="pagination-page">${currentPage} / ${totalPages}</span>
+        <button class="pagination-btn" id="cashNext" ${currentPage === totalPages ? "disabled" : ""}>Próximo →</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("cashPrev").onclick = () => {
+    if(currentPage > 1){ currentPage--; renderTable(currentEntries); }
+  };
+
+  document.getElementById("cashNext").onclick = () => {
+    if(currentPage < totalPages){ currentPage++; renderTable(currentEntries); }
+  };
 }
 
 // ===============================
@@ -252,7 +256,7 @@ function applyFilters() {
   });
 
   currentEntries = filtered;
-  visibleItems = 5;
+  currentPage    = 1;
   renderTable(filtered);
 }
 
