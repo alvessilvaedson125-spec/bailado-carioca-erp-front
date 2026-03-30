@@ -258,7 +258,8 @@ function renderPayments(list){
   }
 
   container.innerHTML = `
-    <table class="data-table">
+  <div class="private-table-container">
+    <table class="private-payments-table">
       <thead>
         <tr>
           <th>Aluno</th>
@@ -271,7 +272,8 @@ function renderPayments(list){
       </thead>
       <tbody id="privatePaymentsBody"></tbody>
     </table>
-  `;
+  </div>
+`;
 
   const tbody = document.getElementById("privatePaymentsBody");
 

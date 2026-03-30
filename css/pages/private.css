@@ -2,16 +2,59 @@
    AULAS PARTICULARES
 ========================= */
 
-.private-stats {
-  display: flex;
+/* Stats — usa .enrollments-stats + .stat-card globais */
+
+/* ================================
+   KPI CARDS (padrão payments)
+   ================================ */
+
+.private-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 24px;
-  flex-wrap: wrap;
 }
 
-.private-card {
-   background: #fff;
+.private-kpi-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
   border: 1px solid #e5e7eb;
+  border-left: 4px solid #6366f1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.private-kpi-card.green  { border-left-color: #16a34a; }
+.private-kpi-card.orange { border-left-color: #f59e0b; }
+.private-kpi-card.red    { border-left-color: #dc2626; }
+
+.private-kpi-label {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.private-kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.private-kpi-card.green  .private-kpi-value { color: #16a34a; }
+.private-kpi-card.orange .private-kpi-value { color: #ca8a04; }
+.private-kpi-card.red    .private-kpi-value { color: #dc2626; }
+
+/* ================================
+   CARDS DE PACOTE
+   ================================ */
+
+.private-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #6366f1;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 12px;
@@ -22,24 +65,41 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
+.private-card.completed { border-left-color: #16a34a; }
+.private-card.expired   { border-left-color: #f59e0b; }
+.private-card.cancelled { border-left-color: #dc2626; }
+
 .private-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .private-card-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  color: #1f2937;
+  color: #1e293b;
+  margin-bottom: 2px;
 }
 
 .private-card-meta {
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
-  margin-top: 2px;
 }
+
+.private-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ================================
+   BARRA DE PROGRESSO
+   ================================ */
 
 .private-card-progress {
   margin-bottom: 14px;
@@ -65,21 +125,45 @@
   color: #6b7280;
 }
 
+/* ================================
+   RODAPÉ DO CARD
+   ================================ */
+
 .private-card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .private-price-info {
   display: flex;
-  gap: 16px;
-  font-size: 13px;
-  color: #374151;
+  gap: 20px;
 }
 
+.private-price-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.private-price-item span {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.private-price-item strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Preview preço/aula no modal */
 .private-price-preview {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
@@ -90,11 +174,14 @@
   margin-bottom: 12px;
 }
 
-/* Sessões */
+/* ================================
+   CARDS DE SESSÃO
+   ================================ */
+
 .private-session-card {
-  background: #fff;
+  background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 16px 20px;
   margin-bottom: 10px;
   display: flex;
@@ -102,13 +189,23 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  transition: box-shadow 0.2s;
+}
+
+.private-session-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.private-session-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .private-session-date {
   font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 4px;
+  color: #1e293b;
 }
 
 .private-session-info {
@@ -125,9 +222,54 @@
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
-/* Badges */
+/* ================================
+   TABELA DE PAGAMENTOS
+   (padrão #payments-table)
+   ================================ */
+
+.private-payments-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.private-payments-table thead {
+  background: #f9fafb;
+}
+
+.private-payments-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.private-payments-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.private-payments-table tr:last-child td {
+  border-bottom: none;
+}
+
+.private-payments-table tr:hover td {
+  background: #f9fafb;
+}
+
+/* ================================
+   BADGES
+   ================================ */
+
 .private-badge-pkg,
 .private-badge-package {
   background: #ede9fe;
@@ -148,9 +290,12 @@
   font-weight: 500;
 }
 
-/* Botões pequenos */
+/* ================================
+   BOTÕES
+   ================================ */
+
 .btn-sm {
-  padding: 5px 12px;
+  padding: 6px 12px;
   font-size: 12px;
   border-radius: 6px;
   border: none;
@@ -175,22 +320,48 @@
 
 .btn-icon-edit,
 .btn-icon-delete {
-  background: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-  padding: 4px 6px;
-  border-radius: 6px;
+  font-size: 13px;
   transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-icon-edit:hover   { background: #f3f4f6; }
-.btn-icon-delete:hover { background: #fee2e2; }
+.btn-icon-edit   { background: #eef2ff; color: #4f46e5; }
+.btn-icon-delete { background: #fee2e2; color: #dc2626; }
 
-/* Mobile */
+.btn-icon-edit:hover   { background: #4f46e5; color: white; }
+.btn-icon-delete:hover { background: #dc2626; color: white; }
+
+/* ================================
+   TABLE CONTAINER (padrão global)
+   ================================ */
+
+.private-table-container {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+/* ================================
+   MOBILE
+   ================================ */
+
+@media (max-width: 1024px) {
+  .private-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
-  .private-stats {
-    gap: 8px;
+  .private-kpis {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .private-card-footer {
@@ -206,5 +377,10 @@
   .private-session-right {
     width: 100%;
     justify-content: flex-end;
+  }
+
+  .private-price-info {
+    flex-wrap: wrap;
+    gap: 12px;
   }
 }
