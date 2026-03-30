@@ -13,8 +13,9 @@
 <div class="app">
 
   <header class="header">
-    <div class="header-left">
-      Bailado Carioca — Gestão Escolar
+    <div style="display:flex; align-items:center; gap:12px;">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <div class="header-left">Bailado Carioca — Gestão Escolar</div>
     </div>
     <div class="header-right">
       <span id="user-name"></span>
@@ -24,7 +25,9 @@
 
   <div class="layout">
 
-    <aside class="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
       <ul>
         <li data-page="dashboard">Painel</li>
         <li data-page="students">Alunos</li>
@@ -79,21 +82,44 @@
 <script>
 (function () {
   const token = localStorage.getItem("token");
-
   if (!token) {
     window.location.replace("/index.html");
     return;
   }
 
-  // 🔥 Controle de menu por role
+  // Controle de menu por role
   const role = localStorage.getItem("user_role");
-
   if (role !== "admin") {
-    // Esconde Administração para não-admins
     document.querySelectorAll(".menu-admin-only").forEach(el => {
       el.style.display = "none";
     });
   }
+
+  // 🔥 Hamburguer
+  const toggle  = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+
+  function openMenu(){
+    sidebar.classList.add("open");
+    overlay.classList.add("active");
+  }
+
+  function closeMenu(){
+    sidebar.classList.remove("open");
+    overlay.classList.remove("active");
+  }
+
+  if(toggle)  toggle.onclick  = () => sidebar.classList.contains("open") ? closeMenu() : openMenu();
+  if(overlay) overlay.onclick = closeMenu;
+
+  // Fecha menu ao navegar no mobile
+  document.querySelectorAll(".sidebar li").forEach(li => {
+    li.addEventListener("click", () => {
+      if(window.innerWidth <= 768) closeMenu();
+    });
+  });
+
 })();
 </script>
 
