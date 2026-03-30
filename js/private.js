@@ -438,9 +438,9 @@ async function saveSession(){
 // ===============================
 
 function setupTabs(){
-  document.querySelectorAll(".private-tab").forEach(btn => {
+  document.querySelectorAll(".enrollment-tab").forEach(btn => {
     btn.onclick = () => {
-      document.querySelectorAll(".private-tab").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".enrollment-tab").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       activeTab = btn.dataset.tab;
 
