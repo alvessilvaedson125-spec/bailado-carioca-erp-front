@@ -8,6 +8,7 @@
       type="text"
       id="searchEnrollments"
       placeholder="🔍 Buscar por aluno ou turma..."
+      class="search-input"
     />
     <button id="newEnrollmentBtn" class="btn-primary">+ Nova Matrícula</button>
   </div>
@@ -32,24 +33,9 @@
   </div>
 </div>
 
-<div class="table-container">
-  <table id="enrollmentsTable">
-    <thead>
-      <tr>
-        <th>Aluno</th>
-        <th>Turma</th>
-        <th>Papel</th>
-        <th>Bolsista</th>
-        <th>Status</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td colspan="6">Carregando...</td>
-      </tr>
-    </tbody>
-  </table>
+<!-- 🔥 Cards por turma -->
+<div id="enrollmentsByClass">
+  <p style="color:#6b7280; text-align:center; padding:40px 0;">Carregando...</p>
 </div>
 
 <!-- Modal matrícula -->
@@ -70,7 +56,6 @@
       <select id="editEnrollmentClass" class="form-control"></select>
     </div>
 
-    <!-- 🔥 4 opções de papel -->
     <div class="form-group">
       <label>Papel</label>
       <select id="editEnrollmentRole" class="form-control">

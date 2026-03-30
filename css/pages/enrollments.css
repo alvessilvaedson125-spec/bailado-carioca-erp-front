@@ -204,3 +204,165 @@
   margin: 0;
   min-height: 16px;
 }
+
+/* ================================
+   CARDS POR TURMA
+   ================================ */
+
+.enrollment-class-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+
+.enrollment-class-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.enrollment-class-info h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 2px;
+}
+
+.enrollment-class-info p {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.enrollment-class-count {
+  font-size: 12px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* ================================
+   LINHA DE ALUNO
+   ================================ */
+
+.enrollment-aluno-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.enrollment-aluno-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.enrollment-aluno-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.enrollment-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #eeedfe;
+  color: #534ab7;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.enrollment-aluno-nome {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+/* ================================
+   BADGES DE PAPEL
+   ================================ */
+
+.enrollment-role-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.enrollment-role-badge.blue   { background: #e6f1fb; color: #185fa5; }
+.enrollment-role-badge.pink   { background: #fbeaf0; color: #993556; }
+.enrollment-role-badge.green  { background: #eaf3de; color: #3b6d11; }
+.enrollment-role-badge.orange { background: #faeeda; color: #854f0b; }
+.enrollment-role-badge.gray   { background: #f3f4f6; color: #6b7280; }
+
+/* ================================
+   BADGES DE BOLSISTA E STATUS
+   ================================ */
+
+.enrollment-badge-scholarship {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.enrollment-badge-scholarship.red  { background: #fee2e2; color: #dc2626; }
+.enrollment-badge-scholarship.blue { background: #e6f1fb; color: #185fa5; }
+
+.enrollment-status-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.enrollment-status-badge.green  { background: #dcfce7; color: #16a34a; }
+.enrollment-status-badge.orange { background: #fef3c7; color: #d97706; }
+.enrollment-status-badge.red    { background: #fee2e2; color: #dc2626; }
+
+/* ================================
+   AÇÕES
+   ================================ */
+
+.enrollment-aluno-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-enrollment-edit,
+.btn-enrollment-cancel {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  transition: 0.2s;
+}
+
+.btn-enrollment-edit   { background: #eef2ff; color: #4f46e5; }
+.btn-enrollment-cancel { background: #fee2e2; color: #dc2626; }
+
+.btn-enrollment-edit:hover   { background: #4f46e5; color: white; }
+.btn-enrollment-cancel:hover { background: #dc2626; color: white; }
+
+.enrollment-empty {
+  font-size: 13px;
+  color: #9ca3af;
+  padding: 16px 0;
+  text-align: center;
+}

@@ -325,82 +325,151 @@ RENDER
 ========================= */
 function renderEnrollments(list = enrollmentsCache){
 
-  const tbody = document.querySelector("#enrollmentsTable tbody")
-  if(!tbody) return
+  const container = document.getElementById("enrollmentsByClass");
+  if(!container) return;
 
   currentList = list;
 
-  const total       = list.length
-  const active      = list.filter(e => e.status === "active").length
-  const inactive    = total - active
-  const scholarship = list.filter(e => e.scholarship === 1).length
+  // Stats
+  const total       = list.length;
+  const active      = list.filter(e => e.status === "active").length;
+  const inactive    = total - active;
+  const scholarship = list.filter(e => e.scholarship === 1).length;
 
-  const statTotal       = document.getElementById("statTotal")
-  const statActive      = document.getElementById("statActive")
-  const statInactive    = document.getElementById("statInactive")
-  const statScholarship = document.getElementById("statScholarship")
+  const statTotal       = document.getElementById("statTotal");
+  const statActive      = document.getElementById("statActive");
+  const statInactive    = document.getElementById("statInactive");
+  const statScholarship = document.getElementById("statScholarship");
 
-  if(statTotal)       statTotal.innerText       = total
-  if(statActive)      statActive.innerText      = active
-  if(statInactive)    statInactive.innerText    = inactive
-  if(statScholarship) statScholarship.innerText = scholarship
+  if(statTotal)       statTotal.innerText       = total;
+  if(statActive)      statActive.innerText      = active;
+  if(statInactive)    statInactive.innerText    = inactive;
+  if(statScholarship) statScholarship.innerText = scholarship;
 
   if(list.length === 0){
-    tbody.innerHTML = `<tr><td colspan="6">Nenhuma matrícula</td></tr>`
-    renderPagination(0)
-    return
+    container.innerHTML = `
+      <div style="text-align:center; padding:60px 20px; color:#6b7280;">
+        <div style="font-size:40px; margin-bottom:12px;">📋</div>
+        <p>Nenhuma matrícula encontrada</p>
+      </div>
+    `;
+    return;
   }
 
-  const totalPages = Math.ceil(list.length / PAGE_SIZE);
-  if(currentPage > totalPages) currentPage = 1;
+  // 🔥 Agrupa por turma
+  const byClass = {};
 
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const end   = start + PAGE_SIZE;
-  const page  = list.slice(start, end);
+  list.forEach(e => {
+    const key  = e.class_id;
+    const name = e.class_name || "Sem turma";
 
-  tbody.innerHTML = ""
+    if(!byClass[key]){
+      byClass[key] = {
+        class_id:   key,
+        class_name: name,
+        day:        e.day_of_week  || "",
+        time:       e.start_time   || "",
+        unit:       e.unit_name    || "",
+        enrollments: []
+      };
+    }
 
-  page.forEach(enrollment => {
+    byClass[key].enrollments.push(e);
+  });
 
-    const tr = document.createElement("tr")
+  // 🔥 Busca turmas sem alunos também — via cache de turmas
+  // (apenas turmas que aparecem nas matrículas filtradas)
 
-    const isScholarship = enrollment.scholarship === 1;
-    const isIntegral    = isScholarship && Number(enrollment.discount) === 100;
+  container.innerHTML = "";
 
-    const scholarshipBadge = isScholarship
-      ? isIntegral
-        ? `<span class="badge red">Integral</span>`
-        : `<span class="badge blue">Parcial ${enrollment.discount}%</span>`
-      : `<span class="badge gray">—</span>`;
+  Object.values(byClass).forEach(cls => {
 
-    // 🔥 Status em português com badge
-    const statusBadge = enrollment.status === "active"
-      ? `<span class="badge green">Ativo</span>`
-      : enrollment.status === "paused"
-        ? `<span class="badge orange">Pausado</span>`
-        : `<span class="badge red">Cancelado</span>`;
+    const card = document.createElement("div");
+    card.className = "enrollment-class-card";
 
-    tr.innerHTML = `
-      <td><strong>${safe(enrollment.student_name)}</strong></td>
-      <td>${safe(enrollment.class_name)}</td>
-      <td>${formatRole(enrollment.role || "-")}</td>
-      <td>${scholarshipBadge}</td>
-      <td>${statusBadge}</td>
-      <td>
-        <button class="btn-edit">✏️</button>
-        <button class="btn-danger btn-cancel">✖</button>
-      </td>
-    `
+    const meta = [cls.day, cls.time, cls.unit].filter(Boolean).join(" · ");
+    const count = cls.enrollments.length;
 
-    tr.querySelector(".btn-edit").onclick   = () => openEditEnrollment(enrollment)
-    tr.querySelector(".btn-cancel").onclick = () => cancelEnrollment(enrollment.id)
+    const alunosRows = cls.enrollments.map(enrollment => {
 
-    tbody.appendChild(tr)
+      const initials = (enrollment.student_name || "?")
+        .split(" ")
+        .map(n => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
 
-  })
+      const roleBadge = getRoleBadge(enrollment.role);
 
-  renderPagination(list.length)
+      const scholarshipBadge = enrollment.scholarship === 1
+        ? Number(enrollment.discount) === 100
+          ? `<span class="enrollment-badge-scholarship red">Integral</span>`
+          : `<span class="enrollment-badge-scholarship blue">Parcial ${enrollment.discount}%</span>`
+        : "";
 
+      const statusClass = enrollment.status === "active" ? "green"
+        : enrollment.status === "paused" ? "orange"
+        : "red";
+
+      const statusLabel = enrollment.status === "active" ? "Ativo"
+        : enrollment.status === "paused" ? "Pausado"
+        : "Cancelado";
+
+      return `
+        <div class="enrollment-aluno-row" data-id="${enrollment.id}">
+          <div class="enrollment-aluno-left">
+            <div class="enrollment-avatar">${initials}</div>
+            <span class="enrollment-aluno-nome">${safe(enrollment.student_name)}</span>
+            ${roleBadge}
+            ${scholarshipBadge}
+            <span class="enrollment-status-badge ${statusClass}">${statusLabel}</span>
+          </div>
+          <div class="enrollment-aluno-actions">
+            <button class="btn-enrollment-edit" title="Editar">✏️</button>
+            <button class="btn-enrollment-cancel" title="Cancelar matrícula">✖</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    card.innerHTML = `
+      <div class="enrollment-class-header">
+        <div class="enrollment-class-info">
+          <h3>${safe(cls.class_name)}</h3>
+          ${meta ? `<p>${meta}</p>` : ""}
+        </div>
+        <span class="enrollment-class-count">${count} aluno${count !== 1 ? "s" : ""}</span>
+      </div>
+      <div class="enrollment-alunos">
+        ${alunosRows || `<div class="enrollment-empty">Nenhum aluno matriculado</div>`}
+      </div>
+    `;
+
+    // Eventos
+    card.querySelectorAll(".btn-enrollment-edit").forEach((btn, i) => {
+      btn.onclick = () => openEditEnrollment(cls.enrollments[i]);
+    });
+
+    card.querySelectorAll(".btn-enrollment-cancel").forEach((btn, i) => {
+      btn.onclick = () => cancelEnrollment(cls.enrollments[i].id);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function getRoleBadge(role){
+  const map = {
+    conductor_m: { label: "Condutor",  cls: "blue"   },
+    conductor:   { label: "Condutor",  cls: "blue"   },
+    conductor_f: { label: "Condutora", cls: "pink"   },
+    follower_f:  { label: "Conduzida", cls: "green"  },
+    follower:    { label: "Conduzida", cls: "green"  },
+    follower_m:  { label: "Conduzido", cls: "orange" },
+  };
+  const r = map[role];
+  if(!r) return `<span class="enrollment-role-badge gray">${role || "-"}</span>`;
+  return `<span class="enrollment-role-badge ${r.cls}">${r.label}</span>`;
 }
 /* =========================
 PAGINAÇÃO
