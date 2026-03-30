@@ -429,22 +429,42 @@ async function saveEnrollment(){
 // ===============================
 
 async function saveScholarship(){
-  const studentId   = document.getElementById("editScholarshipStudent").value;
-  const classId     = document.getElementById("editScholarshipClass").value;
-  const role        = document.getElementById("editScholarshipRole").value;
-  const type        = document.getElementById("editScholarshipType").value;
-  const fee         = Number(document.getElementById("editScholarshipFee").value || 0);
-  const status      = document.getElementById("editScholarshipStatus").value;
+  const studentId = document.getElementById("editScholarshipStudent").value;
+  const classId   = document.getElementById("editScholarshipClass").value;
+  const role      = document.getElementById("editScholarshipRole").value;
+  const type      = document.getElementById("editScholarshipType").value;
+  const fee       = Number(document.getElementById("editScholarshipFee").value || 0);
+  const status    = document.getElementById("editScholarshipStatus").value;
 
   const discount = type === "100" ? 100 : Number(document.getElementById("editScholarshipDiscount").value || 0);
 
-  if(!studentId || !classId){ Toast.warning("Selecione aluno e turma"); return; }
-  if(!fee){ Toast.warning("Informe a mensalidade original"); return; }
+  if(!studentId || !classId){
+    Toast.warning("Selecione aluno e turma");
+    return;
+  }
+
+  // 🔥 Mensalidade obrigatória sempre
+  if(!fee || fee <= 0){
+    Toast.warning(
+      type === "100"
+        ? "Informe a mensalidade original — usada para calcular o impacto da bolsa"
+        : "Informe a mensalidade original"
+    );
+    // 🔥 Destaca o campo
+    const feeEl = document.getElementById("editScholarshipFee");
+    if(feeEl){
+      feeEl.focus();
+      feeEl.style.borderColor = "#dc2626";
+      setTimeout(() => feeEl.style.borderColor = "", 2000);
+    }
+    return;
+  }
+
   if(type !== "100" && (!discount || discount <= 0 || discount >= 100)){
     Toast.warning("Informe um desconto entre 1% e 99% para bolsa parcial");
     return;
   }
-
+  
   const duplicate = enrollmentsCache.find(e =>
     e.student_id === studentId &&
     e.class_id   === classId   &&
