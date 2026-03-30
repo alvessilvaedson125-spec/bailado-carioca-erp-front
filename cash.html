@@ -1,104 +1,106 @@
-<h2>Caixa</h2>
+<div class="page-header">
+  <div>
+    <h1>Caixa</h1>
+    <p class="page-subtitle">Movimentações financeiras manuais</p>
+  </div>
+</div>
 
+<!-- KPIs -->
 <div class="cash-kpis">
 
-  <div class="card kpi">
-    <span>Saldo atual</span>
-    <strong id="cash-balance">R$ 0</strong>
+  <div class="cash-kpi-card green">
+    <span class="cash-kpi-label">Saldo atual</span>
+    <strong class="cash-kpi-value" id="cash-balance">R$ 0,00</strong>
   </div>
 
-  <div class="card kpi">
-    <span>Entradas</span>
-    <strong id="cash-in">R$ 0</strong>
+  <div class="cash-kpi-card blue">
+    <span class="cash-kpi-label">Entradas</span>
+    <strong class="cash-kpi-value" id="cash-in">R$ 0,00</strong>
   </div>
 
-  <div class="card kpi">
-    <span>Saídas</span>
-    <strong id="cash-out">R$ 0</strong>
+  <div class="cash-kpi-card red">
+    <span class="cash-kpi-label">Saídas</span>
+    <strong class="cash-kpi-value" id="cash-out">R$ 0,00</strong>
   </div>
 
 </div>
 
-<div class="card cash-form">
+<!-- NOVA MOVIMENTAÇÃO -->
+<div class="cash-form-card">
   <h3>Nova movimentação</h3>
 
- <div class="form-row">
+  <div class="cash-form-row">
 
-  <div class="form-group">
-    <label>Data</label>
-    <input type="date" id="cash-date" class="form-control">
+    <div class="form-group">
+      <label>Data</label>
+      <input type="date" id="cash-date" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>Tipo</label>
+      <select id="cash-type" class="form-control">
+        <option value="">Selecione...</option>
+        <option value="in">Entrada</option>
+        <option value="out">Saída</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Valor (R$)</label>
+      <input type="number" id="cash-amount" class="form-control" placeholder="0,00" min="0">
+    </div>
+
+    <div class="form-group cash-descricao">
+      <label>Descrição</label>
+      <input type="text" id="cash-description" class="form-control" placeholder="Ex: Aluguel do espaço">
+    </div>
+
+    <div class="cash-form-buttons">
+      <button class="btn-primary" onclick="CashModule.createEntry()">Salvar</button>
+      <button class="btn-secondary" onclick="clearForm()">Limpar</button>
+    </div>
+
   </div>
 
-  <div class="form-group">
-    <label>Tipo</label>
-   <select id="cash-type" class="form-control">
-  <option value="">Selecione...</option>
-  <option value="in">Entrada</option>
-  <option value="out">Saída</option>
-</select>
-  </div>
-
-  <div class="form-group">
-    <label>Valor</label>
-   <input type="number" id="cash-amount" class="form-control">
-  </div>
-
-  <div class="form-group descricao">
-    <label>Descrição</label>
-   <input type="text" id="cash-description" class="form-control">
-  </div>
-
-  <!-- BOTÕES AGORA FAZEM PARTE DO GRID -->
-  <div class="form-buttons">
-   <button class="btn-primary" onclick="CashModule.createEntry()">Salvar</button>
-    <button class="btn-secondary" onclick="clearForm()">Limpar</button>
-  </div>
-
+  <div id="cash-error" class="form-error"></div>
 </div>
 
-<div id="cash-error" class="form-error"></div>
+<!-- MOVIMENTAÇÕES -->
+<div class="cash-list-card">
 
-</div>
-
-
-<div class="card">
-  <h3>Movimentações</h3>
-
- <div class="filters-bar">
-
-  <select id="filter-type">
-    <option value="">Todos</option>
-    <option value="in">Entrada</option>
-    <option value="out">Saída</option>
-  </select>
-
-  <input
-    type="text"
-    id="filter-text"
-    placeholder="Buscar descrição..."
-  >
-
-  <button id="clear-filters" class="btn-secondary">
-    Limpar
-  </button>
-
-</div>
-
+  <div class="cash-list-header">
+    <h3>Movimentações</h3>
+    <div class="cash-filters">
+      <select id="filter-type" class="form-control">
+        <option value="">Todos</option>
+        <option value="in">Entrada</option>
+        <option value="out">Saída</option>
+      </select>
+      <input
+        type="text"
+        id="filter-text"
+        class="form-control"
+        placeholder="Buscar descrição..."
+      >
+      <button id="clear-filters" class="btn-secondary">Limpar</button>
+    </div>
   </div>
-  <table class="cash-table">
+
+  <table class="data-table" id="cash-table">
     <thead>
       <tr>
         <th>Data</th>
         <th>Tipo</th>
         <th>Valor</th>
         <th>Descrição</th>
-       <th>Ações</th>
+        <th>Ações</th>
       </tr>
     </thead>
+    <tbody id="cash-body">
+      <tr><td colspan="5">Carregando...</td></tr>
+    </tbody>
+  </table>
 
-   <tbody id="cash-body"></tbody>
-</table>
-
-<div id="cash-show-more-container" style="text-align:center; margin-top:12px;"></div>
+  <div id="cash-show-more-container" style="text-align:center; margin-top:12px;"></div>
 
 </div>

@@ -153,7 +153,6 @@ async function cancelCashEntry(id) {
 // ===============================
 // RENDER TABLE
 // ===============================
-
 function renderTable(data) {
   const tbody = document.getElementById("cash-body");
   if (!tbody) return;
@@ -175,13 +174,24 @@ function renderTable(data) {
   sliced.forEach(e => {
     const tr = document.createElement("tr");
 
+    const isIn = e.type === "in";
+
+    // 🔥 Badge colorido para tipo
+    const typeBadge = isIn
+      ? `<span class="cash-type-in">Entrada</span>`
+      : `<span class="cash-type-out">Saída</span>`;
+
+    // 🔥 Valor com cor
+    const valueClass = isIn ? "cash-value-in" : "cash-value-out";
+    const valueSign  = isIn ? "+" : "-";
+
     tr.innerHTML = `
       <td>${formatDate(e.date || e.created_at)}</td>
-      <td>${e.type === "in" ? "Entrada" : "Saída"}</td>
-      <td>${fmt(e.amount)}</td>
+      <td>${typeBadge}</td>
+      <td class="${valueClass}">${valueSign} ${fmt(e.amount)}</td>
       <td>${e.description || "-"}</td>
       <td>
-        <button class="btn-danger btn-cancel-entry">Cancelar</button>
+        <button class="btn-cancel-entry">Cancelar</button>
       </td>
     `;
 
@@ -192,7 +202,6 @@ function renderTable(data) {
 
   renderShowMoreButton(data.length);
 }
-
 // ===============================
 // SHOW MORE
 // ===============================

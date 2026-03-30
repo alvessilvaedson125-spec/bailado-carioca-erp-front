@@ -1,49 +1,10 @@
-/* =========================
-   CASH TABLE
-========================= */
+/* ================================
+   CASH PAGE
+   ================================ */
 
-.cash-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.cash-table th {
-  text-align: left;
-  font-size: 12px;
-  color: #6b7280;
-  padding: 12px 16px;
-}
-
-.cash-table td {
-  padding: 12px 16px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.cash-table tbody tr:hover {
-  background: #f9fafb;
-}
-
-.cash-balance {
-  font-weight: bold;
-  font-size: 18px;
-}
-
-
-.cash-summary {
-  margin-top: 6px;
-  display: flex;
-  gap: 20px;
-  font-size: 14px;
-}
-
-.cash-in {
-  color: #16a34a;
-}
-
-.cash-out {
-  color: #dc2626;
-}
+/* ================================
+   KPIs
+   ================================ */
 
 .cash-kpis {
   display: grid;
@@ -52,135 +13,271 @@
   margin-bottom: 20px;
 }
 
-.kpi span {
+.cash-kpi-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: 0.2s;
+}
+
+.cash-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.cash-kpi-card.green { border-left-color: #16a34a; }
+.cash-kpi-card.blue  { border-left-color: #2563eb; }
+.cash-kpi-card.red   { border-left-color: #dc2626; }
+
+.cash-kpi-label {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cash-kpi-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.cash-kpi-card.green .cash-kpi-value { color: #16a34a; }
+.cash-kpi-card.blue  .cash-kpi-value { color: #2563eb; }
+.cash-kpi-card.red   .cash-kpi-value { color: #dc2626; }
+
+/* ================================
+   FORM CARD
+   ================================ */
+
+.cash-form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+}
+
+.cash-form-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+.cash-form-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.cash-form-row .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cash-form-row .form-group label {
   font-size: 12px;
   color: #6b7280;
 }
 
-.kpi strong {
-  font-size: 18px;
-  margin-top: 4px;
-  display: block;
+.cash-form-row .form-group input,
+.cash-form-row .form-group select {
+  padding: 9px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #f9fafb;
+  outline: none;
+  transition: 0.2s;
 }
 
-/* cores */
-#cash-balance {
-  color: #2563eb;
+.cash-form-row .form-group input:focus,
+.cash-form-row .form-group select:focus {
+  border-color: #6366f1;
+  background: white;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
 }
 
-#cash-in {
-  color: #16a34a;
+/* tamanhos dos campos */
+.cash-form-row .form-group:nth-child(1) { width: 150px; }
+.cash-form-row .form-group:nth-child(2) { width: 150px; }
+.cash-form-row .form-group:nth-child(3) { width: 130px; }
+
+.cash-descricao {
+  flex: 1;
+  min-width: 200px;
 }
 
-#cash-out {
-  color: #dc2626;
+.cash-form-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding-bottom: 1px;
+}
+
+/* ================================
+   LIST CARD
+   ================================ */
+
+.cash-list-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+}
+
+.cash-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cash-list-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
 }
 
 .cash-filters {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  align-items: center;
 }
 
-.cash-filters input,
-.cash-filters select {
-  padding: 8px 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
+.cash-filters .form-control {
+  padding: 7px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  background: white;
+  outline: none;
 }
 
-.btn-cancel {
+.cash-filters select.form-control {
+  width: 120px;
+}
+
+.cash-filters input.form-control {
+  width: 200px;
+}
+
+/* ================================
+   TABLE
+   ================================ */
+
+#cash-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#cash-table thead {
+  background: #f9fafb;
+}
+
+#cash-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+#cash-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+#cash-table tr:last-child td {
+  border-bottom: none;
+}
+
+#cash-table tr:hover td {
+  background: #f9fafb;
+}
+
+/* ================================
+   BADGES TIPO
+   ================================ */
+
+.cash-type-in {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.cash-type-out {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ================================
+   VALOR COM COR
+   ================================ */
+
+.cash-value-in  { color: #16a34a; font-weight: 600; }
+.cash-value-out { color: #dc2626; font-weight: 600; }
+
+/* ================================
+   BOTÃO CANCELAR
+   ================================ */
+
+.btn-cancel-entry {
   background: #fee2e2;
   color: #dc2626;
   border: none;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   transition: 0.2s;
 }
 
-.btn-cancel:hover {
-  background: #fecaca;
+.btn-cancel-entry:hover {
+  background: #dc2626;
+  color: white;
 }
 
-#clear-filters {
-  background: #eee;
-  border: none;
-  padding: 6px 10px;
-  cursor: pointer;
-  border-radius: 6px;
+/* ================================
+   RESPONSIVO
+   ================================ */
+
+@media (max-width: 1024px) {
+  .cash-form-row {
+    flex-wrap: wrap;
+  }
+
+  .cash-form-row .form-group {
+    min-width: 140px;
+  }
+
+  .cash-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
-/* =========================
-   CASH FORM (ISOLADO)
-========================= */
-
-.cash-form .form-row {
-  display: flex;
-  align-items: end;
-  gap: 12px;
-  flex-wrap: nowrap; /* CRÍTICO */
-}
-
-.cash-form .form-group {
-  min-width: 160px;
-  flex: 1;
-}
-
-
-.cash-form .form-actions {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-}
-
-.cash-form .form-row {
-  display: flex;
-  align-items: end;
-  gap: 12px;
-}
-
-.cash-form .form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-/* tamanhos */
-.cash-form .form-group:nth-child(1) { width: 140px; }
-.cash-form .form-group:nth-child(2) { width: 160px; }
-.cash-form .form-group:nth-child(3) { width: 120px; }
-
-.cash-form .form-group.descricao {
-  flex: 1; /* ocupa restante */
-  min-width: 220px;
-}
-
-.cash-form .form-buttons {
-  display: flex;
-  gap: 8px;
-  align-items: end;
-  margin-left: auto; /* empurra pra direita */
-}
-
-/* =========================
-   FILTER BAR
-========================= */
-
-.cash-filters {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.cash-filters select {
-  width: 120px;
-}
-
-.cash-filters input {
-  width: 220px;
-}
-
-.cash-filters button {
-  height: 38px;
-}
-
