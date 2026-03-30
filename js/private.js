@@ -182,15 +182,37 @@ function renderPackages(list){
 }
 
 // ===============================
-// RENDER SESSÕES
+// RENDER SESSÕES — TOGGLE
 // ===============================
+
+let sessionsView = "student"; // "student" | "date"
 
 function renderSessions(list){
   const container = document.getElementById("sessionsList");
   if(!container) return;
 
+  // Toggle de visão
+  container.innerHTML = `
+    <div class="private-view-toggle">
+      <button class="private-view-btn ${sessionsView === "student" ? "active" : ""}" data-view="student">
+        👤 Por aluno
+      </button>
+      <button class="private-view-btn ${sessionsView === "date" ? "active" : ""}" data-view="date">
+        📅 Por data
+      </button>
+    </div>
+    <div id="sessionsContent"></div>
+  `;
+
+  container.querySelectorAll(".private-view-btn").forEach(btn => {
+    btn.onclick = () => {
+      sessionsView = btn.dataset.view;
+      renderSessions(sessionsCache);
+    };
+  });
+
   if(list.length === 0){
-    container.innerHTML = `
+    document.getElementById("sessionsContent").innerHTML = `
       <div style="text-align:center; padding:60px 20px; color:#6b7280;">
         <div style="font-size:40px; margin-bottom:12px;">📅</div>
         <p>Nenhuma sessão cadastrada</p>
@@ -198,48 +220,202 @@ function renderSessions(list){
     return;
   }
 
+  if(sessionsView === "student"){
+    renderSessionsByStudent(list);
+  } else {
+    renderSessionsByDate(list);
+  }
+}
+
+// ===============================
+// POR ALUNO
+// ===============================
+
+function renderSessionsByStudent(list){
+  const container = document.getElementById("sessionsContent");
+  if(!container) return;
+
+  // Agrupa por aluno
+  const byStudent = {};
+  list.forEach(s => {
+    if(!byStudent[s.student_id]){
+      byStudent[s.student_id] = {
+        student_id:   s.student_id,
+        student_name: s.student_name,
+        sessions:     []
+      };
+    }
+    byStudent[s.student_id].sessions.push(s);
+  });
+
   container.innerHTML = "";
 
-  list.forEach(ses => {
+  Object.values(byStudent).forEach(student => {
     const card = document.createElement("div");
-    card.className = "private-session-card";
+    card.className = "private-student-card";
 
-    const st = statusSession[ses.status] || { label: ses.status, cls: "gray" };
-    const teachers = [ses.teacher_1_name, ses.teacher_2_name].filter(Boolean).join(" + ");
+    // Conta status
+    const scheduled  = student.sessions.filter(s => s.status === "scheduled").length;
+    const completed  = student.sessions.filter(s => s.status === "completed").length;
+    const cancelled  = student.sessions.filter(s => s.status === "cancelled" || s.status === "no_show").length;
 
-    const dateStr = ses.scheduled_at
-      ? new Date(ses.scheduled_at).toLocaleString("pt-BR", {
-          day: "2-digit", month: "2-digit", year: "numeric",
-          hour: "2-digit", minute: "2-digit"
-        })
-      : "-";
+    const initials = student.student_name.split(" ").map(n => n[0]).slice(0,2).join("").toUpperCase();
+
+    const rows = student.sessions
+      .sort((a, b) => new Date(b.scheduled_at) - new Date(a.scheduled_at))
+      .map(ses => {
+        const st = statusSession[ses.status] || { label: ses.status, cls: "gray" };
+        const teachers = [ses.teacher_1_name, ses.teacher_2_name].filter(Boolean).join(" + ");
+        const dateStr = ses.scheduled_at
+          ? new Date(ses.scheduled_at).toLocaleString("pt-BR", {
+              day: "2-digit", month: "2-digit", year: "numeric",
+              hour: "2-digit", minute: "2-digit"
+            })
+          : "-";
+
+        const actions = ses.status === "scheduled" ? `
+          <button class="btn-enrollment-edit ses-complete" data-id="${ses.id}" title="Marcar como realizada">✓</button>
+          <button class="btn-enrollment-cancel ses-cancel" data-id="${ses.id}" title="Cancelar">✖</button>
+        ` : "";
+
+        return `
+          <div class="private-session-row">
+            <div class="private-session-row-left">
+              <span class="private-session-row-date">${dateStr}</span>
+              <span class="private-session-row-info">${teachers} · ${locationLabel(ses.location_type)}</span>
+              ${ses.package_id
+                ? `<span class="private-badge-pkg">Pacote</span>`
+                : `<span class="private-badge-avulsa">Avulsa</span>`}
+            </div>
+            <div class="private-session-row-right">
+              <span class="enrollment-status-badge ${st.cls}">${st.label}</span>
+              <div class="enrollment-aluno-actions">${actions}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
 
     card.innerHTML = `
-      <div class="private-session-left">
-        <div class="private-session-date">${dateStr}</div>
-        <div class="private-session-info">
-          <strong>${safe(ses.student_name)}</strong>
-          <span>${teachers}</span>
-          <span>${locationLabel(ses.location_type)}</span>
-          ${ses.package_id ? '<span class="private-badge-pkg">Pacote</span>' : '<span class="private-badge-avulsa">Avulsa</span>'}
+      <div class="private-student-header">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="enrollment-avatar">${initials}</div>
+          <div>
+            <div class="private-card-title">${safe(student.student_name)}</div>
+            <div class="private-card-meta">
+              ${scheduled > 0  ? `<span class="enrollment-status-badge blue">${scheduled} agendada${scheduled > 1 ? "s" : ""}</span> ` : ""}
+              ${completed > 0  ? `<span class="enrollment-status-badge green">${completed} realizada${completed > 1 ? "s" : ""}</span> ` : ""}
+              ${cancelled > 0  ? `<span class="enrollment-status-badge red">${cancelled} cancelada${cancelled > 1 ? "s" : ""}</span>` : ""}
+            </div>
+          </div>
         </div>
       </div>
-      <div class="private-session-right">
-        <span class="enrollment-status-badge ${st.cls}">${st.label}</span>
-        ${ses.status === "scheduled" ? `
-          <button class="btn-sm btn-success ses-complete" data-id="${ses.id}">✓ Realizada</button>
-          <button class="btn-sm btn-danger  ses-cancel"   data-id="${ses.id}">✖ Cancelar</button>
-        ` : ""}
-      </div>
+      <div class="private-sessions-rows">${rows}</div>
     `;
 
-    card.querySelector(".ses-complete")?.addEventListener("click", () => updateSession(ses.id, "completed"));
-    card.querySelector(".ses-cancel")?.addEventListener("click",   () => updateSession(ses.id, "cancelled"));
+    card.querySelectorAll(".ses-complete").forEach(btn => {
+      btn.onclick = () => updateSession(btn.dataset.id, "completed");
+    });
+    card.querySelectorAll(".ses-cancel").forEach(btn => {
+      btn.onclick = () => updateSession(btn.dataset.id, "cancelled");
+    });
 
     container.appendChild(card);
   });
 }
 
+// ===============================
+// POR DATA
+// ===============================
+
+function renderSessionsByDate(list){
+  const container = document.getElementById("sessionsContent");
+  if(!container) return;
+
+  const now   = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekEnd = new Date(today); weekEnd.setDate(today.getDate() + 7);
+
+  const groups = {
+    hoje:     { label: "Hoje",          sessions: [], cls: "blue"   },
+    semana:   { label: "Esta semana",   sessions: [], cls: "purple" },
+    proximas: { label: "Próximas",      sessions: [], cls: "gray"   },
+    passadas: { label: "Passadas",      sessions: [], cls: "gray"   },
+  };
+
+  list.forEach(s => {
+    const d = new Date(s.scheduled_at);
+    const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+    if(day.getTime() === today.getTime()){
+      groups.hoje.sessions.push(s);
+    } else if(day > today && day <= weekEnd){
+      groups.semana.sessions.push(s);
+    } else if(day > weekEnd){
+      groups.proximas.sessions.push(s);
+    } else {
+      groups.passadas.sessions.push(s);
+    }
+  });
+
+  container.innerHTML = "";
+
+  Object.values(groups).forEach(group => {
+    if(group.sessions.length === 0) return;
+
+    const section = document.createElement("div");
+    section.className = "private-date-section";
+
+    const sorted = group.sessions.sort((a, b) =>
+      new Date(a.scheduled_at) - new Date(b.scheduled_at)
+    );
+
+    const rows = sorted.map(ses => {
+      const st = statusSession[ses.status] || { label: ses.status, cls: "gray" };
+      const teachers = [ses.teacher_1_name, ses.teacher_2_name].filter(Boolean).join(" + ");
+      const dateStr = new Date(ses.scheduled_at).toLocaleString("pt-BR", {
+        weekday: "short", day: "2-digit", month: "2-digit",
+        hour: "2-digit", minute: "2-digit"
+      });
+
+      const actions = ses.status === "scheduled" ? `
+        <button class="btn-enrollment-edit ses-complete" data-id="${ses.id}" title="Realizada">✓</button>
+        <button class="btn-enrollment-cancel ses-cancel"  data-id="${ses.id}" title="Cancelar">✖</button>
+      ` : "";
+
+      return `
+        <div class="private-session-row">
+          <div class="private-session-row-left">
+            <span class="private-session-row-date">${dateStr}</span>
+            <span class="private-session-row-info">
+              ${safe(ses.student_name)} · ${teachers} · ${locationLabel(ses.location_type)}
+            </span>
+            ${ses.package_id
+              ? `<span class="private-badge-pkg">Pacote</span>`
+              : `<span class="private-badge-avulsa">Avulsa</span>`}
+          </div>
+          <div class="private-session-row-right">
+            <span class="enrollment-status-badge ${st.cls}">${st.label}</span>
+            <div class="enrollment-aluno-actions">${actions}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    section.innerHTML = `
+      <div class="private-date-label">${group.label} <span class="enrollment-class-count">${group.sessions.length}</span></div>
+      <div class="private-student-card">${rows}</div>
+    `;
+
+    section.querySelectorAll(".ses-complete").forEach(btn => {
+      btn.onclick = () => updateSession(btn.dataset.id, "completed");
+    });
+    section.querySelectorAll(".ses-cancel").forEach(btn => {
+      btn.onclick = () => updateSession(btn.dataset.id, "cancelled");
+    });
+
+    container.appendChild(section);
+  });
+}
 // ===============================
 // RENDER PAGAMENTOS
 // ===============================
