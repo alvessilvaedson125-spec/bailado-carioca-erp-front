@@ -59,7 +59,10 @@ function getSelectedTeachers() {
 
 async function init(){
 
-  if(initDone) return;
+  if(initDone) {
+    await loadClasses(); // 🔥 recarrega ao voltar para a página
+    return;
+  }
   initDone = true;
 
   console.log("Classes module iniciado");
