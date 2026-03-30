@@ -48,20 +48,44 @@ async function loadEntries() {
 
     allEntries = rawData.filter(e => e.status !== "cancelled");
 
-    let totalIn  = 0;
-    let totalOut = 0;
+    // 🔥 Saldo acumulado — tudo histórico
+    let totalInAll  = 0;
+    let totalOutAll = 0;
 
     allEntries.forEach(e => {
       const amount = Number(e.amount);
-      if (e.type === "in") totalIn  += amount;
-      else                 totalOut += amount;
+      if (e.type === "in") totalInAll  += amount;
+      else                 totalOutAll += amount;
     });
 
-    const saldo = totalIn - totalOut;
+    const saldo = totalInAll - totalOutAll;
 
+    // 🔥 Entradas/Saídas apenas do mês atual
+    const now       = new Date();
+    const thisYear  = now.getFullYear();
+    const thisMonth = now.getMonth(); // 0-indexed
+
+    let totalInMonth  = 0;
+    let totalOutMonth = 0;
+
+    allEntries.forEach(e => {
+      const entryDate = new Date(e.date || e.created_at);
+      const sameMonth = entryDate.getFullYear() === thisYear &&
+                        entryDate.getMonth()    === thisMonth;
+
+      if(!sameMonth) return;
+
+      const amount = Number(e.amount);
+      if(e.type === "in") totalInMonth  += amount;
+      else                totalOutMonth += amount;
+    });
+
+    // 🔥 Saldo acumulado
     safeSetText("cash-balance", fmt(saldo));
-    safeSetText("cash-in",      fmt(totalIn));
-    safeSetText("cash-out",     fmt(totalOut));
+
+    // 🔥 Entradas/Saídas do mês corrente
+    safeSetText("cash-in",  fmt(totalInMonth));
+    safeSetText("cash-out", fmt(totalOutMonth));
 
     const balanceEl = document.getElementById("cash-balance");
     if(balanceEl) balanceEl.style.color = saldo >= 0 ? "#16a34a" : "#dc2626";
