@@ -6,11 +6,12 @@ let initDone = false;
 let currentPage = 1;
 let currentList = [];
 const PAGE_SIZE = 15;
-
 async function init(){
 
   if (initDone) {
     await loadEnrollments();
+    attach();              // 🔥 re-registra botões ao voltar
+    setupScholarshipHint(); // 🔥 re-registra hint ao voltar
     return;
   }
   initDone = true;
@@ -44,7 +45,6 @@ async function init(){
   }
 
 }
-
 /* =========================
 SCHOLARSHIP HINT
 ========================= */
