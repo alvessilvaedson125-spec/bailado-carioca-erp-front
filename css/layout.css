@@ -405,3 +405,37 @@
     text-align: center;
   }
 }
+
+/* ================================
+   AJUSTES MOBILE ESPECÍFICOS
+   ================================ */
+
+@media (max-width: 768px) {
+
+  /* Unidades/Turmas — oculta texto dos botões de ação */
+  .btn-danger-soft {
+    font-size: 0 !important;
+    padding: 6px 10px !important;
+  }
+  .btn-danger-soft::before {
+    content: "🗑️";
+    font-size: 14px;
+  }
+
+  /* Campo data da caixa */
+  #cash-date {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Relatórios — esconde header duplicado */
+  .reports-filters {
+    flex-direction: column;
+  }
+
+  /* Tabela units — scroll */
+  #unitsTable-container {
+    min-width: 300px;
+  }
+
+}
