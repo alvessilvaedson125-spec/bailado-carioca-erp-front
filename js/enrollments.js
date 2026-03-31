@@ -159,8 +159,8 @@ async function loadEnrollments(){
 }
 
 function renderAll(list){
-  const regular     = list.filter(e => !e.scholarship || e.scholarship === 0);
-  const scholarships = list.filter(e => e.scholarship === 1);
+  const regular      = list.filter(e => !e.scholarship || Number(e.scholarship) === 0);
+  const scholarships = list.filter(e => Number(e.scholarship) === 1);
 
   updateStats(list);
   renderRegular(regular);
@@ -175,7 +175,7 @@ function updateStats(list){
   const total       = list.length;
   const active      = list.filter(e => e.status === "active").length;
   const inactive    = total - active;
-  const scholarship = list.filter(e => e.scholarship === 1).length;
+ const scholarship = list.filter(e => Number(e.scholarship) === 1).length;
 
   // Impacto financeiro das bolsas
   const impact = list

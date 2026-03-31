@@ -10,8 +10,8 @@ window.calculateFinance = function ({
   // =========================
 
   const billablePayments = payments.filter(p =>
-    !(p.scholarship === 1 && Number(p.final_amount) === 0)
-  );
+  !(Number(p.scholarship) === 1 && Number(p.final_amount) === 0)
+);
 
   // =========================
   // RECEITA
