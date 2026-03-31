@@ -166,16 +166,16 @@ function renderClasses(list){
       ? cls.teacher_names.join(", ")
       : (cls.teacher_names || cls.teacher_name || "-");
 
-    const conductors   = cls.conductors_count   ?? 0;
-    const followers    = cls.followers_count    ?? 0;
-    const scholarships = cls.scholarship_count  ?? 0;
-    const total        = conductors + followers;
+   const conductors   = cls.conductors_count   ?? 0;
+const followers    = cls.followers_count    ?? 0;
+const scholarships = cls.scholarship_count  ?? 0;
+const total        = conductors + followers; // 🔥 já exclui bolsistas
 
-    const alunosLabel = total > 0
-      ? `${total} aluno${total !== 1 ? "s" : ""}`
-      : `<span style="color:#9ca3af">—</span>`;
-
-    const bolsistasLabel = scholarships > 0
+const alunosLabel = total > 0
+  ? `${total} aluno${total !== 1 ? "s" : ""}`
+  : `<span style="color:#9ca3af">—</span>`;
+   
+  const bolsistasLabel = scholarships > 0
       ? `<span class="scholarship-count-badge">${scholarships}</span>`
       : `<span style="color:#9ca3af">—</span>`;
 
