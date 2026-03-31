@@ -2,6 +2,10 @@
    TEACHERS PAGE
 ================================ */
 
+/* ================================
+   HEADER + BUSCA
+================================ */
+
 .page-actions {
   display: flex;
   gap: 10px;
@@ -9,20 +13,45 @@
   margin-bottom: 20px;
 }
 
-.search-input {
-  padding: 10px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  min-width: 240px;
-  font-size: 14px;
-  background: #fff;
-  flex: 1;
+/* ================================
+   TABELA — usa .data-table global
+   Só ajustes específicos de teachers
+================================ */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+.data-table thead {
+  background: #f9fafb;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.data-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: #f9fafb;
 }
 
 /* ================================
@@ -32,7 +61,7 @@
 .status-active {
   background: #dcfce7;
   color: #16a34a;
-  padding: 2px 10px;
+  padding: 3px 10px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
@@ -41,10 +70,32 @@
 .status-inactive {
   background: #fee2e2;
   color: #dc2626;
-  padding: 2px 10px;
+  padding: 3px 10px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
+}
+
+/* ================================
+   BOTÕES DE AÇÃO NA TABELA
+================================ */
+
+.btn-danger-soft {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: 0.2s;
+  margin-left: 6px;
+}
+
+.btn-danger-soft:hover {
+  background: #dc2626;
+  color: white;
 }
 
 /* ================================
@@ -54,38 +105,63 @@
 .modal-content h3 {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   color: #1e293b;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  font-size: 13px;
-  margin-bottom: 6px;
-  color: #475569;
-  font-weight: 500;
-}
-
-.form-group input,
-.form-group select {
+/* Garante que inputs do modal tenham form-control mesmo sem a classe */
+#teacherModal input,
+#teacherModal select {
+  width: 100%;
   padding: 10px 12px;
-  border-radius: 8px;
   border: 1px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 14px;
   background: #fff;
   transition: 0.2s;
+  box-sizing: border-box;
+  margin-top: 0;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+#teacherModal input:focus,
+#teacherModal select:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+#teacherModal .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+#teacherModal .form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+
+#teacherModal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ================================
+   TABLE CONTAINER
+================================ */
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  margin-bottom: 24px;
 }
 
 /* ================================
@@ -100,5 +176,11 @@
   .search-input {
     min-width: 0;
     width: 100%;
+    flex: 1;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 10px 12px;
   }
 }
