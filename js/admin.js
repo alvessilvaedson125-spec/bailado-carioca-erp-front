@@ -1,49 +1,47 @@
 (function(){
 
   let usersCache = [];
+async function init(){
+  console.log("Admin module iniciado");
 
-  async function init(){
-    console.log("Admin module iniciado");
+  // 🔥 removido checkAuth — já executado pelo router
 
-    await checkAuth();
-
-    // 🔥 Bloqueia operador de acessar admin
-    const role = localStorage.getItem("user_role");
-    if(role !== "admin"){
-      const page = document.querySelector(".page");
-      if(page){
-        page.innerHTML = `
-          <div class="page-header">
-            <div>
-              <h1>Administração</h1>
-              <p class="page-subtitle">Acesso restrito</p>
-            </div>
+  // 🔥 Bloqueia operador de acessar admin
+  const role = localStorage.getItem("user_role");
+  if(role !== "admin"){
+    const page = document.querySelector(".page");
+    if(page){
+      page.innerHTML = `
+        <div class="page-header">
+          <div>
+            <h1>Administração</h1>
+            <p class="page-subtitle">Acesso restrito</p>
           </div>
-          <div style="text-align:center; padding:60px 20px;">
-            <div style="font-size:48px; margin-bottom:16px;">🔒</div>
-            <h3 style="font-size:18px; color:#1e293b; margin-bottom:8px;">Acesso restrito</h3>
-            <p style="color:#6b7280;">Esta área é exclusiva para administradores.</p>
-          </div>
-        `;
-      }
-      return;
+        </div>
+        <div style="text-align:center; padding:60px 20px;">
+          <div style="font-size:48px; margin-bottom:16px;">🔒</div>
+          <h3 style="font-size:18px; color:#1e293b; margin-bottom:8px;">Acesso restrito</h3>
+          <p style="color:#6b7280;">Esta área é exclusiva para administradores.</p>
+        </div>
+      `;
     }
-
-    document.getElementById("newUserBtn")?.addEventListener("click", openUserModal);
-    document.getElementById("cancelUserBtn")?.addEventListener("click", closeUserModal);
-    document.getElementById("saveUserBtn")?.addEventListener("click", saveUser);
-    document.getElementById("changePasswordBtn")?.addEventListener("click", changePassword);
-
-    const modal = document.getElementById("userModal");
-    if(modal){
-      modal.addEventListener("click", (e) => {
-        if(e.target === modal) closeUserModal();
-      });
-    }
-
-    await loadUsers();
+    return;
   }
 
+  document.getElementById("newUserBtn")?.addEventListener("click", openUserModal);
+  document.getElementById("cancelUserBtn")?.addEventListener("click", closeUserModal);
+  document.getElementById("saveUserBtn")?.addEventListener("click", saveUser);
+  document.getElementById("changePasswordBtn")?.addEventListener("click", changePassword);
+
+  const modal = document.getElementById("userModal");
+  if(modal){
+    modal.addEventListener("click", (e) => {
+      if(e.target === modal) closeUserModal();
+    });
+  }
+
+  await loadUsers();
+}
   // ===============================
   // LOAD
   // ===============================
