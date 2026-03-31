@@ -3,24 +3,24 @@
   let unitsCache = [];
 
   async function init(){
-    console.log("Units module iniciado");
+  console.log("Units module iniciado");
 
-    await checkAuth();
+  // 🔥 removido checkAuth — já executado pelo router
 
-    document.getElementById("newUnitBtn")?.addEventListener("click", openNewUnitModal);
-    document.getElementById("cancelUnitBtn")?.addEventListener("click", closeUnitModal);
-    document.getElementById("saveUnitBtn")?.addEventListener("click", saveUnit);
-    document.getElementById("searchUnit")?.addEventListener("input", filterUnits);
+  document.getElementById("newUnitBtn")?.addEventListener("click", openNewUnitModal);
+  document.getElementById("cancelUnitBtn")?.addEventListener("click", closeUnitModal);
+  document.getElementById("saveUnitBtn")?.addEventListener("click", saveUnit);
+  document.getElementById("searchUnit")?.addEventListener("input", filterUnits);
 
-    const modal = document.getElementById("unitModal");
-    if(modal){
-      modal.addEventListener("click", (e) => {
-        if(e.target === modal) closeUnitModal();
-      });
-    }
-
-    await loadUnits();
+  const modal = document.getElementById("unitModal");
+  if(modal){
+    modal.addEventListener("click", (e) => {
+      if(e.target === modal) closeUnitModal();
+    });
   }
+
+  await loadUnits();
+}
 
   // ===============================
   // LOAD
