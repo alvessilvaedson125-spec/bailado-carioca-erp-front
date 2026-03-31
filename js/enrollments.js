@@ -20,6 +20,7 @@ async function init(){
   if(initDone){
     await loadEnrollments();
     attachAll();
+    setupTabs(); // 🔥 re-registra as abas ao voltar
     return;
   }
   initDone = true;
