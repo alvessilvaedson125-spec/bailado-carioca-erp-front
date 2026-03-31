@@ -3,8 +3,10 @@
 let packagesCache  = [];
 let sessionsCache  = [];
 let paymentsCache  = [];
+let externalCache  = [];
 let activeTab      = "packages";
 let editingPkgId   = null;
+let editingExtId   = null;
 
 const fmt = (v) =>
   Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -45,7 +47,8 @@ async function loadAll(){
   await Promise.all([
     loadPackages(),
     loadSessions(),
-    loadPayments()
+    loadPayments(),
+    loadExternalStudents()
   ]);
   updateStats();
 }
@@ -75,6 +78,16 @@ async function loadPayments(){
     const res = await apiRequest("/api/v1/private/payments");
     paymentsCache = res?.data || [];
     renderPayments(paymentsCache);
+  }catch(err){
+    console.error(err);
+  }
+}
+
+async function loadExternalStudents(){
+  try{
+    const res = await apiRequest("/api/v1/students?origin=private");
+    externalCache = res?.data || [];
+    renderExternalStudents(externalCache);
   }catch(err){
     console.error(err);
   }
@@ -154,27 +167,23 @@ function renderPackages(list){
           <button class="btn-icon-delete pkg-delete" data-id="${pkg.id}">✖</button>
         </div>
       </div>
-
       <div class="private-card-progress">
         <div class="private-progress-bar">
           <div class="private-progress-fill" style="width:${progress}%"></div>
         </div>
         <span class="private-progress-label">${pkg.sessions_used}/${pkg.total_sessions} aulas · ${remaining} restante${remaining !== 1 ? "s" : ""}</span>
       </div>
-
       <div class="private-card-footer">
         <div class="private-price-info">
           <span>Total: <strong>${fmt(pkg.price_total)}</strong></span>
           <span>Por aula: <strong>${fmt(pkg.price_per_session)}</strong></span>
         </div>
-        <button class="btn-secondary btn-sm pkg-add-session" data-id="${pkg.id}" data-student="${pkg.student_id}" data-t1="${pkg.teacher_1_id}" data-t2="${pkg.teacher_2_id || ""}">
-          + Agendar aula
-        </button>
+        <button class="btn-secondary btn-sm pkg-add-session">+ Agendar aula</button>
       </div>
     `;
 
-    card.querySelector(".pkg-edit").onclick   = () => openEditPackage(pkg);
-    card.querySelector(".pkg-delete").onclick = () => deletePackage(pkg.id);
+    card.querySelector(".pkg-edit").onclick        = () => openEditPackage(pkg);
+    card.querySelector(".pkg-delete").onclick      = () => deletePackage(pkg.id);
     card.querySelector(".pkg-add-session").onclick = () => openSessionFromPackage(pkg);
 
     container.appendChild(card);
@@ -185,13 +194,12 @@ function renderPackages(list){
 // RENDER SESSÕES — TOGGLE
 // ===============================
 
-let sessionsView = "student"; // "student" | "date"
+let sessionsView = "student";
 
 function renderSessions(list){
   const container = document.getElementById("sessionsList");
   if(!container) return;
 
-  // Toggle de visão
   container.innerHTML = `
     <div class="private-view-toggle">
       <button class="private-view-btn ${sessionsView === "student" ? "active" : ""}" data-view="student">
@@ -235,7 +243,6 @@ function renderSessionsByStudent(list){
   const container = document.getElementById("sessionsContent");
   if(!container) return;
 
-  // Agrupa por aluno
   const byStudent = {};
   list.forEach(s => {
     if(!byStudent[s.student_id]){
@@ -254,10 +261,9 @@ function renderSessionsByStudent(list){
     const card = document.createElement("div");
     card.className = "private-student-card";
 
-    // Conta status
-    const scheduled  = student.sessions.filter(s => s.status === "scheduled").length;
-    const completed  = student.sessions.filter(s => s.status === "completed").length;
-    const cancelled  = student.sessions.filter(s => s.status === "cancelled" || s.status === "no_show").length;
+    const scheduled = student.sessions.filter(s => s.status === "scheduled").length;
+    const completed = student.sessions.filter(s => s.status === "completed").length;
+    const cancelled = student.sessions.filter(s => s.status === "cancelled" || s.status === "no_show").length;
 
     const initials = student.student_name.split(" ").map(n => n[0]).slice(0,2).join("").toUpperCase();
 
@@ -302,9 +308,9 @@ function renderSessionsByStudent(list){
           <div>
             <div class="private-card-title">${safe(student.student_name)}</div>
             <div class="private-card-meta">
-              ${scheduled > 0  ? `<span class="enrollment-status-badge blue">${scheduled} agendada${scheduled > 1 ? "s" : ""}</span> ` : ""}
-              ${completed > 0  ? `<span class="enrollment-status-badge green">${completed} realizada${completed > 1 ? "s" : ""}</span> ` : ""}
-              ${cancelled > 0  ? `<span class="enrollment-status-badge red">${cancelled} cancelada${cancelled > 1 ? "s" : ""}</span>` : ""}
+              ${scheduled > 0 ? `<span class="enrollment-status-badge blue">${scheduled} agendada${scheduled > 1 ? "s" : ""}</span> ` : ""}
+              ${completed > 0 ? `<span class="enrollment-status-badge green">${completed} realizada${completed > 1 ? "s" : ""}</span> ` : ""}
+              ${cancelled > 0 ? `<span class="enrollment-status-badge red">${cancelled} cancelada${cancelled > 1 ? "s" : ""}</span>` : ""}
             </div>
           </div>
         </div>
@@ -324,7 +330,7 @@ function renderSessionsByStudent(list){
 }
 
 // ===============================
-// POR DATA — com títulos coloridos
+// POR DATA
 // ===============================
 
 function renderSessionsByDate(list){
@@ -346,10 +352,10 @@ function renderSessionsByDate(list){
     const d   = new Date(s.scheduled_at);
     const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-    if(day.getTime() === today.getTime())   groups.hoje.sessions.push(s);
-    else if(day > today && day <= weekEnd)  groups.semana.sessions.push(s);
-    else if(day > weekEnd)                  groups.proximas.sessions.push(s);
-    else                                    groups.passadas.sessions.push(s);
+    if(day.getTime() === today.getTime())  groups.hoje.sessions.push(s);
+    else if(day > today && day <= weekEnd) groups.semana.sessions.push(s);
+    else if(day > weekEnd)                 groups.proximas.sessions.push(s);
+    else                                   groups.passadas.sessions.push(s);
   });
 
   container.innerHTML = "";
@@ -417,7 +423,7 @@ function renderSessionsByDate(list){
 }
 
 // ===============================
-// RENDER PAGAMENTOS — com editar
+// RENDER PAGAMENTOS
 // ===============================
 
 function renderPayments(list){
@@ -468,15 +474,77 @@ function renderPayments(list){
       <td><span class="enrollment-status-badge ${st.cls}">${st.label}</span></td>
       <td>${paidAt}</td>
       <td style="display:flex; gap:6px; align-items:center;">
-        <button class="btn-icon-edit pay-edit" data-id="${p.id}" title="Editar">✏️</button>
+        <button class="btn-icon-edit pay-edit" title="Editar">✏️</button>
         ${p.status === "pending" ? `
-          <button class="btn-sm btn-success pay-mark" data-id="${p.id}">✓ Marcar pago</button>
+          <button class="btn-sm btn-success pay-mark">✓ Marcar pago</button>
         ` : ""}
       </td>
     `;
 
     tr.querySelector(".pay-edit").addEventListener("click", () => openEditPayment(p));
     tr.querySelector(".pay-mark")?.addEventListener("click", () => markPaymentPaid(p.id));
+    tbody.appendChild(tr);
+  });
+}
+
+// ===============================
+// RENDER ALUNOS EXTERNOS
+// ===============================
+
+function renderExternalStudents(list){
+  const container = document.getElementById("externalStudentsList");
+  if(!container) return;
+
+  if(list.length === 0){
+    container.innerHTML = `
+      <div style="text-align:center; padding:60px 20px; color:#6b7280;">
+        <div style="font-size:40px; margin-bottom:12px;">👤</div>
+        <p>Nenhum aluno externo cadastrado</p>
+        <p style="font-size:13px; margin-top:8px;">Alunos externos fazem apenas aulas particulares</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="private-table-container">
+      <table class="private-payments-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="externalTableBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  const tbody = document.getElementById("externalTableBody");
+
+  list.forEach(s => {
+    const initials = s.name.split(" ").map(n => n[0]).slice(0,2).join("").toUpperCase();
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="enrollment-avatar">${initials}</div>
+          <strong>${safe(s.name)}</strong>
+        </div>
+      </td>
+      <td>${safe(s.email)}</td>
+      <td>${safe(s.phone)}</td>
+      <td style="display:flex; gap:6px;">
+        <button class="btn-edit ext-edit">✏️ Editar</button>
+        <button class="btn-danger-soft ext-delete">🗑️ Remover</button>
+      </td>
+    `;
+
+    tr.querySelector(".ext-edit").onclick   = () => openEditExternal(s);
+    tr.querySelector(".ext-delete").onclick = () => deleteExternal(s.id);
+
     tbody.appendChild(tr);
   });
 }
@@ -513,7 +581,6 @@ async function savePayment(){
       payment_method: status === "paid" ? "manual" : null
     });
 
-    // Se mudou para pago, marca como pago
     if(status === "paid"){
       const current = paymentsCache.find(p => p.id === id);
       if(current && current.status !== "paid"){
@@ -536,6 +603,76 @@ async function savePayment(){
 function closePaymentModal(){
   document.getElementById("paymentModal").classList.add("hidden");
 }
+
+// ===============================
+// ALUNOS EXTERNOS — CRUD
+// ===============================
+
+function openNewExternal(){
+  editingExtId = null;
+  document.getElementById("editExternalId").value    = "";
+  document.getElementById("editExternalName").value  = "";
+  document.getElementById("editExternalEmail").value = "";
+  document.getElementById("editExternalPhone").value = "";
+  document.getElementById("externalModalTitle").innerText = "Novo Aluno Externo";
+  document.getElementById("externalModal").classList.remove("hidden");
+}
+
+function openEditExternal(s){
+  editingExtId = s.id;
+  document.getElementById("editExternalId").value    = s.id;
+  document.getElementById("editExternalName").value  = s.name  || "";
+  document.getElementById("editExternalEmail").value = s.email || "";
+  document.getElementById("editExternalPhone").value = s.phone || "";
+  document.getElementById("externalModalTitle").innerText = "Editar Aluno Externo";
+  document.getElementById("externalModal").classList.remove("hidden");
+}
+
+function closeExternalModal(){
+  document.getElementById("externalModal").classList.add("hidden");
+  editingExtId = null;
+}
+
+async function saveExternal(){
+  const id    = document.getElementById("editExternalId").value;
+  const name  = document.getElementById("editExternalName").value.trim();
+  const email = document.getElementById("editExternalEmail").value.trim();
+  const phone = document.getElementById("editExternalPhone").value.trim();
+
+  if(!name){
+    Toast.warning("Nome é obrigatório");
+    return;
+  }
+
+  try{
+    const endpoint = id ? `/api/v1/students/${id}` : "/api/v1/students";
+    const method   = id ? "PUT" : "POST";
+
+    await apiRequest(endpoint, method, {
+      name, email, phone,
+      origin: "private"
+    });
+
+    Toast.success(id ? "Aluno atualizado!" : "Aluno externo cadastrado!");
+    closeExternalModal();
+    await loadExternalStudents();
+
+  }catch(err){
+    Toast.error("Erro ao salvar aluno");
+  }
+}
+
+async function deleteExternal(id){
+  if(!confirm("Remover este aluno externo?")) return;
+  try{
+    await apiRequest(`/api/v1/students/${id}`, "DELETE");
+    Toast.success("Aluno removido!");
+    await loadExternalStudents();
+  }catch(err){
+    Toast.error("Erro ao remover aluno");
+  }
+}
+
 // ===============================
 // ACTIONS
 // ===============================
@@ -645,16 +782,16 @@ async function saveSession(){
 
   try{
     await apiRequest("/api/v1/private/sessions", "POST", {
-      student_id:      studentId,
-      package_id:      packageId || null,
-      teacher_1_id:    teacher1Id,
-      teacher_2_id:    teacher2Id || null,
-      scheduled_at:    scheduledAt,
+      student_id:       studentId,
+      package_id:       packageId || null,
+      teacher_1_id:     teacher1Id,
+      teacher_2_id:     teacher2Id || null,
+      scheduled_at:     scheduledAt,
       duration_minutes: duration,
-      price:           price,
-      location_type:   locationType,
-      location_notes:  locationNotes || null,
-      notes:           notes || null
+      price:            price,
+      location_type:    locationType,
+      location_notes:   locationNotes || null,
+      notes:            notes || null
     });
 
     Toast.success("Sessão agendada!");
@@ -677,9 +814,10 @@ function setupTabs(){
       btn.classList.add("active");
       activeTab = btn.dataset.tab;
 
-      document.getElementById("tabPackages").style.display  = activeTab === "packages"  ? "" : "none";
-      document.getElementById("tabSessions").style.display  = activeTab === "sessions"  ? "" : "none";
-      document.getElementById("tabPayments").style.display  = activeTab === "payments"  ? "" : "none";
+      document.getElementById("tabPackages").style.display = activeTab === "packages" ? "" : "none";
+      document.getElementById("tabSessions").style.display = activeTab === "sessions" ? "" : "none";
+      document.getElementById("tabPayments").style.display = activeTab === "payments" ? "" : "none";
+      document.getElementById("tabExternal").style.display = activeTab === "external" ? "" : "none";
     };
   });
 }
@@ -727,7 +865,7 @@ function attachModals(){
   // Aluno selecionado na sessão
   document.getElementById("sesStudent").addEventListener("change", onStudentSelectedForSession);
 
-  // 🔥 Modal pagamento — com verificação de existência
+  // Modal pagamento
   const cancelPaymentBtn = document.getElementById("cancelPaymentBtn");
   const savePaymentBtn   = document.getElementById("savePaymentBtn");
   const paymentModal     = document.getElementById("paymentModal");
@@ -739,9 +877,22 @@ function attachModals(){
       if(e.target === paymentModal) closePaymentModal();
     });
   }
+
+  // Modal aluno externo
+  const newExtBtn     = document.getElementById("newExternalBtn");
+  const cancelExtBtn  = document.getElementById("cancelExternalBtn");
+  const saveExtBtn    = document.getElementById("saveExternalBtn");
+  const externalModal = document.getElementById("externalModal");
+
+  if(newExtBtn)    newExtBtn.onclick    = openNewExternal;
+  if(cancelExtBtn) cancelExtBtn.onclick = closeExternalModal;
+  if(saveExtBtn)   saveExtBtn.onclick   = saveExternal;
+  if(externalModal){
+    externalModal.addEventListener("click", e => {
+      if(e.target === externalModal) closeExternalModal();
+    });
+  }
 }
-
-
 
 function updatePkgPreview(){
   const price    = Number(document.getElementById("pkgPrice")?.value || 0);
@@ -779,7 +930,6 @@ async function onStudentSelectedForSession(){
   if(!select) return;
 
   select.innerHTML = `<option value="">Aula avulsa</option>`;
-
   if(!studentId) return;
 
   const active = packagesCache.filter(p =>

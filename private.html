@@ -34,6 +34,7 @@
   <button class="enrollment-tab active" data-tab="packages">Pacotes</button>
   <button class="enrollment-tab" data-tab="sessions">Sessões</button>
   <button class="enrollment-tab" data-tab="payments">Pagamentos</button>
+  <button class="enrollment-tab" data-tab="external">Alunos Externos</button>
 </div>
 
 <!-- ABA PACOTES -->
@@ -54,6 +55,40 @@
 <div id="tabPayments" style="display:none;">
   <div id="privatePaymentsList">
     <p style="color:#6b7280; text-align:center; padding:40px 0;">Carregando...</p>
+  </div>
+</div>
+
+<!-- ABA ALUNOS EXTERNOS -->
+<div id="tabExternal" style="display:none;">
+  <div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
+    <button id="newExternalBtn" class="btn-primary">+ Novo Aluno Externo</button>
+  </div>
+  <div id="externalStudentsList">
+    <p style="color:#6b7280; text-align:center; padding:40px 0;">Carregando...</p>
+  </div>
+</div>
+
+<!-- MODAL ALUNO EXTERNO -->
+<div id="externalModal" class="modal hidden">
+  <div class="modal-content">
+    <h3 id="externalModalTitle">Novo Aluno Externo</h3>
+    <input type="hidden" id="editExternalId">
+    <div class="form-group">
+      <label>Nome</label>
+      <input id="editExternalName" type="text" class="form-control" placeholder="Nome completo">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input id="editExternalEmail" type="email" class="form-control" placeholder="email@exemplo.com">
+    </div>
+    <div class="form-group">
+      <label>Telefone</label>
+      <input id="editExternalPhone" type="text" class="form-control" placeholder="(21) 99999-9999">
+    </div>
+    <div class="modal-actions">
+      <button id="cancelExternalBtn" class="btn-secondary">Cancelar</button>
+      <button id="saveExternalBtn" class="btn-primary">Salvar</button>
+    </div>
   </div>
 </div>
 
