@@ -1,18 +1,12 @@
 /* ================================
-   PAGE HEADER (PADRÃO SISTEMA)
+   TEACHERS PAGE
 ================================ */
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.teachers-actions {
+.page-actions {
   display: flex;
   gap: 10px;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .search-input {
@@ -22,155 +16,52 @@
   min-width: 240px;
   font-size: 14px;
   background: #fff;
+  flex: 1;
 }
 
 .search-input:focus {
   outline: none;
   border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
 }
 
 /* ================================
-   TABLE (PADRÃO SAAS)
+   STATUS BADGES
 ================================ */
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #ffffff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-}
-
-.table th {
-  text-align: left;
-  padding: 16px;
-  font-weight: 600;
-  font-size: 14px;
-  background: #f8fafc;
-  border-bottom: 1px solid #e5e7eb;
-  color: #334155;
-}
-
-.table td {
-  padding: 16px;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 14px;
-}
-
-.table tr:hover {
-  background: #f9fafb;
-}
-
-/* STATUS */
-.table td:nth-child(4) {
-  font-weight: 600;
+.status-active {
+  background: #dcfce7;
   color: #16a34a;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-inactive {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* ================================
-   BUTTONS (PADRÃO GLOBAL)
+   MODAL
 ================================ */
 
-.btn-primary {
-  background: #6366f1;
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background: #4f46e5;
-}
-
-.btn-secondary {
-  background: #e2e8f0;
-  color: #334155;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.btn-secondary:hover {
-  background: #cbd5f5;
-}
-
-.btn-danger {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.btn-danger:hover {
-  background: #dc2626;
-}
-
-/* BOTÕES DA TABELA */
-.table .btn-primary {
-  padding: 6px 10px;
-  font-size: 12px;
-}
-
-.table .btn-danger {
-  padding: 6px 10px;
-  font-size: 12px;
-  margin-left: 6px;
-}
-
-/* ================================
-   MODAL (PADRÃO MATRÍCULAS)
-================================ */
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(15, 23, 42, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.modal.hidden {
-  display: none;
-}
-
-.modal-content {
-  background: #ffffff;
-  padding: 28px;
-  border-radius: 14px;
-  width: 560px;
-  max-width: 95%;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
-}
-
-/* TÍTULO */
 .modal-content h3 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  margin-bottom: 12px;
-}
-
-/* FORMULÁRIO */
-.form-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  margin-top: 16px;
+  margin-bottom: 20px;
+  color: #1e293b;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  margin-bottom: 16px;
 }
 
 .form-group label {
@@ -182,36 +73,32 @@
 
 .form-group input,
 .form-group select {
-  padding: 12px;
+  padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
   font-size: 14px;
   background: #fff;
+  transition: 0.2s;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
   border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
 }
 
-/* AÇÕES DO MODAL */
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-}
+/* ================================
+   MOBILE
+================================ */
 
-/* ===== FIX BOTÃO NOVO PROFESSOR ===== */
+@media (max-width: 768px) {
+  .page-actions {
+    flex-wrap: wrap;
+  }
 
-.page-header .btn-primary {
-  background: #4f46e5 !important;
-  color: #ffffff !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
-
-.page-header .btn-primary:hover {
-  background: #4338ca !important;
+  .search-input {
+    min-width: 0;
+    width: 100%;
+  }
 }
