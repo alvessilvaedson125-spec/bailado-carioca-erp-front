@@ -287,6 +287,8 @@ async function openStudentProfile(student){
         </div>
       `;
     }
+
+    
   }catch(err){
     profileEnrollments.innerHTML = `<p style="color:#dc2626; font-size:13px;">Erro ao carregar matrículas</p>`;
   }
