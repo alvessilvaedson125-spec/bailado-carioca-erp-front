@@ -27,6 +27,20 @@ function safeSetText(id, value){
 
 async function init(){
   console.log("Cash module iniciado");
+
+  // 🔥 eventos registrados aqui, não globalmente
+  const filterType  = document.getElementById("filter-type");
+  const filterText  = document.getElementById("filter-text");
+  const clearBtn    = document.getElementById("clear-filters");
+  const saveBtn     = document.getElementById("cash-save-btn");
+  const clearFormBtn = document.getElementById("cash-clear-btn");
+
+  if(filterType)    filterType.addEventListener("change", applyFilters);
+  if(filterText)    filterText.addEventListener("input",  applyFilters);
+  if(clearBtn)      clearBtn.onclick    = clearFilters;
+  if(saveBtn)       saveBtn.onclick     = createEntry;
+  if(clearFormBtn)  clearFormBtn.onclick = clearForm;
+
   await loadEntries();
 }
 
@@ -305,22 +319,6 @@ function clearForm() {
   const errorDiv = document.getElementById("cash-error");
   if (errorDiv) errorDiv.innerText = "";
 }
-
-// ===============================
-// EVENTS
-// ===============================
-
-document.addEventListener("input", (e) => {
-  if (e.target.id === "filter-text") applyFilters();
-});
-
-document.addEventListener("change", (e) => {
-  if (e.target.id === "filter-type") applyFilters();
-});
-
-document.addEventListener("click", (e) => {
-  if (e.target.id === "clear-filters") clearFilters();
-});
 
 // ===============================
 // EXPORTS
