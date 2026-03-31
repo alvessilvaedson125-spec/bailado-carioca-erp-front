@@ -20,7 +20,8 @@ async function init(){
   if(initDone){
     await loadEnrollments();
     attachAll();
-    setupTabs(); // 🔥 re-registra as abas ao voltar
+    setupTabs();
+    checkOpenEnrollmentModal(); // 🔥
     return;
   }
   initDone = true;
@@ -31,6 +32,7 @@ async function init(){
   setupTabs();
 
   await loadEnrollments();
+  checkOpenEnrollmentModal(); // 🔥
 }
 
 // ===============================
@@ -735,6 +737,35 @@ function safe(value){
   if(value === null || value === undefined) return "-";
   return value;
 }
+  
+// ===============================
+// CHECK OPEN ENROLLMENT MODAL
+// ===============================
+
+async function checkOpenEnrollmentModal(){
+  if(localStorage.getItem("openEnrollmentModal") !== "1") return;
+  localStorage.removeItem("openEnrollmentModal");
+
+  const preStudent = localStorage.getItem("selectedStudentId");
+  localStorage.removeItem("selectedStudentId");
+
+  editingEnrollmentId = null;
+  resetEnrollmentForm();
+  await loadEnrollmentFormData();
+
+  // 🔥 Pré-seleciona o aluno e bloqueia o campo
+  if(preStudent){
+    const sel = document.getElementById("editEnrollmentStudent");
+    if(sel){
+      sel.value    = preStudent;
+      sel.disabled = true; // aluno já definido — não pode trocar
+    }
+  }
+
+  document.getElementById("enrollmentModal")?.classList.remove("hidden");
+}
+
+
 
 // ===============================
 // EXPORTS
