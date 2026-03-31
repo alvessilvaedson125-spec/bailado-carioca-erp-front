@@ -97,84 +97,94 @@ function isStudentActive(studentId){
 }
 
 // ===============================
-// RENDER
+// PERFIL DO ALUNO
 // ===============================
 
-function renderStudents(list){
+async function openStudentProfile(student){
+  const modal = document.getElementById("studentProfileModal");
+  if(!modal) return;
 
-  const tableBody = document.querySelector("#studentsTable tbody");
-  if(!tableBody) return;
+  // Cabeçalho
+  const initials = getInitials(student.name);
+  document.getElementById("profileAvatar").innerText    = initials;
+  document.getElementById("profileName").innerText      = student.name;
+  document.getElementById("profileEmail").innerText     = student.email  || "-";
+  document.getElementById("profilePhone").innerText     = student.phone  || "-";
 
-  tableBody.innerHTML = "";
+  // Carrega matrículas do aluno
+  const profileEnrollments = document.getElementById("profileEnrollments");
+  profileEnrollments.innerHTML = `<p style="color:#6b7280; font-size:13px;">Carregando...</p>`;
 
-  // 🔥 Atualiza contador ao filtrar
-  const countEl = document.getElementById("studentsCount");
-  if(countEl){
-    const total   = studentsCache.length;
-    const showing = list.length;
-    if(showing === total){
-      countEl.innerText = `${total} aluno${total !== 1 ? "s" : ""} cadastrado${total !== 1 ? "s" : ""}`;
+  modal.classList.remove("hidden");
+
+  try{
+    const res = await apiRequest("/api/v1/enrollments");
+    const all = res?.data || [];
+    const studentEnrollments = all.filter(e =>
+      String(e.student_id) === String(student.id)
+    );
+
+    if(studentEnrollments.length === 0){
+      profileEnrollments.innerHTML = `
+        <p style="color:#6b7280; font-size:13px; text-align:center; padding:20px 0;">
+          Nenhuma matrícula encontrada
+        </p>`;
     } else {
-      countEl.innerText = `${showing} de ${total} alunos`;
-    }
-  }
+      const roleMap = {
+        conductor_m: { label: "Condutor",  cls: "blue"   },
+        conductor_f: { label: "Condutora", cls: "pink"   },
+        follower_f:  { label: "Conduzida", cls: "green"  },
+        follower_m:  { label: "Conduzido", cls: "orange" },
+        conductor:   { label: "Condutor",  cls: "blue"   },
+        follower:    { label: "Conduzida", cls: "green"  },
+      };
 
-  if(list.length === 0){
-    tableBody.innerHTML = "<tr><td colspan='5'>Nenhum aluno encontrado</td></tr>";
-    renderPagination(0, []);
-    return;
-  }
+      profileEnrollments.innerHTML = studentEnrollments.map(e => {
+        const role      = roleMap[e.role] || { label: e.role, cls: "gray" };
+        const statusCls = e.status === "active" ? "green" : e.status === "paused" ? "orange" : "red";
+        const statusLbl = e.status === "active" ? "Ativo" : e.status === "paused" ? "Pausado" : "Cancelado";
+        const fee       = Number(e.monthly_fee || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        const meta      = [e.day_of_week, e.start_time, e.unit_name].filter(Boolean).join(" · ");
 
-  const totalPages = Math.ceil(list.length / PAGE_SIZE);
-  if(currentPage > totalPages) currentPage = 1;
-
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const end   = start + PAGE_SIZE;
-  const page  = list.slice(start, end);
-
-  page.forEach(student => {
-
-    const tr = document.createElement("tr");
-
-    const isActive = isStudentActive(student.id);
-
-    // 🔥 Badge inativo vermelho suave
-    const statusBadge = isActive
-      ? `<span class="badge green">Ativo</span>`
-      : `<span class="badge red-soft">Inativo</span>`;
-
-    tr.innerHTML = `
-      <td>
-        <div class="student-cell">
-          <div class="student-avatar">${getInitials(student.name)}</div>
-          <div>
-            <strong>${student.name}</strong>
+        return `
+          <div class="profile-enrollment-card">
+            <div class="profile-enrollment-left">
+              <div class="profile-enrollment-class">${e.class_name || "-"}</div>
+              ${meta ? `<div class="profile-enrollment-meta">${meta}</div>` : ""}
+              <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
+                <span class="enrollment-role-badge ${role.cls}">${role.label}</span>
+                <span class="enrollment-status-badge ${statusCls}">${statusLbl}</span>
+                ${Number(e.scholarship) === 1 ? `<span class="scholarship-tipo ${Number(e.discount) === 100 ? "integral" : "parcial"}">${Number(e.discount) === 100 ? "Bolsa integral" : `Bolsa ${e.discount}%`}</span>` : ""}
+              </div>
+            </div>
+            <div class="profile-enrollment-right">
+              <strong class="profile-enrollment-fee">${fee}</strong>
+              <span style="font-size:11px; color:#6b7280;">por mês</span>
+            </div>
           </div>
-        </div>
-      </td>
-      <td>${student.email || "-"}</td>
-      <td>${student.phone || "-"}</td>
-      <td>${statusBadge}</td>
-      <td>
-        <button class="btn-edit">✏️ Editar</button>
-        <button class="btn-secondary">👁 Ver</button>
-      </td>
-    `;
+        `;
+      }).join("");
+    }
 
-    const editBtn = tr.querySelector(".btn-edit");
-    const viewBtn = tr.querySelector(".btn-secondary");
+  }catch(err){
+    profileEnrollments.innerHTML = `<p style="color:#dc2626; font-size:13px;">Erro ao carregar matrículas</p>`;
+  }
 
-    editBtn.onclick = () => editStudent(student.id);
-    viewBtn.onclick = () => goToStudentEnrollments(student.id);
-
-    tableBody.appendChild(tr);
-
-  });
-
-  renderPagination(list.length, list);
-
+  // Botão matricular em nova turma
+  const newEnrollBtn = document.getElementById("profileNewEnrollBtn");
+  if(newEnrollBtn){
+    newEnrollBtn.onclick = () => {
+      closeStudentProfile();
+      localStorage.setItem("selectedStudentId", student.id);
+      localStorage.setItem("openEnrollmentModal", "1");
+      window.location.hash = "enrollments";
+    };
+  }
 }
 
+function closeStudentProfile(){
+  document.getElementById("studentProfileModal")?.classList.add("hidden");
+}
 // ===============================
 // PAGINAÇÃO
 // ===============================
@@ -225,14 +235,13 @@ function renderPagination(total, list = []){
   };
 
 }
-
 // ===============================
-// NAVIGATION
+// NAVIGATION — abre perfil inline
 // ===============================
 
 function goToStudentEnrollments(studentId){
-  localStorage.setItem("selectedStudentId", studentId);
-  window.location.hash = "enrollments";
+  const student = studentsCache.find(s => s.id === studentId);
+  if(student) openStudentProfile(student);
 }
 
 function getInitials(name){
@@ -361,6 +370,17 @@ async function saveStudent(){
     console.error(err);
     Toast.error("Erro na API");
   }
+
+  // Modal perfil
+const profileModal    = document.getElementById("studentProfileModal");
+const profileCloseBtn = document.getElementById("profileCloseBtn");
+
+if(profileCloseBtn) profileCloseBtn.onclick = closeStudentProfile;
+if(profileModal){
+  profileModal.addEventListener("click", e => {
+    if(e.target === profileModal) closeStudentProfile();
+  });
+}
 
 }
 

@@ -37,6 +37,7 @@
   </table>
 </div>
 
+<!-- MODAL EDITAR/NOVO ALUNO -->
 <div id="studentModal" class="modal hidden">
   <div class="modal-content modal-lg">
 
@@ -45,33 +46,52 @@
     </div>
 
     <div class="modal-body">
-
       <div class="form-grid">
-
         <div class="form-group">
           <label>Nome</label>
           <input type="text" id="editStudentName" class="form-control">
         </div>
-
         <div class="form-group">
           <label>Email</label>
           <input type="email" id="editStudentEmail" class="form-control">
         </div>
-
         <div class="form-group full-width">
           <label>Telefone</label>
           <input type="text" id="editStudentPhone" class="form-control">
         </div>
-
       </div>
-
       <input type="hidden" id="editStudentId">
-
     </div>
 
     <div class="modal-footer">
       <button id="cancelStudentBtn" class="btn-secondary">Cancelar</button>
       <button id="saveStudentBtn" class="btn-primary">Salvar aluno</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL PERFIL DO ALUNO -->
+<div id="studentProfileModal" class="modal hidden">
+  <div class="modal-content" style="max-width:520px;">
+
+    <div class="profile-header">
+      <div class="profile-avatar-lg" id="profileAvatar">?</div>
+      <div class="profile-info">
+        <h3 id="profileName">—</h3>
+        <div class="profile-contact">
+          <span>✉️ <span id="profileEmail">—</span></span>
+          <span>📱 <span id="profilePhone">—</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-section-title">Matrículas</div>
+    <div id="profileEnrollments"></div>
+
+    <div class="modal-actions" style="margin-top:20px;">
+      <button id="profileCloseBtn" class="btn-secondary">Fechar</button>
+      <button id="profileNewEnrollBtn" class="btn-primary">+ Matricular em outra turma</button>
     </div>
 
   </div>
