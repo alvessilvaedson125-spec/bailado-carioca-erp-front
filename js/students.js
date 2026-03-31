@@ -235,11 +235,27 @@ async function openStudentProfile(student){
         follower:    { label: "Conduzida", cls: "green"  },
       };
 
-      profileEnrollments.innerHTML = studentEnrollments.map(e => {
+      // 🔥 Total mensal — só matrículas ativas e não bolsistas integrais
+      const totalMensal = studentEnrollments
+        .filter(e => e.status === "active" && !(Number(e.scholarship) === 1 && Number(e.discount) === 100))
+        .reduce((sum, e) => {
+          const fee      = Number(e.monthly_fee || 0);
+          const discount = Number(e.discount    || 0);
+          return sum + (fee - (fee * discount / 100));
+        }, 0);
+
+      const totalFormatted = totalMensal.toLocaleString("pt-BR", {
+        style: "currency", currency: "BRL"
+      });
+
+      const cards = studentEnrollments.map(e => {
         const role      = roleMap[e.role] || { label: e.role, cls: "gray" };
         const statusCls = e.status === "active" ? "green" : e.status === "paused" ? "orange" : "red";
         const statusLbl = e.status === "active" ? "Ativo" : e.status === "paused" ? "Pausado" : "Cancelado";
-        const fee       = Number(e.monthly_fee || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        const fee       = Number(e.monthly_fee || 0);
+        const discount  = Number(e.discount    || 0);
+        const final     = fee - (fee * discount / 100);
+        const feeStr    = final.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
         const meta      = [e.day_of_week, e.start_time, e.unit_name].filter(Boolean).join(" · ");
 
         return `
@@ -256,14 +272,21 @@ async function openStudentProfile(student){
               </div>
             </div>
             <div class="profile-enrollment-right">
-              <strong class="profile-enrollment-fee">${fee}</strong>
+              <strong class="profile-enrollment-fee">${feeStr}</strong>
               <span style="font-size:11px; color:#6b7280;">por mês</span>
             </div>
           </div>
         `;
       }).join("");
-    }
 
+      // 🔥 Total no rodapé
+      profileEnrollments.innerHTML = cards + `
+        <div class="profile-total-mensal">
+          <span>Total mensal</span>
+          <strong>${totalFormatted}</strong>
+        </div>
+      `;
+    }
   }catch(err){
     profileEnrollments.innerHTML = `<p style="color:#dc2626; font-size:13px;">Erro ao carregar matrículas</p>`;
   }
