@@ -12,7 +12,7 @@ async function apiRequest(endpoint, method = "GET", body = null) {
     headers: {
       "Content-Type": "application/json",
     },
-    signal: controller.signala
+    signal: controller.signal  // 🔥 typo corrigido
   }
 
   if (token) {
@@ -42,9 +42,9 @@ async function apiRequest(endpoint, method = "GET", body = null) {
   }
 
   if (response.status === 401) {
-  localStorage.removeItem("token")
-  throw new Error("UNAUTHORIZED")
-}
+    localStorage.removeItem("token")
+    throw new Error("UNAUTHORIZED")
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -59,8 +59,8 @@ async function fetchList(endpoint) {
   const res = await apiRequest(endpoint)
 
   if (!res.success) {
-  throw new Error(res.message || "Erro ao carregar dados")
-}
+    throw new Error(res.message || "Erro ao carregar dados")
+  }
 
   return res.data || []
 }
