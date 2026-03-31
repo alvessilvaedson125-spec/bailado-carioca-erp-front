@@ -721,20 +721,25 @@ function attachModals(){
   document.getElementById("pkgPrice").addEventListener("input", updatePkgPreview);
   document.getElementById("pkgSessions").addEventListener("input", updatePkgPreview);
 
-  // Pacote selecionado na sessão — preenche campos
+  // Pacote selecionado na sessão
   document.getElementById("sesPackage").addEventListener("change", onPackageSelected);
 
-  // Aluno selecionado na sessão — filtra pacotes ativos
+  // Aluno selecionado na sessão
   document.getElementById("sesStudent").addEventListener("change", onStudentSelectedForSession);
 
-  // Modal pagamento
-document.getElementById("cancelPaymentBtn").onclick = closePaymentModal;
-document.getElementById("savePaymentBtn").onclick   = savePayment;
-document.getElementById("paymentModal").addEventListener("click", e => {
-  if(e.target === document.getElementById("paymentModal")) closePaymentModal();
-});
-}
+  // 🔥 Modal pagamento — com verificação de existência
+  const cancelPaymentBtn = document.getElementById("cancelPaymentBtn");
+  const savePaymentBtn   = document.getElementById("savePaymentBtn");
+  const paymentModal     = document.getElementById("paymentModal");
 
+  if(cancelPaymentBtn) cancelPaymentBtn.onclick = closePaymentModal;
+  if(savePaymentBtn)   savePaymentBtn.onclick   = savePayment;
+  if(paymentModal){
+    paymentModal.addEventListener("click", e => {
+      if(e.target === paymentModal) closePaymentModal();
+    });
+  }
+}
 
 
 
