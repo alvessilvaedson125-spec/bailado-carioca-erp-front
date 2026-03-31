@@ -1,9 +1,10 @@
 (function(){
 
-  let paymentsCache = [];
-  let cashCache     = [];
-  let rankingCache  = [];
-  let financeCache  = null;
+  let paymentsCache    = [];
+  let cashCache        = [];
+  let rankingCache     = [];
+  let financeCache     = null;
+  let privateSummCache = null;
 
   const fmt = (v) =>
     Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -34,12 +35,12 @@
     if(!select) return;
 
     try{
-      const res = await apiRequest("/api/v1/classes");
+      const res  = await apiRequest("/api/v1/classes");
       const list = res?.success ? res.data : [];
 
       list.forEach(c => {
         const option = document.createElement("option");
-        option.value = c.id;
+        option.value       = c.id;
         option.textContent = c.name;
         select.appendChild(option);
       });
@@ -75,15 +76,17 @@
         ? `/api/v1/payments?${params.join("&")}`
         : "/api/v1/payments";
 
-      const [paymentsRes, cashRes, rankingRes] = await Promise.all([
+      const [paymentsRes, cashRes, rankingRes, privateSummRes] = await Promise.all([
         apiRequest(paymentsUrl),
         apiRequest("/api/v1/cash"),
-        apiRequest("/api/v1/payments/by-class")
+        apiRequest("/api/v1/payments/by-class"),
+        apiRequest("/api/v1/private/payments/summary")
       ]);
 
-      paymentsCache = paymentsRes?.success ? paymentsRes.data : [];
-      cashCache     = cashRes?.success     ? cashRes.data     : [];
-      rankingCache  = rankingRes?.success  ? rankingRes.data  : [];
+      paymentsCache    = paymentsRes?.success    ? paymentsRes.data       : [];
+      cashCache        = cashRes?.success        ? cashRes.data           : [];
+      rankingCache     = rankingRes?.success     ? rankingRes.data        : [];
+      privateSummCache = privateSummRes?.success ? privateSummRes.data    : null;
 
       const rankingFiltered = classId
         ? rankingCache.filter(r => r.class_id === classId)
@@ -94,10 +97,11 @@
         cash:     cashCache
       });
 
-      renderKPIs(financeCache);
+      renderKPIs(financeCache, privateSummCache);
+      renderDRE(financeCache, privateSummCache);
       renderGauge(financeCache);
       renderCaixa(financeCache);
-      renderTotal(financeCache);
+      renderTotal(financeCache, privateSummCache);
       renderRanking(rankingFiltered);
       renderPaymentsTable();
 
@@ -108,14 +112,64 @@
   }
 
   // ===============================
-  // RENDER KPIs
+  // RENDER KPIs — consolidado
   // ===============================
 
-  function renderKPIs(finance){
-    setText("rep-esperado", fmt(finance.receita.esperado));
-    setText("rep-recebido", fmt(finance.receita.recebido));
+  function renderKPIs(finance, priv){
+    const privPaid  = Number(priv?.total_paid    || 0);
+    const privTotal = Number(priv?.total_expected || 0);
+
+    setText("rep-esperado", fmt(finance.receita.esperado + privTotal));
+    setText("rep-recebido", fmt(finance.receita.recebido + privPaid));
     setText("rep-pendente", fmt(finance.receita.pendente));
     setText("rep-atrasado", fmt(finance.inadimplencia.atrasado));
+  }
+
+  // ===============================
+  // RENDER DRE
+  // ===============================
+
+  function renderDRE(finance, priv){
+    const container = el("rep-dre");
+    if(!container) return;
+
+    const mensEsperado = finance.receita.esperado;
+    const mensRecebido = finance.receita.recebido;
+    const privEsperado = Number(priv?.total_expected || 0);
+    const privRecebido = Number(priv?.total_paid     || 0);
+    const totalEsp     = mensEsperado + privEsperado;
+    const totalRec     = mensRecebido + privRecebido;
+
+    const efMens = mensEsperado > 0 ? ((mensRecebido / mensEsperado) * 100).toFixed(1) : "0.0";
+    const efPriv = privEsperado > 0 ? ((privRecebido / privEsperado) * 100).toFixed(1) : "0.0";
+    const efTot  = totalEsp     > 0 ? ((totalRec     / totalEsp)     * 100).toFixed(1) : "0.0";
+
+    container.innerHTML = `
+      <div class="dre-row header">
+        <span>Origem</span>
+        <span>Esperado</span>
+        <span>Recebido</span>
+        <span>Eficiência</span>
+      </div>
+      <div class="dre-row">
+        <span>Mensalidades</span>
+        <span>${fmt(mensEsperado)}</span>
+        <span class="green">${fmt(mensRecebido)}</span>
+        <span>${efMens}%</span>
+      </div>
+      <div class="dre-row">
+        <span>Aulas Particulares</span>
+        <span>${fmt(privEsperado)}</span>
+        <span class="green">${fmt(privRecebido)}</span>
+        <span>${efPriv}%</span>
+      </div>
+      <div class="dre-row total">
+        <span>Total Geral</span>
+        <span>${fmt(totalEsp)}</span>
+        <span class="green">${fmt(totalRec)}</span>
+        <span>${efTot}%</span>
+      </div>
+    `;
   }
 
   // ===============================
@@ -164,12 +218,15 @@
   // RENDER TOTAL
   // ===============================
 
-  function renderTotal(finance){
-    setText("rep-total", fmt(finance.total));
+  function renderTotal(finance, priv){
+    const privPaid = Number(priv?.total_paid || 0);
+    const total    = finance.receita.recebido + privPaid + finance.caixa.balance;
+
+    setText("rep-total", fmt(total));
 
     let label = "Equilíbrio";
-    if(finance.total > 1000) label = "✅ Saudável";
-    if(finance.total < 0)    label = "⚠️ Atenção";
+    if(total > 1000) label = "✅ Saudável";
+    if(total < 0)    label = "⚠️ Atenção";
 
     setText("rep-total-label", label);
   }
@@ -273,10 +330,6 @@
 
       const isOverdue = p.status === "pending" && new Date(p.due_date) < new Date();
 
-      const statusLabel = p.status === "paid" ? "Pago"
-        : isOverdue ? "Vencido"
-        : "Pendente";
-
       const status = p.status === "paid"
         ? `<span class="badge green">Pago</span>`
         : isOverdue
@@ -309,24 +362,43 @@
 
     const month   = el("report-month")?.value || "todos";
     const year    = el("report-year")?.value  || "todos";
-
-    // --- RESUMO FINANCEIRO ---
     const finance = financeCache;
+    const priv    = privateSummCache;
+
+    const privPaid  = Number(priv?.total_paid     || 0);
+    const privPend  = Number(priv?.total_pending  || 0);
+    const privTotal = Number(priv?.total_expected || 0);
+
     let csv = "RELATÓRIO FINANCEIRO — BAILADO CARIOCA\n";
     csv += `Período:,${month}/${year}\n`;
     csv += `Gerado em:,${new Date().toLocaleDateString("pt-BR")}\n\n`;
 
-    csv += "RESUMO FINANCEIRO\n";
-    csv += "Esperado,Recebido,Pendente,Inadimplente,Total Consolidado\n";
+    csv += "RESUMO FINANCEIRO — MENSALIDADES\n";
+    csv += "Esperado,Recebido,Pendente,Inadimplente\n";
     csv += [
       fmtNum(finance.receita.esperado),
       fmtNum(finance.receita.recebido),
       fmtNum(finance.receita.pendente),
-      fmtNum(finance.inadimplencia.atrasado),
-      fmtNum(finance.total)
+      fmtNum(finance.inadimplencia.atrasado)
     ].join(",") + "\n\n";
 
-    // --- PAGAMENTOS ---
+    csv += "RESUMO FINANCEIRO — AULAS PARTICULARES\n";
+    csv += "Esperado,Recebido,Pendente\n";
+    csv += [
+      fmtNum(privTotal),
+      fmtNum(privPaid),
+      fmtNum(privPend)
+    ].join(",") + "\n\n";
+
+    csv += "TOTAL CONSOLIDADO\n";
+    csv += "Esperado,Recebido,Saldo Caixa,Total Geral\n";
+    csv += [
+      fmtNum(finance.receita.esperado + privTotal),
+      fmtNum(finance.receita.recebido + privPaid),
+      fmtNum(finance.caixa.balance),
+      fmtNum(finance.receita.recebido + privPaid + finance.caixa.balance)
+    ].join(",") + "\n\n";
+
     csv += "PAGAMENTOS DO PERÍODO\n";
     csv += "Aluno,Turma,Competência,Valor,Status\n";
 
@@ -345,7 +417,6 @@
       ].join(",") + "\n";
     });
 
-    // --- RANKING ---
     if(rankingCache.length){
       csv += "\nRANKING POR TURMA\n";
       csv += "Turma,Recebido,Esperado,Eficiência\n";
@@ -379,9 +450,18 @@
       return;
     }
 
-    const month = el("report-month")?.value || "Todos";
-    const year  = el("report-year")?.value  || "Todos";
+    const month   = el("report-month")?.value || "Todos";
+    const year    = el("report-year")?.value  || "Todos";
     const finance = financeCache;
+    const priv    = privateSummCache;
+
+    const privPaid  = Number(priv?.total_paid     || 0);
+    const privPend  = Number(priv?.total_pending  || 0);
+    const privTotal = Number(priv?.total_expected || 0);
+
+    const totalEsp = finance.receita.esperado + privTotal;
+    const totalRec = finance.receita.recebido + privPaid;
+    const totalGer = totalRec + finance.caixa.balance;
 
     const rankingRows = [...rankingCache]
       .sort((a,b) => b.total_received - a.total_received)
@@ -429,26 +509,52 @@
           .kpi { background: #f9fafb; border-radius: 8px; padding: 12px; border-left: 3px solid #4f46e5; }
           .kpi span { font-size: 11px; color: #6b7280; display: block; }
           .kpi strong { font-size: 16px; font-weight: 700; }
+          .dre-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+          .dre-table th { text-align: left; padding: 8px 10px; font-size: 11px; color: #6b7280; text-transform: uppercase; background: #f9fafb; }
+          .dre-table td { padding: 8px 10px; border-top: 1px solid #f1f5f9; font-size: 13px; }
+          .dre-table tr.total td { font-weight: 700; background: #f0fdf4; border-top: 2px solid #bbf7d0; }
           table { width: 100%; border-collapse: collapse; margin-top: 8px; }
           th { text-align: left; padding: 8px 10px; font-size: 11px; color: #6b7280; text-transform: uppercase; background: #f9fafb; }
           td { padding: 8px 10px; border-top: 1px solid #f1f5f9; font-size: 12px; }
           .footer { margin-top: 32px; font-size: 11px; color: #9ca3af; text-align: center; }
-          @media print {
-            body { padding: 16px; }
-            button { display: none; }
-          }
+          @media print { body { padding: 16px; } }
         </style>
       </head>
       <body>
         <h1>Bailado Carioca — Gestão Escolar</h1>
         <p class="subtitle">Relatório Financeiro — Período: ${month}/${year} — Gerado em ${new Date().toLocaleDateString("pt-BR")}</p>
 
+        <h2>DRE — Demonstrativo de Resultado</h2>
+        <table class="dre-table">
+          <thead><tr><th>Origem</th><th>Esperado</th><th>Recebido</th><th>Eficiência</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Mensalidades</td>
+              <td>R$ ${fmtNum(finance.receita.esperado)}</td>
+              <td>R$ ${fmtNum(finance.receita.recebido)}</td>
+              <td>${finance.receita.esperado > 0 ? ((finance.receita.recebido / finance.receita.esperado) * 100).toFixed(1) : "0.0"}%</td>
+            </tr>
+            <tr>
+              <td>Aulas Particulares</td>
+              <td>R$ ${fmtNum(privTotal)}</td>
+              <td>R$ ${fmtNum(privPaid)}</td>
+              <td>${privTotal > 0 ? ((privPaid / privTotal) * 100).toFixed(1) : "0.0"}%</td>
+            </tr>
+            <tr class="total">
+              <td>Total Geral</td>
+              <td>R$ ${fmtNum(totalEsp)}</td>
+              <td>R$ ${fmtNum(totalRec)}</td>
+              <td>${totalEsp > 0 ? ((totalRec / totalEsp) * 100).toFixed(1) : "0.0"}%</td>
+            </tr>
+          </tbody>
+        </table>
+
         <h2>Resumo Financeiro</h2>
         <div class="kpis">
-          <div class="kpi"><span>Esperado</span><strong>R$ ${fmtNum(finance.receita.esperado)}</strong></div>
-          <div class="kpi"><span>Recebido</span><strong>R$ ${fmtNum(finance.receita.recebido)}</strong></div>
-          <div class="kpi"><span>Pendente</span><strong>R$ ${fmtNum(finance.receita.pendente)}</strong></div>
-          <div class="kpi"><span>Inadimplente</span><strong>R$ ${fmtNum(finance.inadimplencia.atrasado)}</strong></div>
+          <div class="kpi"><span>Esperado (consolidado)</span><strong>R$ ${fmtNum(totalEsp)}</strong></div>
+          <div class="kpi"><span>Recebido (consolidado)</span><strong>R$ ${fmtNum(totalRec)}</strong></div>
+          <div class="kpi"><span>Saldo Caixa</span><strong>R$ ${fmtNum(finance.caixa.balance)}</strong></div>
+          <div class="kpi"><span>Total Geral</span><strong>R$ ${fmtNum(totalGer)}</strong></div>
         </div>
 
         <h2>Ranking por Turma</h2>
@@ -472,9 +578,7 @@
     win.document.write(html);
     win.document.close();
     win.focus();
-    setTimeout(() => {
-      win.print();
-    }, 500);
+    setTimeout(() => { win.print(); }, 500);
 
     Toast.success("PDF aberto para impressão!");
   }
@@ -488,7 +592,7 @@
   }
 
   function downloadFile(content, filename, mimeType){
-    const BOM = "\uFEFF"; // garante acentos no Excel
+    const BOM  = "\uFEFF";
     const blob = new Blob([BOM + content], { type: mimeType });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
