@@ -121,6 +121,8 @@ let financeChartInstance = null;
 
       setText("dash-recebido",      fmt(recebidoTotal));
       setText("dash-esperado",      fmt(esperadoTotal));
+      setText("dash-esperado-mens", fmt(esperado));
+      setText("dash-esperado-priv", fmt(privTotal));
       setText("dash-eficiencia",    eficiencia.toFixed(1) + "%");
       setText("dash-inadimplencia", defaultRate.toFixed(1) + "%");
       setText("dash-atrasado",      fmt(atrasado));
