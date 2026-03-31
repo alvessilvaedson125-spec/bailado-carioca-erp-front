@@ -1,71 +1,40 @@
 <div class="page" id="reports-page">
-<div class="page-header">
-  <div>
-    <h1>Relatórios</h1>
-    <p class="page-subtitle">Dados operacionais e decisões financeiras</p>
-  </div>
-  <div class="reports-filters">
-    <select id="report-month">
-      <option value="">Todos os meses</option>
-      <option value="1">Janeiro</option>
-      <option value="2">Fevereiro</option>
-      <option value="3">Março</option>
-      <option value="4">Abril</option>
-      <option value="5">Maio</option>
-      <option value="6">Junho</option>
-      <option value="7">Julho</option>
-      <option value="8">Agosto</option>
-      <option value="9">Setembro</option>
-      <option value="10">Outubro</option>
-      <option value="11">Novembro</option>
-      <option value="12">Dezembro</option>
-    </select>
-    <select id="report-year">
-      <option value="2025">2025</option>
-      <option value="2026" selected>2026</option>
-    </select>
-    <select id="report-class">
-      <option value="">Todas as turmas</option>
-    </select>
-    <button id="btnGenerateReport" class="btn-primary">Gerar relatório</button>
-  </div>
-</div>
 
-<div class="page-header">
-  <div>
-    <h1>Relatórios</h1>
-    <p class="page-subtitle">Dados operacionais e decisões financeiras</p>
+  <div class="page-header">
+    <div>
+      <h1>Relatórios</h1>
+      <p class="page-subtitle">Dados operacionais e decisões financeiras</p>
+    </div>
+    <div class="reports-filters">
+      <select id="report-month">
+        <option value="">Todos os meses</option>
+        <option value="1">Janeiro</option>
+        <option value="2">Fevereiro</option>
+        <option value="3">Março</option>
+        <option value="4">Abril</option>
+        <option value="5">Maio</option>
+        <option value="6">Junho</option>
+        <option value="7">Julho</option>
+        <option value="8">Agosto</option>
+        <option value="9">Setembro</option>
+        <option value="10">Outubro</option>
+        <option value="11">Novembro</option>
+        <option value="12">Dezembro</option>
+      </select>
+      <select id="report-year">
+        <option value="2025">2025</option>
+        <option value="2026" selected>2026</option>
+      </select>
+      <select id="report-class">
+        <option value="">Todas as turmas</option>
+      </select>
+      <button id="btnGenerateReport" class="btn-primary">Gerar relatório</button>
+      <button id="btnExportCSV" class="btn-secondary">⬇️ CSV</button>
+      <button id="btnExportPDF" class="btn-secondary">🖨️ PDF</button>
+    </div>
   </div>
-  <div class="reports-filters">
-    <select id="report-month">
-      <option value="">Todos os meses</option>
-      <option value="1">Janeiro</option>
-      <option value="2">Fevereiro</option>
-      <option value="3">Março</option>
-      <option value="4">Abril</option>
-      <option value="5">Maio</option>
-      <option value="6">Junho</option>
-      <option value="7">Julho</option>
-      <option value="8">Agosto</option>
-      <option value="9">Setembro</option>
-      <option value="10">Outubro</option>
-      <option value="11">Novembro</option>
-      <option value="12">Dezembro</option>
-    </select>
-    <select id="report-year">
-      <option value="2025">2025</option>
-      <option value="2026" selected>2026</option>
-    </select>
-    <select id="report-class">
-      <option value="">Todas as turmas</option>
-    </select>
-    <button id="btnGenerateReport" class="btn-primary">Gerar relatório</button>
-    <button id="btnExportCSV" class="btn-secondary">⬇️ CSV</button>
-    <button id="btnExportPDF" class="btn-secondary">🖨️ PDF</button>
-  </div>
-</div>
 
-  <!-- KPIs -->
+  <!-- KPIs consolidados -->
   <div class="report-kpis">
     <div class="report-kpi-card blue">
       <span>Esperado</span>
@@ -85,7 +54,15 @@
     </div>
   </div>
 
-  <!-- LINHA 2: Caixa + Taxa -->
+  <!-- DRE -->
+  <div class="report-card full">
+    <h3>DRE — Demonstrativo de Resultado</h3>
+    <div id="rep-dre">
+      <p class="empty-state">Carregando...</p>
+    </div>
+  </div>
+
+  <!-- LINHA 2: Caixa + Gauge + Total -->
   <div class="report-row">
 
     <div class="report-card">
@@ -108,15 +85,15 @@
       <h3>Eficiência de Cobrança</h3>
       <div class="report-gauge">
         <div class="report-gauge-bar">
-          <div class="report-gauge-fill green" id="rep-gauge-recebido" style="width:0%"></div>
+          <div class="report-gauge-fill green"  id="rep-gauge-recebido" style="width:0%"></div>
           <div class="report-gauge-fill orange" id="rep-gauge-pendente" style="width:0%"></div>
-          <div class="report-gauge-fill red" id="rep-gauge-atrasado" style="width:0%"></div>
+          <div class="report-gauge-fill red"    id="rep-gauge-atrasado" style="width:0%"></div>
         </div>
         <div class="report-gauge-legend">
-  <span class="legend-dot green">■ Recebido</span>
-  <span class="legend-dot orange">■ Pendente</span>
-  <span class="legend-dot red">■ Inadimplente</span>
-</div>
+          <span class="legend-dot green">■ Recebido</span>
+          <span class="legend-dot orange">■ Pendente</span>
+          <span class="legend-dot red">■ Inadimplente</span>
+        </div>
       </div>
       <div class="report-card-row total">
         <span>Taxa de inadimplência</span>
@@ -126,7 +103,7 @@
 
     <div class="report-card">
       <h3>Total Consolidado</h3>
-      <p class="report-total-label">Recebido + Saldo de Caixa</p>
+      <p class="report-total-label">Mensalidades + Particulares + Caixa</p>
       <strong class="report-total-value" id="rep-total">—</strong>
       <p class="report-total-sub" id="rep-total-label">—</p>
     </div>
