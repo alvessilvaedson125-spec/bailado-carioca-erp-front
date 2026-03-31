@@ -1,44 +1,85 @@
 /* ================================
    UNITS PAGE
-   ================================ */
+================================ */
 
-#unitsTable {
+/* ================================
+   TOOLBAR
+================================ */
+
+.units-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.students-count {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* ================================
+   TABLE CONTAINER
+================================ */
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+/* ================================
+   TABELA
+================================ */
+
+#unitsTable-container {
   width: 100%;
   border-collapse: collapse;
 }
 
-#unitsTable thead {
+#unitsTable-container thead {
   background: #f9fafb;
 }
 
-#unitsTable th {
+#unitsTable-container th {
   text-align: left;
-  padding: 12px;
-  font-size: 13px;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  border-bottom: 2px solid #f1f5f9;
 }
 
-#unitsTable td {
-  padding: 14px 12px;
-  border-top: 1px solid #f1f5f9;
+#unitsTable-container td {
+  padding: 14px 16px;
   font-size: 14px;
   color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
 }
 
-#unitsTable tr:hover {
+#unitsTable-container tr:last-child td {
+  border-bottom: none;
+}
+
+#unitsTable-container tr:hover td {
   background: #f9fafb;
 }
 
 /* ================================
-   UNIT NAME CELL
-   ================================ */
+   UNIT CELL
+================================ */
 
 .unit-cell {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .unit-avatar {
@@ -56,17 +97,19 @@
 }
 
 /* ================================
-   BUTTONS
-   ================================ */
+   BOTÕES DE AÇÃO
+================================ */
 
 .btn-edit {
   background: #eef2ff;
   color: #4f46e5;
   border: none;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+  font-weight: 500;
+  transition: 0.2s;
 }
 
 .btn-edit:hover {
@@ -74,31 +117,6 @@
   color: white;
 }
 
-.btn-danger {
-  background: #fee2e2;
-  color: #dc2626;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  margin-left: 4px;
-}
-
-.btn-danger:hover {
-  background: #dc2626;
-  color: white;
-}
-
-/* UNITS TOOLBAR */
-.units-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-/* BOTÃO EXCLUIR SUAVE */
 .btn-danger-soft {
   background: #fee2e2;
   color: #dc2626;
@@ -106,11 +124,83 @@
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: 0.2s;
+  margin-left: 6px;
 }
 
 .btn-danger-soft:hover {
   background: #dc2626;
   color: white;
+}
+
+/* ================================
+   MODAL
+================================ */
+
+.modal-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #1e293b;
+}
+
+#unitModal .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+#unitModal .form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+
+#unitModal input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  transition: 0.2s;
+  box-sizing: border-box;
+}
+
+#unitModal input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+#unitModal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 768px) {
+  .units-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  #unitsTable-container th,
+  #unitsTable-container td {
+    padding: 10px 12px;
+  }
 }
