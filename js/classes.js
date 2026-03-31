@@ -150,32 +150,33 @@ async function loadClasses(){
 // ===============================
 // RENDER CLASSES
 // ===============================
-
 function renderClasses(list){
-
   const tableBody = document.querySelector("#classesTable tbody");
   if(!tableBody) return;
 
   tableBody.innerHTML = "";
 
   if(list.length === 0){
-    tableBody.innerHTML = "<tr><td colspan='7'>Nenhuma turma encontrada</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='8'>Nenhuma turma encontrada</td></tr>";
     return;
   }
 
   list.forEach(cls => {
-
     const teacherNames = Array.isArray(cls.teacher_names)
       ? cls.teacher_names.join(", ")
       : (cls.teacher_names || cls.teacher_name || "-");
 
-    // 🔥 Alunos unificado
-    const conductors = cls.conductors_count ?? 0;
-    const followers  = cls.followers_count  ?? 0;
-    const total      = conductors + followers;
+    const conductors   = cls.conductors_count   ?? 0;
+    const followers    = cls.followers_count    ?? 0;
+    const scholarships = cls.scholarship_count  ?? 0;
+    const total        = conductors + followers;
 
     const alunosLabel = total > 0
       ? `${total} aluno${total !== 1 ? "s" : ""}`
+      : `<span style="color:#9ca3af">—</span>`;
+
+    const bolsistasLabel = scholarships > 0
+      ? `<span class="scholarship-count-badge">${scholarships}</span>`
       : `<span style="color:#9ca3af">—</span>`;
 
     const tr = document.createElement("tr");
@@ -187,6 +188,7 @@ function renderClasses(list){
       <td>${safe(cls.day_of_week)}</td>
       <td>${safe(cls.start_time)}</td>
       <td>${alunosLabel}</td>
+      <td>${bolsistasLabel}</td>
       <td>
         <button class="btn-edit">✏️ Editar</button>
       </td>
@@ -196,7 +198,6 @@ function renderClasses(list){
     tableBody.appendChild(tr);
   });
 }
-
 // ===============================
 // FILTER
 // ===============================
