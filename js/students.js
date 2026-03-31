@@ -6,10 +6,8 @@ let currentPage = 1;
 const PAGE_SIZE = 15;
 
 async function init(){
-
   console.log("Students module iniciado");
-
-  await checkAuth();
+  // 🔥 removido checkAuth() — já executado pelo router.js
 
   const search = document.getElementById("searchStudents");
   if(search){
@@ -25,7 +23,6 @@ async function init(){
   }
 
   setupModal();
-
   await loadData();
 }
 
