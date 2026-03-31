@@ -7,7 +7,6 @@ const PAGE_SIZE = 15;
 
 async function init(){
   console.log("Students module iniciado");
-  // 🔥 removido checkAuth() — já executado pelo router.js
 
   const search = document.getElementById("searchStudents");
   if(search){
@@ -18,9 +17,7 @@ async function init(){
   }
 
   const newBtn = document.getElementById("newStudentBtn");
-  if(newBtn){
-    newBtn.onclick = newStudent;
-  }
+  if(newBtn) newBtn.onclick = newStudent;
 
   setupModal();
   await loadData();
@@ -31,14 +28,12 @@ async function init(){
 // ===============================
 
 async function loadData(){
-
   const tableBody = document.querySelector("#studentsTable tbody");
   if(!tableBody) return;
 
   tableBody.innerHTML = "<tr><td colspan='5'>Carregando...</td></tr>";
 
   try{
-
     const [studentsRes, enrollmentsRes] = await Promise.all([
       apiRequest("/api/v1/students"),
       apiRequest("/api/v1/enrollments")
@@ -50,10 +45,8 @@ async function loadData(){
     }
 
     studentsCache = studentsRes.data || [];
-
     buildEnrollmentsMap(enrollmentsRes);
 
-    // 🔥 Contador
     const countEl = document.getElementById("studentsCount");
     if(countEl){
       const n = studentsCache.length;
@@ -67,7 +60,6 @@ async function loadData(){
     console.error(err);
     tableBody.innerHTML = "<tr><td colspan='5'>Erro na API</td></tr>";
   }
-
 }
 
 // ===============================
@@ -75,25 +67,132 @@ async function loadData(){
 // ===============================
 
 function buildEnrollmentsMap(res){
-
   enrollmentsMap = {};
-
-  if(!res || !res.success || !res.data){
-    console.warn("Enrollments indisponível — mantendo estado neutro");
-    return;
-  }
-
-  res.data.forEach(enrollment => {
-    const studentId = enrollment.student_id;
-    if(enrollment.status === "active"){
-      enrollmentsMap[studentId] = true;
-    }
+  if(!res || !res.success || !res.data) return;
+  res.data.forEach(e => {
+    if(e.status === "active") enrollmentsMap[e.student_id] = true;
   });
-
 }
 
 function isStudentActive(studentId){
   return !!enrollmentsMap[studentId];
+}
+
+// ===============================
+// RENDER
+// ===============================
+
+function renderStudents(list){
+  const tableBody = document.querySelector("#studentsTable tbody");
+  if(!tableBody) return;
+
+  tableBody.innerHTML = "";
+
+  const countEl = document.getElementById("studentsCount");
+  if(countEl){
+    const total   = studentsCache.length;
+    const showing = list.length;
+    countEl.innerText = showing === total
+      ? `${total} aluno${total !== 1 ? "s" : ""} cadastrado${total !== 1 ? "s" : ""}`
+      : `${showing} de ${total} alunos`;
+  }
+
+  if(list.length === 0){
+    tableBody.innerHTML = "<tr><td colspan='5'>Nenhum aluno encontrado</td></tr>";
+    renderPagination(0, []);
+    return;
+  }
+
+  const totalPages = Math.ceil(list.length / PAGE_SIZE);
+  if(currentPage > totalPages) currentPage = 1;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const end   = start + PAGE_SIZE;
+  const page  = list.slice(start, end);
+
+  page.forEach(student => {
+    const tr = document.createElement("tr");
+
+    const isActive = isStudentActive(student.id);
+    const statusBadge = isActive
+      ? `<span class="badge green">Ativo</span>`
+      : `<span class="badge red-soft">Inativo</span>`;
+
+    tr.innerHTML = `
+      <td>
+        <div class="student-cell">
+          <div class="student-avatar">${getInitials(student.name)}</div>
+          <div><strong>${student.name}</strong></div>
+        </div>
+      </td>
+      <td>${student.email || "-"}</td>
+      <td>${student.phone || "-"}</td>
+      <td>${statusBadge}</td>
+      <td>
+        <button class="btn-edit">✏️ Editar</button>
+        <button class="btn-secondary">👁 Ver</button>
+      </td>
+    `;
+
+    tr.querySelector(".btn-edit").onclick    = () => editStudent(student.id);
+    tr.querySelector(".btn-secondary").onclick = () => goToStudentEnrollments(student.id);
+
+    tableBody.appendChild(tr);
+  });
+
+  renderPagination(list.length, list);
+}
+
+// ===============================
+// PAGINAÇÃO
+// ===============================
+
+function renderPagination(total, list = []){
+  let container = document.getElementById("studentsPagination");
+
+  if(!container){
+    container = document.createElement("div");
+    container.id = "studentsPagination";
+    container.className = "pagination";
+    const table = document.getElementById("studentsTable");
+    if(table) table.after(container);
+  }
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  if(totalPages <= 1){
+    container.innerHTML = "";
+    return;
+  }
+
+  const start = ((currentPage - 1) * PAGE_SIZE) + 1;
+  const end   = Math.min(currentPage * PAGE_SIZE, total);
+
+  container.innerHTML = `
+    <div class="pagination-info">${start}–${end} de ${total} alunos</div>
+    <div class="pagination-controls">
+      <button class="pagination-btn" id="studentsPrev" ${currentPage === 1 ? "disabled" : ""}>← Anterior</button>
+      <span class="pagination-page">${currentPage} / ${totalPages}</span>
+      <button class="pagination-btn" id="studentsNext" ${currentPage === totalPages ? "disabled" : ""}>Próximo →</button>
+    </div>
+  `;
+
+  document.getElementById("studentsPrev").onclick = () => {
+    if(currentPage > 1){ currentPage--; renderStudents(list); }
+  };
+
+  document.getElementById("studentsNext").onclick = () => {
+    if(currentPage < totalPages){ currentPage++; renderStudents(list); }
+  };
+}
+
+// ===============================
+// NAVIGATION
+// ===============================
+
+function goToStudentEnrollments(studentId){
+  const student = studentsCache.find(s => s.id === studentId);
+  if(student) openStudentProfile(student);
 }
 
 // ===============================
@@ -104,14 +203,11 @@ async function openStudentProfile(student){
   const modal = document.getElementById("studentProfileModal");
   if(!modal) return;
 
-  // Cabeçalho
-  const initials = getInitials(student.name);
-  document.getElementById("profileAvatar").innerText    = initials;
-  document.getElementById("profileName").innerText      = student.name;
-  document.getElementById("profileEmail").innerText     = student.email  || "-";
-  document.getElementById("profilePhone").innerText     = student.phone  || "-";
+  document.getElementById("profileAvatar").innerText = getInitials(student.name);
+  document.getElementById("profileName").innerText   = student.name;
+  document.getElementById("profileEmail").innerText  = student.email || "-";
+  document.getElementById("profilePhone").innerText  = student.phone || "-";
 
-  // Carrega matrículas do aluno
   const profileEnrollments = document.getElementById("profileEnrollments");
   profileEnrollments.innerHTML = `<p style="color:#6b7280; font-size:13px;">Carregando...</p>`;
 
@@ -154,7 +250,9 @@ async function openStudentProfile(student){
               <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
                 <span class="enrollment-role-badge ${role.cls}">${role.label}</span>
                 <span class="enrollment-status-badge ${statusCls}">${statusLbl}</span>
-                ${Number(e.scholarship) === 1 ? `<span class="scholarship-tipo ${Number(e.discount) === 100 ? "integral" : "parcial"}">${Number(e.discount) === 100 ? "Bolsa integral" : `Bolsa ${e.discount}%`}</span>` : ""}
+                ${Number(e.scholarship) === 1
+                  ? `<span class="scholarship-tipo ${Number(e.discount) === 100 ? "integral" : "parcial"}">${Number(e.discount) === 100 ? "Bolsa integral" : `Bolsa ${e.discount}%`}</span>`
+                  : ""}
               </div>
             </div>
             <div class="profile-enrollment-right">
@@ -170,7 +268,6 @@ async function openStudentProfile(student){
     profileEnrollments.innerHTML = `<p style="color:#dc2626; font-size:13px;">Erro ao carregar matrículas</p>`;
   }
 
-  // Botão matricular em nova turma
   const newEnrollBtn = document.getElementById("profileNewEnrollBtn");
   if(newEnrollBtn){
     newEnrollBtn.onclick = () => {
@@ -185,80 +282,12 @@ async function openStudentProfile(student){
 function closeStudentProfile(){
   document.getElementById("studentProfileModal")?.classList.add("hidden");
 }
-// ===============================
-// PAGINAÇÃO
-// ===============================
-
-function renderPagination(total, list = []){
-
-  let container = document.getElementById("studentsPagination");
-
-  if(!container){
-    container = document.createElement("div");
-    container.id = "studentsPagination";
-    container.className = "pagination";
-    const table = document.getElementById("studentsTable");
-    if(table) table.after(container);
-  }
-
-  const totalPages = Math.ceil(total / PAGE_SIZE);
-
-  if(totalPages <= 1){
-    container.innerHTML = "";
-    return;
-  }
-
-  const start = ((currentPage - 1) * PAGE_SIZE) + 1;
-  const end   = Math.min(currentPage * PAGE_SIZE, total);
-
-  container.innerHTML = `
-    <div class="pagination-info">${start}–${end} de ${total} alunos</div>
-    <div class="pagination-controls">
-      <button class="pagination-btn" id="studentsPrev" ${currentPage === 1 ? "disabled" : ""}>← Anterior</button>
-      <span class="pagination-page">${currentPage} / ${totalPages}</span>
-      <button class="pagination-btn" id="studentsNext" ${currentPage === totalPages ? "disabled" : ""}>Próximo →</button>
-    </div>
-  `;
-
-  document.getElementById("studentsPrev").onclick = () => {
-    if(currentPage > 1){
-      currentPage--;
-      renderStudents(list);
-    }
-  };
-
-  document.getElementById("studentsNext").onclick = () => {
-    if(currentPage < totalPages){
-      currentPage++;
-      renderStudents(list);
-    }
-  };
-
-}
-// ===============================
-// NAVIGATION — abre perfil inline
-// ===============================
-
-function goToStudentEnrollments(studentId){
-  const student = studentsCache.find(s => s.id === studentId);
-  if(student) openStudentProfile(student);
-}
-
-function getInitials(name){
-  return name
-    .split(" ")
-    .map(n => n[0])
-    .slice(0,2)
-    .join("")
-    .toUpperCase();
-}
 
 // ===============================
 // FILTER
 // ===============================
 
 function filterStudents(){
-
   const search = document.getElementById("searchStudents");
   if(!search) return;
 
@@ -271,11 +300,10 @@ function filterStudents(){
 
   const filtered = studentsCache.filter(student =>
     student.name.toLowerCase().includes(term) ||
-    student.email.toLowerCase().includes(term)
+    (student.email || "").toLowerCase().includes(term)
   );
 
   renderStudents(filtered);
-
 }
 
 // ===============================
@@ -283,7 +311,6 @@ function filterStudents(){
 // ===============================
 
 function editStudent(id){
-
   const student = studentsCache.find(s => s.id === id);
   if(!student) return;
 
@@ -294,11 +321,9 @@ function editStudent(id){
 
   document.getElementById("modalTitle").innerText = "Editar aluno";
   document.getElementById("studentModal").classList.remove("hidden");
-
 }
 
 function newStudent(){
-
   document.getElementById("editStudentId").value    = "";
   document.getElementById("editStudentName").value  = "";
   document.getElementById("editStudentEmail").value = "";
@@ -306,7 +331,6 @@ function newStudent(){
 
   document.getElementById("modalTitle").innerText = "Novo aluno";
   document.getElementById("studentModal").classList.remove("hidden");
-
 }
 
 // ===============================
@@ -314,7 +338,6 @@ function newStudent(){
 // ===============================
 
 function setupModal(){
-
   const cancelBtn = document.getElementById("cancelStudentBtn");
   const saveBtn   = document.getElementById("saveStudentBtn");
   const modal     = document.getElementById("studentModal");
@@ -323,11 +346,21 @@ function setupModal(){
   if(saveBtn)   saveBtn.onclick   = saveStudent;
 
   if(modal){
-    modal.addEventListener("click",(e)=>{
+    modal.addEventListener("click", e => {
       if(e.target === modal) closeModal();
     });
   }
 
+  // 🔥 Modal perfil
+  const profileModal    = document.getElementById("studentProfileModal");
+  const profileCloseBtn = document.getElementById("profileCloseBtn");
+
+  if(profileCloseBtn) profileCloseBtn.onclick = closeStudentProfile;
+  if(profileModal){
+    profileModal.addEventListener("click", e => {
+      if(e.target === profileModal) closeStudentProfile();
+    });
+  }
 }
 
 function closeModal(){
@@ -339,7 +372,6 @@ function closeModal(){
 // ===============================
 
 async function saveStudent(){
-
   const id    = document.getElementById("editStudentId").value;
   const name  = document.getElementById("editStudentName").value;
   const email = document.getElementById("editStudentEmail").value;
@@ -351,7 +383,6 @@ async function saveStudent(){
   }
 
   try{
-
     const endpoint = id ? `/api/v1/students/${id}` : "/api/v1/students";
     const method   = id ? "PUT" : "POST";
 
@@ -370,22 +401,21 @@ async function saveStudent(){
     console.error(err);
     Toast.error("Erro na API");
   }
-
-  // Modal perfil
-const profileModal    = document.getElementById("studentProfileModal");
-const profileCloseBtn = document.getElementById("profileCloseBtn");
-
-if(profileCloseBtn) profileCloseBtn.onclick = closeStudentProfile;
-if(profileModal){
-  profileModal.addEventListener("click", e => {
-    if(e.target === profileModal) closeStudentProfile();
-  });
 }
 
+// ===============================
+// UTILS
+// ===============================
+
+function getInitials(name){
+  return name
+    .split(" ")
+    .map(n => n[0])
+    .slice(0,2)
+    .join("")
+    .toUpperCase();
 }
 
-window.StudentsModule = {
-  init
-};
+window.StudentsModule = { init };
 
 })();
