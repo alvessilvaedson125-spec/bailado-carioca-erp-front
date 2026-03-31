@@ -11,20 +11,25 @@
 
   const el      = (id) => document.getElementById(id);
   const setText = (id, val) => { if(el(id)) el(id).innerText = val; };
+let initDone = false; // 🔥 adicione no topo junto com as outras variáveis
 
-  async function init(){
-    console.log("Reports module iniciado");
+async function init(){
+  console.log("Reports module iniciado");
 
-    await checkAuth();
+  // 🔥 remove checkAuth — já executado pelo router
+  // 🔥 initDone evita duplo registro de eventos
+  if(!initDone){
+    initDone = true;
 
     el("btnGenerateReport")?.addEventListener("click", loadReport);
     el("rep-filter-status")?.addEventListener("change", renderPaymentsTable);
     el("btnExportCSV")?.addEventListener("click", exportCSV);
     el("btnExportPDF")?.addEventListener("click", exportPDF);
-
-    await populateClasses();
-    await loadReport();
   }
+
+  await populateClasses();
+  await loadReport();
+}
 
   // ===============================
   // POPULAR TURMAS
