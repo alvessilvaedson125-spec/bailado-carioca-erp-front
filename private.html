@@ -167,5 +167,45 @@
       <button id="cancelSessionBtn" class="btn-secondary">Cancelar</button>
       <button id="saveSessionBtn" class="btn-primary">Salvar sessão</button>
     </div>
+
+
+<!-- MODAL EDITAR PAGAMENTO -->
+<div id="paymentModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Editar Pagamento</h3>
+
+    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; margin-bottom:20px;">
+      <strong id="paymentModalStudentName"></strong>
+      <span style="color:#6b7280; margin-left:8px;" id="paymentModalType"></span>
+    </div>
+
+    <input type="hidden" id="editPaymentId">
+
+    <div class="form-group">
+      <label>Valor (R$)</label>
+      <input id="editPaymentAmount" type="number" class="form-control" min="0" step="0.01">
+    </div>
+
+    <div class="form-group">
+      <label>Status</label>
+      <select id="editPaymentStatus" class="form-control">
+        <option value="pending">Pendente</option>
+        <option value="paid">Pago</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Observações</label>
+      <input id="editPaymentNotes" type="text" class="form-control" placeholder="Opcional">
+    </div>
+
+    <div class="modal-actions">
+      <button id="cancelPaymentBtn" class="btn-secondary">Cancelar</button>
+      <button id="savePaymentBtn" class="btn-primary">Salvar</button>
+    </div>
+  </div>
+</div>
+
+
   </div>
 </div>
