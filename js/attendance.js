@@ -11,22 +11,22 @@
   // INIT
   // ===============================
 
-  async function init(){
-    console.log("Attendance module iniciado");
+ async function init(){
+  console.log("Attendance module iniciado");
 
-    await checkAuth();
+  // 🔥 removido checkAuth — já executado pelo router
 
-    await loadClasses();
+  await loadClasses();
 
-    el("att-load-btn")?.addEventListener("click", loadCall);
-    el("att-save-btn")?.addEventListener("click", saveCall);
-    el("att-all-present")?.addEventListener("click", markAllPresent);
-    el("att-history-btn")?.addEventListener("click", loadHistory);
+  el("att-load-btn")?.addEventListener("click", loadCall);
+  el("att-save-btn")?.addEventListener("click", saveCall);
+  el("att-all-present")?.addEventListener("click", markAllPresent);
+  el("att-history-btn")?.addEventListener("click", loadHistory);
 
-    // Data padrão: hoje
-    const today = new Date().toISOString().split("T")[0];
-    if(el("att-date")) el("att-date").value = today;
-  }
+  // Data padrão: hoje
+  const today = new Date().toISOString().split("T")[0];
+  if(el("att-date")) el("att-date").value = today;
+}
 
   // ===============================
   // CARREGAR TURMAS
