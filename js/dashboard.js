@@ -20,12 +20,12 @@ let financeChartInstance = null;
     const filterBtn = el("dash-filter-btn");
     const clearBtn  = el("dash-clear-btn");
 
-    if(filterBtn) filterBtn.onclick = loadDashboard;
-    if(clearBtn)  clearBtn.onclick  = () => {
+    if (filterBtn) filterBtn.onclick = loadDashboard;
+    if (clearBtn)  clearBtn.onclick  = () => {
       const m = el("dash-month");
       const y = el("dash-year");
-      if(m) m.value = "";
-      if(y) y.value = new Date().getFullYear().toString();
+      if (m) m.value = "";
+      if (y) y.value = new Date().getFullYear().toString();
       loadDashboard();
     };
 
@@ -36,12 +36,12 @@ let financeChartInstance = null;
   // LOAD DASHBOARD
   // ==============================
 
-  async function loadDashboard(){
+  async function loadDashboard() {
 
     const efCard   = el("dash-eficiencia-card");
     const inadCard = el("dash-inad-card");
-    if(efCard)   efCard.classList.remove("kpi-green", "kpi-yellow", "kpi-red");
-    if(inadCard) inadCard.classList.remove("kpi-green", "kpi-yellow", "kpi-red");
+    if (efCard)   efCard.classList.remove("kpi-green", "kpi-yellow", "kpi-red");
+    if (inadCard) inadCard.classList.remove("kpi-green", "kpi-yellow", "kpi-red");
 
     try {
 
@@ -49,8 +49,8 @@ let financeChartInstance = null;
       const dashYear  = el("dash-year")?.value;
 
       const periodParams = [];
-      if(dashMonth) periodParams.push(`competence_month=${dashMonth}`);
-      if(dashYear)  periodParams.push(`competence_year=${dashYear}`);
+      if (dashMonth) periodParams.push(`competence_month=${dashMonth}`);
+      if (dashYear)  periodParams.push(`competence_year=${dashYear}`);
 
       const paymentsUrl = periodParams.length
         ? `/api/v1/payments?${periodParams.join("&")}`
@@ -63,7 +63,8 @@ let financeChartInstance = null;
         paymentsRes,
         cashRes,
         byClassRes,
-        attendanceRes
+        attendanceRes,
+        privateSummaryRes
       ] = await Promise.all([
         apiRequest("/api/v1/students"),
         apiRequest("/api/v1/classes"),
@@ -71,19 +72,21 @@ let financeChartInstance = null;
         apiRequest(paymentsUrl),
         apiRequest("/api/v1/cash"),
         apiRequest("/api/v1/payments/by-class"),
-        apiRequest("/api/v1/attendance/dashboard")
+        apiRequest("/api/v1/attendance/dashboard"),
+        apiRequest("/api/v1/private/payments/summary")
       ]);
 
-      const students    = studentsRes?.success    ? studentsRes.data    : [];
-      const classes     = classesRes?.success     ? classesRes.data     : [];
-      const enrollments = enrollmentsRes?.success ? enrollmentsRes.data : [];
-      const payments    = paymentsRes?.success    ? paymentsRes.data    : [];
-      const cash        = cashRes?.success        ? cashRes.data        : [];
-      const byClass     = byClassRes?.success     ? byClassRes.data     : [];
-      const attendance  = attendanceRes?.success  ? attendanceRes.data  : null;
+      const students      = studentsRes?.success      ? studentsRes.data      : [];
+      const classes       = classesRes?.success       ? classesRes.data       : [];
+      const enrollments   = enrollmentsRes?.success   ? enrollmentsRes.data   : [];
+      const payments      = paymentsRes?.success      ? paymentsRes.data      : [];
+      const cash          = cashRes?.success          ? cashRes.data          : [];
+      const byClass       = byClassRes?.success       ? byClassRes.data       : [];
+      const attendance    = attendanceRes?.success    ? attendanceRes.data    : null;
+      const privateSummary = privateSummaryRes?.success ? privateSummaryRes.data : null;
 
       // ONBOARDING
-      if(students.length === 0 && classes.length === 0 && payments.length === 0){
+      if (students.length === 0 && classes.length === 0 && payments.length === 0) {
         renderOnboarding();
         return;
       }
@@ -99,23 +102,32 @@ let financeChartInstance = null;
       const { entries, exits, balance } = finance.caixa;
       const total                       = finance.total;
 
-      const eficiencia = esperado > 0
-        ? (recebido / esperado) * 100
+      // Aulas particulares
+      const privPaid    = Number(privateSummary?.total_paid    || 0);
+      const privPending = Number(privateSummary?.total_pending || 0);
+      const privTotal   = Number(privateSummary?.total_expected || 0);
+
+      // Receita consolidada (mensalidades + particulares)
+      const recebidoTotal  = recebido + privPaid;
+      const esperadoTotal  = esperado + privTotal;
+
+      const eficiencia = esperadoTotal > 0
+        ? (recebidoTotal / esperadoTotal) * 100
         : 0;
 
       // ==============================
       // RENDER LINHA 1 — KPIs
       // ==============================
 
-      setText("dash-recebido",      fmt(recebido));
-      setText("dash-esperado",      fmt(esperado));
+      setText("dash-recebido",      fmt(recebidoTotal));
+      setText("dash-esperado",      fmt(esperadoTotal));
       setText("dash-eficiencia",    eficiencia.toFixed(1) + "%");
       setText("dash-inadimplencia", defaultRate.toFixed(1) + "%");
       setText("dash-atrasado",      fmt(atrasado));
 
       const trendEl = el("dash-recebido-trend");
       if (trendEl) {
-        trendEl.innerText = recebido > 0 ? "↗️ em dia" : "↘️ sem receita";
+        trendEl.innerText = recebidoTotal > 0 ? "↗️ em dia" : "↘️ sem receita";
       }
 
       const efLabel = el("dash-eficiencia-label");
@@ -144,7 +156,14 @@ let financeChartInstance = null;
       setText("dash-entradas", fmt(entries));
       setText("dash-saidas",   fmt(exits));
       setText("dash-saldo",    fmt(balance));
-      setText("dash-total",    fmt(total));
+
+      // Total consolidado = mensalidades recebidas + particulares recebidas + saldo caixa
+      const totalConsolidado = recebido + privPaid + balance;
+      setText("dash-total", fmt(totalConsolidado));
+
+      // Aulas particulares
+      setText("dash-priv-recebido", fmt(privPaid));
+      setText("dash-priv-pendente", fmt(privPending));
 
       const statusEl = el("dash-status");
       if (statusEl) {
@@ -171,18 +190,18 @@ let financeChartInstance = null;
       const freqEl    = el("dash-frequencia");
       const freqLabel = el("dash-frequencia-label");
 
-      if(attendance && Number(attendance.total_records) > 0){
+      if (attendance && Number(attendance.total_records) > 0) {
         const freq = Number(attendance.avg_frequency);
 
         setText("dash-frequencia", freq.toFixed(1) + "%");
 
-        if(freqEl){
+        if (freqEl) {
           freqEl.style.color = freq >= 75 ? "#16a34a"
             : freq >= 50 ? "#ca8a04"
             : "#dc2626";
         }
 
-        if(freqLabel){
+        if (freqLabel) {
           freqLabel.innerText = freq >= 75 ? "✅ Boa frequência"
             : freq >= 50 ? "⚠️ Atenção"
             : "🔴 Frequência baixa";
@@ -190,7 +209,7 @@ let financeChartInstance = null;
 
       } else {
         setText("dash-frequencia", "—");
-        if(freqLabel) freqLabel.innerText = "Sem aulas registradas";
+        if (freqLabel) freqLabel.innerText = "Sem aulas registradas";
       }
 
       // ==============================
@@ -215,28 +234,29 @@ let financeChartInstance = null;
   // ONBOARDING
   // ==============================
 
-  function renderOnboarding(){
+  function renderOnboarding() {
 
-    ["dash-recebido","dash-esperado","dash-eficiencia",
-     "dash-inadimplencia","dash-atrasado","dash-entradas",
-     "dash-saidas","dash-saldo","dash-total",
-     "dash-frequencia"].forEach(id => setText(id, "—"));
+    ["dash-recebido", "dash-esperado", "dash-eficiencia",
+     "dash-inadimplencia", "dash-atrasado", "dash-entradas",
+     "dash-saidas", "dash-saldo", "dash-total",
+     "dash-frequencia", "dash-priv-recebido", "dash-priv-pendente"
+    ].forEach(id => setText(id, "—"));
 
     setText("dash-alunos",     "0");
     setText("dash-turmas",     "0");
     setText("dash-matriculas", "0");
 
     const freqLabel = el("dash-frequencia-label");
-    if(freqLabel) freqLabel.innerText = "Sem aulas registradas";
+    if (freqLabel) freqLabel.innerText = "Sem aulas registradas";
 
     const statusEl = el("dash-status");
-    if(statusEl){
+    if (statusEl) {
       statusEl.innerText = "Novo";
       statusEl.className = "dash-status-badge gray";
     }
 
     const ranking = el("dash-ranking");
-    if(ranking){
+    if (ranking) {
       ranking.innerHTML = `
         <div class="onboarding-empty">
           <div class="onboarding-icon">🏫</div>
