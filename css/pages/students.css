@@ -304,3 +304,11 @@
     align-items: flex-start;
   }
 }
+
+/* ================================
+   BOTÕES DE AÇÃO NA TABELA
+================================ */
+
+#studentsTable td:last-child {
+  white-space: nowrap;
+}
