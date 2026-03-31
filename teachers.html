@@ -1,113 +1,72 @@
-<h2>Professores</h2>
-
-<div class="page-header teachers-header">
-
-  <div class="teachers-actions">
-
-    <input
-      type="text"
-      id="teacherSearch"
-      placeholder="Buscar professor..."
-      class="search-input"
-    >
-
-    <button
-      class="btn-secondary"
-      onclick="TeachersModule.clearSearch()"
-    >
-      Limpar
-    </button>
-
+<div class="page-header">
+  <div>
+    <h1>Professores</h1>
+    <p class="page-subtitle">Gerencie os professores da escola</p>
   </div>
-
- <button
-  id="newTeacherBtn"
-  class="btn-primary"
-  onclick="TeachersModule.newTeacher()"
->
-    Novo Professor
-  </button>
-
+  <button id="newTeacherBtn" class="btn-primary">+ Novo Professor</button>
 </div>
 
-<table class="table">
+<div class="page-actions" style="margin-bottom:16px;">
+  <input
+    type="text"
+    id="teacherSearch"
+    placeholder="Buscar professor..."
+    class="search-input"
+  >
+  <button id="clearSearchBtn" class="btn-secondary">Limpar</button>
+</div>
 
-<thead>
-<tr>
-
-<th>Nome</th>
-<th>Email</th>
-<th>Telefone</th>
-<th>Status</th>
-<th>Ações</th>
-
-</tr>
-</thead>
-
-<tbody id="teachersTable">
-
-<tr>
-<td colspan="5">Nenhum professor encontrado</td>
-</tr>
-
-</tbody>
-
-</table>
-
+<div class="table-container">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Telefone</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="teachersTable">
+      <tr><td colspan="5">Carregando...</td></tr>
+    </tbody>
+  </table>
+</div>
 
 <div id="teacherModal" class="modal hidden">
-
   <div class="modal-content">
 
     <h3 id="teacherModalTitle">Novo Professor</h3>
 
     <input type="hidden" id="editTeacherId">
 
-    <div class="form-grid">
+    <div class="form-group">
+      <label>Nome</label>
+      <input type="text" id="editTeacherName" class="form-control">
+    </div>
 
-      <div class="form-group">
-        <label>Nome</label>
-        <input type="text" id="editTeacherName">
-      </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="editTeacherEmail" class="form-control">
+    </div>
 
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="editTeacherEmail">
-      </div>
+    <div class="form-group">
+      <label>Telefone</label>
+      <input type="text" id="editTeacherPhone" class="form-control">
+    </div>
 
-      <div class="form-group">
-        <label>Telefone</label>
-        <input type="text" id="editTeacherPhone">
-      </div>
-
-      <div class="form-group">
-        <label>Status</label>
-        <select id="editTeacherStatus">
-          <option value="active">Ativo</option>
-          <option value="inactive">Inativo</option>
-        </select>
-      </div>
-
+    <div class="form-group">
+      <label>Status</label>
+      <select id="editTeacherStatus" class="form-control">
+        <option value="active">Ativo</option>
+        <option value="inactive">Inativo</option>
+      </select>
     </div>
 
     <div class="modal-actions">
-
-      <button
-        class="btn-secondary"
-        onclick="TeachersModule.closeTeacherModal()"
-      >
-        Cancelar
-      </button>
-
-      <button
-        class="btn-primary"
-        onclick="TeachersModule.saveTeacher()"
-      >
-        Salvar
-      </button>
-
+      <button id="cancelTeacherBtn" class="btn-secondary">Cancelar</button>
+      <button id="saveTeacherBtn" class="btn-primary">Salvar</button>
     </div>
 
   </div>
-
 </div>

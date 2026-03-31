@@ -1,286 +1,229 @@
 (function(){
 
-let teachersCache = []
-let filteredTeachers = []
+let teachersCache    = [];
+let filteredTeachers = [];
 
 async function init(){
-  console.log("Teachers module iniciado")
+  console.log("Teachers module iniciado");
 
-  bindEvents()
+  // 🔥 eventos via addEventListener, não onclick inline
+  document.getElementById("newTeacherBtn")?.addEventListener("click", newTeacher);
+  document.getElementById("clearSearchBtn")?.addEventListener("click", clearSearch);
+  document.getElementById("teacherSearch")?.addEventListener("input", applyFilters);
 
-  const newBtn = document.getElementById("newTeacherBtn")
-  if(newBtn){
-    newBtn.disabled = false
-  }
-
-  await loadTeachers()
-}
-
-function bindEvents(){
-
-  const searchInput = document.getElementById("teacherSearch")
-
-  if(searchInput){
-    searchInput.addEventListener("input", applyFilters)
-  }
-
-  // ✅ FECHAR MODAL AO CLICAR FORA (COLOCAR EXATAMENTE AQUI)
-  const modal = document.getElementById("teacherModal")
-
+  const modal = document.getElementById("teacherModal");
   if(modal){
-    modal.addEventListener("click", function(e){
-      if(e.target.id === "teacherModal"){
-        closeTeacherModal()
-      }
-    })
+    modal.addEventListener("click", (e) => {
+      if(e.target === modal) closeTeacherModal();
+    });
   }
 
+  // botões do modal
+  document.getElementById("cancelTeacherBtn")?.addEventListener("click", closeTeacherModal);
+  document.getElementById("saveTeacherBtn")?.addEventListener("click", saveTeacher);
+
+  await loadTeachers();
 }
 
-
+// ===============================
+// LOAD
+// ===============================
 
 async function loadTeachers(){
+  try{
+    const res = await apiRequest("/api/v1/teachers");
 
- try{
+    if(!res.success){
+      throw new Error(res.message || "Erro ao carregar professores");
+    }
 
-  const res = await apiRequest("/api/v1/teachers")
+    teachersCache = res.data || [];
+    applyFilters();
 
-  if (!res.success) {
-    throw new Error(res.message || "Erro ao carregar professores")
+  }catch(err){
+    console.error(err);
+    Toast.error("Erro ao carregar professores");
   }
-
-  teachersCache = res.data || []
-
-  applyFilters()
-
-}catch(err){
-
-  console.error(err)
-  alert("Erro ao carregar professores")
-
 }
 
-}
+// ===============================
+// FILTER
+// ===============================
 
 function applyFilters(){
+  const search = document.getElementById("teacherSearch")?.value.toLowerCase() || "";
 
-  const search = document.getElementById("teacherSearch")?.value.toLowerCase() || ""
+  filteredTeachers = teachersCache.filter(t =>
+    t.name?.toLowerCase().includes(search)  ||
+    t.email?.toLowerCase().includes(search) ||
+    t.phone?.toLowerCase().includes(search)
+  );
 
-  filteredTeachers = teachersCache.filter(t => {
-
-    return (
-      t.name?.toLowerCase().includes(search) ||
-      t.email?.toLowerCase().includes(search) ||
-      t.phone?.toLowerCase().includes(search)
-    )
-
-  })
-
-  renderTeachers()
-
+  renderTeachers();
 }
 
+function clearSearch(){
+  const input = document.getElementById("teacherSearch");
+  if(input) input.value = "";
+  applyFilters();
+}
+
+// ===============================
+// RENDER
+// ===============================
+
 function renderTeachers(){
-
-  const table = document.getElementById("teachersTable")
-
-  if(!table) return
+  const tbody = document.getElementById("teachersTable");
+  if(!tbody) return;
 
   if(filteredTeachers.length === 0){
-
-    table.innerHTML = `
+    tbody.innerHTML = `
       <tr>
         <td colspan="5" style="text-align:center; padding:20px; color:#666;">
           Nenhum professor encontrado
         </td>
-      </tr>
-    `
-
-    return
+      </tr>`;
+    return;
   }
 
-  table.innerHTML = filteredTeachers.map(t => `
+  tbody.innerHTML = "";
 
-    <tr>
+  filteredTeachers.forEach(t => {
+    const tr = document.createElement("tr");
 
+    tr.innerHTML = `
       <td>${t.name}</td>
       <td>${t.email ?? "-"}</td>
       <td>${t.phone ?? "-"}</td>
       <td>${formatStatus(t.status)}</td>
-
       <td>
-
-        <button class="btn-primary" onclick="TeachersModule.editTeacher('${t.id}')">
-  Editar
-</button>
-
-        <button class="btn-secondary" onclick="TeachersModule.deleteTeacher('${t.id}')">
-          Excluir
-        </button>
-
+        <button class="btn-edit">✏️ Editar</button>
+        <button class="btn-danger-soft">🗑️ Excluir</button>
       </td>
+    `;
 
-    </tr>
+    tr.querySelector(".btn-edit").onclick       = () => editTeacher(t.id);
+    tr.querySelector(".btn-danger-soft").onclick = () => deleteTeacher(t.id);
 
-  `).join("")
-
+    tbody.appendChild(tr);
+  });
 }
 
 function formatStatus(status){
-
-  if(status === "active"){
-   return `<span class="status-active">Ativo</span>`
-  }
-
- return `<span class="status-inactive">Inativo</span>`
+  return status === "active"
+    ? `<span class="enrollment-status-badge green">Ativo</span>`
+    : `<span class="enrollment-status-badge red">Inativo</span>`;
 }
 
-function clearSearch(){
-
-  const input = document.getElementById("teacherSearch")
-
-  if(input){
-    input.value = ""
-  }
-
-  applyFilters()
-}
+// ===============================
+// MODAL
+// ===============================
 
 function newTeacher(){
+  document.getElementById("editTeacherId").value    = "";
+  document.getElementById("editTeacherName").value  = "";
+  document.getElementById("editTeacherEmail").value = "";
+  document.getElementById("editTeacherPhone").value = "";
+  document.getElementById("editTeacherStatus").value = "active";
 
-  document.getElementById("editTeacherId").value = ""
+  const title = document.getElementById("teacherModalTitle");
+  if(title) title.innerText = "Novo Professor";
 
-  document.getElementById("editTeacherName").value = ""
-  document.getElementById("editTeacherEmail").value = ""
-  document.getElementById("editTeacherPhone").value = ""
-  document.getElementById("editTeacherStatus").value = "active"
-
-  document.querySelector("#teacherModal h3").innerText = "Novo Professor"
-
-  document.getElementById("teacherModal").classList.remove("hidden")
-
-}
-
-function closeTeacherModal(){
-  document.getElementById("teacherModal").classList.add("hidden")
-}
-
-async function saveTeacher(){
-
-  const id = document.getElementById("editTeacherId").value
-
-  const name = document.getElementById("editTeacherName").value.trim()
-  const email = document.getElementById("editTeacherEmail").value.trim()
-  const phone = document.getElementById("editTeacherPhone").value.trim()
-  const status = document.getElementById("editTeacherStatus").value
-
-  // ✅ VALIDAÇÃO PROFISSIONAL
-  if(!name){
-    alert("Nome é obrigatório")
-    return
-  }
-
-  try{
-
-    let res
-
-    if(id){
-
-      res = await apiRequest(
-        `/api/v1/teachers/${id}`,
-        "PUT",
-        { name, email, phone, status }
-      )
-
-    }else{
-
-      res = await apiRequest(
-        "/api/v1/teachers",
-        "POST",
-        { name, email, phone, status }
-      )
-
-    }
-
-    if(!res.success){
-      alert("Erro ao salvar professor")
-      return
-    }
-
-    alert("Professor salvo com sucesso")
-
-    closeTeacherModal()
-
-    await loadTeachers()
-
-  }catch(err){
-
-    console.error(err)
-    alert("Erro na API")
-
-  }
-
-}
-
-async function deleteTeacher(id){
-
-  if(!confirm("Deseja realmente excluir este professor?")){
-    return
-  }
-
-  try{
-
-    const res = await apiRequest(
-      `/api/v1/teachers/${id}`,
-      "DELETE"
-    )
-
-    if(!res.success){
-      alert("Erro ao excluir professor")
-      return
-    }
-
-    alert("Professor excluído")
-
-    await loadTeachers()
-
-  }catch(err){
-
-    console.error(err)
-    alert("Erro na API")
-
-  }
-
+  document.getElementById("teacherModal").classList.remove("hidden");
 }
 
 function editTeacher(id){
-
-  const teacher = teachersCache.find(t => t.id === id)
-
+  const teacher = teachersCache.find(t => t.id === id);
   if(!teacher){
-    alert("Professor não encontrado")
-    return
+    Toast.warning("Professor não encontrado");
+    return;
   }
 
-  document.getElementById("editTeacherId").value = teacher.id
-  document.getElementById("editTeacherName").value = teacher.name || ""
-  document.getElementById("editTeacherEmail").value = teacher.email || ""
-  document.getElementById("editTeacherPhone").value = teacher.phone || ""
-  document.getElementById("editTeacherStatus").value = teacher.status || "active"
+  document.getElementById("editTeacherId").value     = teacher.id;
+  document.getElementById("editTeacherName").value   = teacher.name  || "";
+  document.getElementById("editTeacherEmail").value  = teacher.email || "";
+  document.getElementById("editTeacherPhone").value  = teacher.phone || "";
+  document.getElementById("editTeacherStatus").value = teacher.status || "active";
 
-  document.querySelector("#teacherModal h3").innerText = "Editar Professor"
+  const title = document.getElementById("teacherModalTitle");
+  if(title) title.innerText = "Editar Professor";
 
-  document.getElementById("teacherModal").classList.remove("hidden")
+  document.getElementById("teacherModal").classList.remove("hidden");
+}
+
+function closeTeacherModal(){
+  document.getElementById("teacherModal").classList.add("hidden");
+}
+
+// ===============================
+// SAVE
+// ===============================
+
+async function saveTeacher(){
+  const id     = document.getElementById("editTeacherId").value;
+  const name   = document.getElementById("editTeacherName").value.trim();
+  const email  = document.getElementById("editTeacherEmail").value.trim();
+  const phone  = document.getElementById("editTeacherPhone").value.trim();
+  const status = document.getElementById("editTeacherStatus").value;
+
+  if(!name){
+    Toast.warning("Nome é obrigatório");
+    return;
+  }
+
+  try{
+    const endpoint = id ? `/api/v1/teachers/${id}` : "/api/v1/teachers";
+    const method   = id ? "PUT" : "POST";
+
+    const res = await apiRequest(endpoint, method, { name, email, phone, status });
+
+    if(!res.success){
+      Toast.error("Erro ao salvar professor");
+      return;
+    }
+
+    Toast.success(id ? "Professor atualizado!" : "Professor criado!");
+    closeTeacherModal();
+    await loadTeachers();
+
+  }catch(err){
+    console.error(err);
+    Toast.error("Erro na API");
+  }
+}
+
+// ===============================
+// DELETE
+// ===============================
+
+async function deleteTeacher(id){
+  if(!confirm("Deseja realmente excluir este professor?")) return;
+
+  try{
+    const res = await apiRequest(`/api/v1/teachers/${id}`, "DELETE");
+
+    if(!res.success){
+      Toast.error("Erro ao excluir professor");
+      return;
+    }
+
+    Toast.success("Professor excluído!");
+    await loadTeachers();
+
+  }catch(err){
+    console.error(err);
+    Toast.error("Erro na API");
+  }
 }
 
 window.TeachersModule = {
   init,
   loadTeachers,
+  editTeacher,
   deleteTeacher,
   saveTeacher,
   newTeacher,
   clearSearch,
-  editTeacher,
   closeTeacherModal
 };
 
