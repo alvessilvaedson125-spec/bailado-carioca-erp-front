@@ -253,34 +253,27 @@ async function loadFinancialSummary(month, year) {
 // ===============================
 // CASHFLOW
 // ===============================
-
 async function loadCashflow(){
-
   try{
-
-    const res  = await apiRequest("/api/v1/payments");
-    const list = res.data || [];
-
+    // 🔥 usa paymentsCache em vez de nova requisição
+    const list  = paymentsCache;
     const today = new Date();
 
     let todayTotal = 0;
     let monthTotal = 0;
 
     list.forEach(p => {
-
       if(p.computed_status !== "paid") return;
 
       const paidDate = new Date(p.updated_at || p.created_at);
 
       const isToday = paidDate.toDateString() === today.toDateString();
-
       const isThisMonth =
-        paidDate.getMonth() === today.getMonth() &&
-        paidDate.getFullYear() === today.getFullYear();
+        paidDate.getMonth()     === today.getMonth() &&
+        paidDate.getFullYear()  === today.getFullYear();
 
       if(isToday)     todayTotal += Number(p.final_amount || 0);
       if(isThisMonth) monthTotal += Number(p.final_amount || 0);
-
     });
 
     safeSetText("cash-today", "R$ " + todayTotal.toFixed(2));
@@ -289,7 +282,6 @@ async function loadCashflow(){
   }catch(err){
     console.error("Erro no caixa", err);
   }
-
 }
 
 // ===============================
