@@ -56,13 +56,13 @@ function getSelectedTeachers() {
 // ===============================
 // INIT
 // ===============================
-
 async function init(){
 
   if(initDone) {
     await loadClasses();
-    setupNewClassBtn();    // 🔥 re-registra ao voltar
-    setupAddTeacherBtn();  // 🔥 re-registra ao voltar
+    setupNewClassBtn();
+    setupAddTeacherBtn();
+    setupClassModal(); // 🔥 re-registra ao voltar
     return;
   }
   initDone = true;
