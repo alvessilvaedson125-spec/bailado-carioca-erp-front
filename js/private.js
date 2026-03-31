@@ -324,37 +324,32 @@ function renderSessionsByStudent(list){
 }
 
 // ===============================
-// POR DATA
+// POR DATA — com títulos coloridos
 // ===============================
 
 function renderSessionsByDate(list){
   const container = document.getElementById("sessionsContent");
   if(!container) return;
 
-  const now   = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const now     = new Date();
+  const today   = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const weekEnd = new Date(today); weekEnd.setDate(today.getDate() + 7);
 
   const groups = {
-    hoje:     { label: "Hoje",          sessions: [], cls: "blue"   },
-    semana:   { label: "Esta semana",   sessions: [], cls: "purple" },
-    proximas: { label: "Próximas",      sessions: [], cls: "gray"   },
-    passadas: { label: "Passadas",      sessions: [], cls: "gray"   },
+    hoje:     { label: "Hoje",        icon: "🔴", cls: "private-date-hoje",     sessions: [] },
+    semana:   { label: "Esta semana", icon: "🟡", cls: "private-date-semana",   sessions: [] },
+    proximas: { label: "Próximas",    icon: "🟢", cls: "private-date-proximas", sessions: [] },
+    passadas: { label: "Passadas",    icon: "⚪", cls: "private-date-passadas", sessions: [] },
   };
 
   list.forEach(s => {
-    const d = new Date(s.scheduled_at);
+    const d   = new Date(s.scheduled_at);
     const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-    if(day.getTime() === today.getTime()){
-      groups.hoje.sessions.push(s);
-    } else if(day > today && day <= weekEnd){
-      groups.semana.sessions.push(s);
-    } else if(day > weekEnd){
-      groups.proximas.sessions.push(s);
-    } else {
-      groups.passadas.sessions.push(s);
-    }
+    if(day.getTime() === today.getTime())   groups.hoje.sessions.push(s);
+    else if(day > today && day <= weekEnd)  groups.semana.sessions.push(s);
+    else if(day > weekEnd)                  groups.proximas.sessions.push(s);
+    else                                    groups.passadas.sessions.push(s);
   });
 
   container.innerHTML = "";
@@ -370,16 +365,16 @@ function renderSessionsByDate(list){
     );
 
     const rows = sorted.map(ses => {
-      const st = statusSession[ses.status] || { label: ses.status, cls: "gray" };
+      const st       = statusSession[ses.status] || { label: ses.status, cls: "gray" };
       const teachers = [ses.teacher_1_name, ses.teacher_2_name].filter(Boolean).join(" + ");
-      const dateStr = new Date(ses.scheduled_at).toLocaleString("pt-BR", {
+      const dateStr  = new Date(ses.scheduled_at).toLocaleString("pt-BR", {
         weekday: "short", day: "2-digit", month: "2-digit",
         hour: "2-digit", minute: "2-digit"
       });
 
       const actions = ses.status === "scheduled" ? `
         <button class="btn-enrollment-edit ses-complete" data-id="${ses.id}" title="Realizada">✓</button>
-        <button class="btn-enrollment-cancel ses-cancel"  data-id="${ses.id}" title="Cancelar">✖</button>
+        <button class="btn-enrollment-cancel ses-cancel" data-id="${ses.id}" title="Cancelar">✖</button>
       ` : "";
 
       return `
@@ -402,7 +397,11 @@ function renderSessionsByDate(list){
     }).join("");
 
     section.innerHTML = `
-      <div class="private-date-label">${group.label} <span class="enrollment-class-count">${group.sessions.length}</span></div>
+      <div class="private-date-label ${group.cls}">
+        <span class="private-date-icon">${group.icon}</span>
+        <span class="private-date-text">${group.label}</span>
+        <span class="private-date-count">${group.sessions.length} aula${group.sessions.length !== 1 ? "s" : ""}</span>
+      </div>
       <div class="private-student-card">${rows}</div>
     `;
 
@@ -416,8 +415,9 @@ function renderSessionsByDate(list){
     container.appendChild(section);
   });
 }
+
 // ===============================
-// RENDER PAGAMENTOS
+// RENDER PAGAMENTOS — com editar
 // ===============================
 
 function renderPayments(list){
@@ -434,28 +434,28 @@ function renderPayments(list){
   }
 
   container.innerHTML = `
-  <div class="private-table-container">
-    <table class="private-payments-table">
-      <thead>
-        <tr>
-          <th>Aluno</th>
-          <th>Tipo</th>
-          <th>Valor</th>
-          <th>Status</th>
-          <th>Pago em</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="privatePaymentsBody"></tbody>
-    </table>
-  </div>
-`;
+    <div class="private-table-container">
+      <table class="private-payments-table">
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Pago em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="privatePaymentsBody"></tbody>
+      </table>
+    </div>
+  `;
 
   const tbody = document.getElementById("privatePaymentsBody");
 
   list.forEach(p => {
-    const st  = statusPayment[p.status] || { label: p.status, cls: "gray" };
-    const tipo = p.origin_type === "package" ? "Pacote" : "Avulsa";
+    const st     = statusPayment[p.status] || { label: p.status, cls: "gray" };
+    const tipo   = p.origin_type === "package" ? "Pacote" : "Avulsa";
     const paidAt = p.paid_at
       ? new Date(p.paid_at).toLocaleDateString("pt-BR")
       : "-";
@@ -467,18 +467,75 @@ function renderPayments(list){
       <td><strong>${fmt(p.amount)}</strong></td>
       <td><span class="enrollment-status-badge ${st.cls}">${st.label}</span></td>
       <td>${paidAt}</td>
-      <td>
+      <td style="display:flex; gap:6px; align-items:center;">
+        <button class="btn-icon-edit pay-edit" data-id="${p.id}" title="Editar">✏️</button>
         ${p.status === "pending" ? `
           <button class="btn-sm btn-success pay-mark" data-id="${p.id}">✓ Marcar pago</button>
         ` : ""}
       </td>
     `;
 
+    tr.querySelector(".pay-edit").addEventListener("click", () => openEditPayment(p));
     tr.querySelector(".pay-mark")?.addEventListener("click", () => markPaymentPaid(p.id));
     tbody.appendChild(tr);
   });
 }
 
+// ===============================
+// EDITAR PAGAMENTO
+// ===============================
+
+function openEditPayment(p){
+  document.getElementById("editPaymentId").value     = p.id;
+  document.getElementById("editPaymentAmount").value = p.amount;
+  document.getElementById("editPaymentNotes").value  = p.notes || "";
+  document.getElementById("editPaymentStatus").value = p.status;
+  document.getElementById("paymentModalStudentName").innerText = safe(p.student_name);
+  document.getElementById("paymentModalType").innerText = p.origin_type === "package" ? "Pacote" : "Avulsa";
+  document.getElementById("paymentModal").classList.remove("hidden");
+}
+
+async function savePayment(){
+  const id     = document.getElementById("editPaymentId").value;
+  const amount = Number(document.getElementById("editPaymentAmount").value || 0);
+  const notes  = document.getElementById("editPaymentNotes").value;
+  const status = document.getElementById("editPaymentStatus").value;
+
+  if(!amount || amount <= 0){
+    Toast.warning("Informe um valor válido");
+    return;
+  }
+
+  try{
+    await apiRequest(`/api/v1/private/payments/${id}`, "PATCH", {
+      amount,
+      notes,
+      payment_method: status === "paid" ? "manual" : null
+    });
+
+    // Se mudou para pago, marca como pago
+    if(status === "paid"){
+      const current = paymentsCache.find(p => p.id === id);
+      if(current && current.status !== "paid"){
+        await apiRequest(`/api/v1/private/payments/${id}`, "PATCH", {
+          payment_method: "manual"
+        });
+      }
+    }
+
+    Toast.success("Pagamento atualizado!");
+    closePaymentModal();
+    await loadPayments();
+    updateStats();
+
+  }catch(err){
+    Toast.error("Erro ao atualizar pagamento");
+  }
+}
+
+function closePaymentModal(){
+  document.getElementById("paymentModal").classList.add("hidden");
+}
 // ===============================
 // ACTIONS
 // ===============================
@@ -669,7 +726,17 @@ function attachModals(){
 
   // Aluno selecionado na sessão — filtra pacotes ativos
   document.getElementById("sesStudent").addEventListener("change", onStudentSelectedForSession);
+
+  // Modal pagamento
+document.getElementById("cancelPaymentBtn").onclick = closePaymentModal;
+document.getElementById("savePaymentBtn").onclick   = savePayment;
+document.getElementById("paymentModal").addEventListener("click", e => {
+  if(e.target === document.getElementById("paymentModal")) closePaymentModal();
+});
 }
+
+
+
 
 function updatePkgPreview(){
   const price    = Number(document.getElementById("pkgPrice")?.value || 0);
