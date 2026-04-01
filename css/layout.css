@@ -588,3 +588,16 @@
     font-size: 22px;
   }
 }
+
+/* =========================
+   GARANTE QUE DRAWER MOBILE
+   NÃO APARECE NO DESKTOP
+========================= */
+
+@media (min-width: 769px) {
+  .bottom-nav,
+  .bottom-drawer,
+  .bottom-drawer-overlay {
+    display: none !important;
+  }
+}
