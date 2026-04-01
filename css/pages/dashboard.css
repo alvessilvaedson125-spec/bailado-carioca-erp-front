@@ -554,45 +554,47 @@
   color: #6b7280;
   margin: 0;
 }
+/* =========================
+   CORES POR PERFORMANCE — KPIS
+========================= */
+
+/* Verde */
+.dash-kpi-card.kpi-green { border-left-color: #16a34a; }
+.dash-kpi-card.kpi-green .dash-kpi-value { color: #16a34a; }
+
+/* Amarelo */
+.dash-kpi-card.kpi-yellow { border-left-color: #f59e0b; }
+.dash-kpi-card.kpi-yellow .dash-kpi-value { color: #92400e; }
+
+/* Vermelho */
+.dash-kpi-card.kpi-red { border-left-color: #dc2626; }
+.dash-kpi-card.kpi-red .dash-kpi-value { color: #991b1b; }
 
 /* =========================
    CORES EFICIÊNCIA — CARDS
 ========================= */
 
-.dash-ef-card.kpi-green {
-  border-left-color: #16a34a;
-}
-.dash-ef-card.kpi-green .dash-ef-value {
-  color: #16a34a;
-}
-.dash-ef-card.kpi-green .dash-ef-bar {
-  background: #22c55e;
-}
+.dash-ef-card.kpi-green { border-left-color: #16a34a; }
+.dash-ef-card.kpi-green .dash-ef-value { color: #16a34a; }
+.dash-ef-card.kpi-green .dash-ef-bar   { background: #22c55e; }
 
-.dash-ef-card.kpi-yellow {
-  border-left-color: #f59e0b;
-}
-.dash-ef-card.kpi-yellow .dash-ef-value {
-  color: #ca8a04;
-}
-.dash-ef-card.kpi-yellow .dash-ef-bar {
-  background: #f59e0b;
-}
+.dash-ef-card.kpi-yellow { border-left-color: #f59e0b; }
+.dash-ef-card.kpi-yellow .dash-ef-value { color: #92400e; }
+.dash-ef-card.kpi-yellow .dash-ef-bar   { background: #f59e0b; }
 
-.dash-ef-card.kpi-red {
-  border-left-color: #dc2626;
-}
-.dash-ef-card.kpi-red .dash-ef-value {
-  color: #dc2626;
-}
-.dash-ef-card.kpi-red .dash-ef-bar {
-  background: #ef4444;
-}
+.dash-ef-card.kpi-red { border-left-color: #dc2626; }
+.dash-ef-card.kpi-red .dash-ef-value { color: #991b1b; }
+.dash-ef-card.kpi-red .dash-ef-bar   { background: #ef4444; }
 
-/* Inadimplência — cores no kpi-card */
-#dash-inad-card.kpi-green .dash-kpi-value { color: #16a34a; }
-#dash-inad-card.kpi-green { border-left-color: #16a34a; }
-#dash-inad-card.kpi-yellow .dash-kpi-value { color: #ca8a04; }
+/* =========================
+   INADIMPLÊNCIA — ID ESPECÍFICO
+========================= */
+
+#dash-inad-card.kpi-green  { border-left-color: #16a34a; }
+#dash-inad-card.kpi-green  .dash-kpi-value { color: #16a34a; }
+
 #dash-inad-card.kpi-yellow { border-left-color: #f59e0b; }
-#dash-inad-card.kpi-red .dash-kpi-value { color: #dc2626; }
-#dash-inad-card.kpi-red { border-left-color: #dc2626; }
+#dash-inad-card.kpi-yellow .dash-kpi-value { color: #92400e; }
+
+#dash-inad-card.kpi-red    { border-left-color: #dc2626; }
+#dash-inad-card.kpi-red    .dash-kpi-value { color: #991b1b; }
