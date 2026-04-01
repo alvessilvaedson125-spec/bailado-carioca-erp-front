@@ -132,12 +132,13 @@ let financeChartInstance = null;
       setText("dash-esperado-priv", fmt(privTotal));
       setText("dash-inadimplencia", defaultRate.toFixed(1) + "%");
       setText("dash-atrasado",      fmt(atrasado));
-
-      // 🔥 Eficiência turmas
+// 🔥 Eficiência turmas — com barra
       setText("dash-eficiencia-grupo", eficienciaGrupo.toFixed(1) + "%");
       const efGrupoCard  = el("dash-eficiencia-grupo-card");
       const efGrupoLabel = el("dash-eficiencia-grupo-label");
+      const efBarGrupo   = el("dash-ef-bar-grupo");
       if(efGrupoCard) efGrupoCard.classList.remove("kpi-green","kpi-yellow","kpi-red");
+      if(efBarGrupo)  efBarGrupo.style.width = Math.min(eficienciaGrupo, 100).toFixed(1) + "%";
       if(eficienciaGrupo >= 70){
         efGrupoCard?.classList.add("kpi-green");
         if(efGrupoLabel) efGrupoLabel.innerText = "✅ Boa performance";
@@ -149,11 +150,13 @@ let financeChartInstance = null;
         if(efGrupoLabel) efGrupoLabel.innerText = "🔴 Abaixo do ideal";
       }
 
-      // 🔥 Eficiência particulares
+      // 🔥 Eficiência particulares — com barra
       setText("dash-eficiencia-priv", eficienciaPriv.toFixed(1) + "%");
       const efPrivCard  = el("dash-eficiencia-priv-card");
       const efPrivLabel = el("dash-eficiencia-priv-label");
+      const efBarPriv   = el("dash-ef-bar-priv");
       if(efPrivCard) efPrivCard.classList.remove("kpi-green","kpi-yellow","kpi-red");
+      if(efBarPriv)  efBarPriv.style.width = Math.min(eficienciaPriv, 100).toFixed(1) + "%";
       if(privTotal === 0){
         if(efPrivLabel) efPrivLabel.innerText = "Sem dados";
       } else if(eficienciaPriv >= 70){

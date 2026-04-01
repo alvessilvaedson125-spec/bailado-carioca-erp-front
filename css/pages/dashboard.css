@@ -2,11 +2,6 @@
    DASHBOARD BASE
 ========================= */
 
-.dashboard h2 {
-  font-size: 26px;
-  font-weight: 700;
-}
-
 .page-header {
   margin-bottom: 24px;
 }
@@ -17,20 +12,20 @@
 }
 
 /* =========================
-   LINHA 1 — KPIs DE DECISÃO
+   LINHA 1 — NÚMEROS PRINCIPAIS
 ========================= */
 
 .dash-kpis {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1.4fr 1fr 1fr;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .dash-kpi-card {
   background: white;
   border-radius: 12px;
-  padding: 20px;
+  padding: 24px;
   border: 1px solid #e5e7eb;
   border-left: 4px solid #e5e7eb;
   display: flex;
@@ -44,11 +39,28 @@
   box-shadow: 0 10px 24px rgba(0,0,0,0.08);
 }
 
+/* Card Recebido — destaque */
+.dash-kpi-destaque {
+  border-left-color: #16a34a !important;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 60%);
+}
+
+.dash-kpi-destaque .dash-kpi-value {
+  font-size: 36px !important;
+  color: #16a34a !important;
+}
+
+/* Card Esperado */
+.dash-kpis .dash-kpi-card:nth-child(2) {
+  border-left-color: #2563eb;
+}
+
 .dash-kpi-label {
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 600;
   color: #6b7280;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 .dash-kpi-value {
@@ -68,44 +80,109 @@
   color: #6b7280;
 }
 
-/* Primeiros 2 cards — cor fixa */
-.dash-kpis .dash-kpi-card:nth-child(1) { border-left-color: #16a34a; }
-.dash-kpis .dash-kpi-card:nth-child(2) { border-left-color: #2563eb; }
-
-/* 🔥 Cores por performance — SEM background, só borda e valor */
-.dash-kpi-card.kpi-green {
-  background: white;
-  border-left-color: #16a34a;
-}
-.dash-kpi-card.kpi-green .dash-kpi-value {
-  color: #16a34a;
-}
-
-.dash-kpi-card.kpi-yellow {
-  background: white;
-  border-left-color: #f59e0b;
-}
-.dash-kpi-card.kpi-yellow .dash-kpi-value {
-  color: #ca8a04;
-}
-
-.dash-kpi-card.kpi-red {
-  background: white;
-  border-left-color: #dc2626;
-}
-.dash-kpi-card.kpi-red .dash-kpi-value {
-  color: #dc2626;
-}
+/* Cores por performance */
+.dash-kpi-card.kpi-green { border-left-color: #16a34a; }
+.dash-kpi-card.kpi-green .dash-kpi-value { color: #16a34a; }
+.dash-kpi-card.kpi-yellow { border-left-color: #f59e0b; }
+.dash-kpi-card.kpi-yellow .dash-kpi-value { color: #ca8a04; }
+.dash-kpi-card.kpi-red { border-left-color: #dc2626; }
+.dash-kpi-card.kpi-red .dash-kpi-value { color: #dc2626; }
 
 /* =========================
-   LINHA 2 — SAÚDE DO NEGÓCIO
+   LINHA 2 — EFICIÊNCIA
+========================= */
+
+.dash-eficiencia-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.dash-ef-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 24px;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: 0.2s;
+}
+
+.dash-ef-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.dash-ef-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dash-ef-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dash-ef-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.dash-ef-bar-wrap {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dash-ef-bar {
+  height: 100%;
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.6s ease;
+  background: #e5e7eb;
+}
+
+.dash-ef-sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Cores eficiência */
+.dash-ef-card.kpi-green {
+  border-left-color: #16a34a;
+}
+.dash-ef-card.kpi-green .dash-ef-value { color: #16a34a; }
+.dash-ef-card.kpi-green .dash-ef-bar   { background: #22c55e; }
+
+.dash-ef-card.kpi-yellow {
+  border-left-color: #f59e0b;
+}
+.dash-ef-card.kpi-yellow .dash-ef-value { color: #ca8a04; }
+.dash-ef-card.kpi-yellow .dash-ef-bar   { background: #f59e0b; }
+
+.dash-ef-card.kpi-red {
+  border-left-color: #dc2626;
+}
+.dash-ef-card.kpi-red .dash-ef-value { color: #dc2626; }
+.dash-ef-card.kpi-red .dash-ef-bar   { background: #ef4444; }
+
+/* =========================
+   LINHA 3 — SAÚDE OPERACIONAL
 ========================= */
 
 .dash-health {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr; /* 🔥 era 1fr 1fr 1fr */
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .dash-health-card {
@@ -119,11 +196,11 @@
 }
 
 .dash-health-card h4 {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   color: #6b7280;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   margin: 0;
 }
 
@@ -133,75 +210,118 @@
 }
 
 .dash-health-value {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 700;
   color: #111827;
 }
 
 .dash-health-sub {
-  font-size: 12px;
+  font-size: 11px;
   color: #6b7280;
 }
 
 .dash-health-detail {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
-  color: #374151;
+  gap: 3px;
+  font-size: 12px;
+  color: #6b7280;
 }
 
 .dash-health-detail b {
   color: #111827;
-}
-
-.dash-operacional {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
-  color: #374151;
-}
-
-.dash-operacional b {
-  color: #111827;
   font-weight: 600;
 }
 
+/* =========================
+   LINHA 4 — STATUS GERAL
+========================= */
+
+.dash-status-row {
+  margin-bottom: 16px;
+}
+
+.dash-status-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 24px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.dash-status-card h4 {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+  min-width: 80px;
+}
+
 .dash-status-badge {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 8px;
   display: inline-block;
-  width: fit-content;
+  white-space: nowrap;
 }
 
 .dash-status-badge.green  { background: #dcfce7; color: #16a34a; }
 .dash-status-badge.yellow { background: #fef9c3; color: #ca8a04; }
 .dash-status-badge.red    { background: #fee2e2; color: #dc2626; }
+.dash-status-badge.gray   { background: #f3f4f6; color: #6b7280; }
+
+.dash-operacional {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.dash-op-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dash-op-item span {
+  font-size: 11px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dash-op-item b {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
 
 /* =========================
-   LINHA 3 — GRÁFICO
+   LINHA 5 — GRÁFICO
 ========================= */
 
 .dash-chart-card {
   background: white;
   border-radius: 12px;
-  padding: 20px;
+  padding: 20px 24px;
   border: 1px solid #e5e7eb;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .dash-chart-card h4 {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #374151;
   margin-bottom: 16px;
 }
 
 .dash-chart-wrap {
-  height: 180px;
+  height: 200px;
 }
 
 .dash-chart-wrap canvas {
@@ -210,30 +330,26 @@
 }
 
 /* =========================
-   LINHA 4 — CARD GENÉRICO
+   LINHA 6 — RANKING
 ========================= */
 
 .dash-card {
   background: white;
   border-radius: 12px;
-  padding: 20px;
+  padding: 20px 24px;
   border: 1px solid #e5e7eb;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .dash-card h4 {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #374151;
   margin-bottom: 16px;
 }
 
-/* =========================
-   RANKING — 🔥 CORRIGIDO
-========================= */
-
 #dash-ranking {
-  max-width: 600px; /* 🔥 limita largura */
+  max-width: 640px;
 }
 
 .ranking-item {
@@ -300,39 +416,11 @@
 
 .ranking-fill-green  { background: #22c55e; }
 .ranking-fill-yellow { background: #f59e0b; }
-.ranking-fill-red    { background: #4f46e5; } /* índigo — mais elegante que vermelho puro */
+.ranking-fill-red    { background: #4f46e5; }
 
 .ranking-item small {
   font-size: 12px;
   color: #6b7280;
-}
-
-/* =========================
-   RESPONSIVO
-========================= */
-
-@media (max-width: 1024px) {
-  .dash-kpis {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .dash-health {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .dash-kpis {
-    grid-template-columns: 1fr 1fr;
-  }
-  .dash-health {
-    grid-template-columns: 1fr;
-  }
-  .dash-kpi-value {
-    font-size: 22px;
-  }
-  #dash-ranking {
-    max-width: 100%;
-  }
 }
 
 /* =========================
@@ -343,6 +431,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .dash-period select {
@@ -352,6 +441,45 @@
   font-size: 14px;
   background: white;
   color: #1e293b;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 1024px) {
+  .dash-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+  .dash-health {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-kpis {
+    grid-template-columns: 1fr;
+  }
+  .dash-eficiencia-row {
+    grid-template-columns: 1fr;
+  }
+  .dash-health {
+    grid-template-columns: 1fr 1fr;
+  }
+  .dash-kpi-destaque .dash-kpi-value {
+    font-size: 28px !important;
+  }
+  #dash-ranking {
+    max-width: 100%;
+  }
+  .dash-status-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .dash-operacional {
+    gap: 16px;
+  }
 }
 
 /* =========================
@@ -425,10 +553,4 @@
   font-size: 12px;
   color: #6b7280;
   margin: 0;
-}
-
-/* badge gray */
-.dash-status-badge.gray {
-  background: #f3f4f6;
-  color: #6b7280;
 }

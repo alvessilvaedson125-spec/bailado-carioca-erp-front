@@ -31,10 +31,10 @@
     </div>
   </div>
 
-  <!-- LINHA 1: KPIs DE DECISÃO -->
+  <!-- LINHA 1: NÚMEROS PRINCIPAIS -->
   <div class="dash-kpis">
 
-    <div class="dash-kpi-card">
+    <div class="dash-kpi-card dash-kpi-destaque">
       <span class="dash-kpi-label">Recebido</span>
       <strong class="dash-kpi-value" id="dash-recebido">—</strong>
       <span class="dash-kpi-trend" id="dash-recebido-trend"></span>
@@ -47,18 +47,6 @@
       <span class="dash-kpi-sub">Particulares: <span id="dash-esperado-priv">—</span></span>
     </div>
 
-    <div class="dash-kpi-card" id="dash-eficiencia-grupo-card">
-      <span class="dash-kpi-label">Eficiência — Turmas</span>
-      <strong class="dash-kpi-value" id="dash-eficiencia-grupo">—</strong>
-      <span class="dash-kpi-sub" id="dash-eficiencia-grupo-label">—</span>
-    </div>
-
-    <div class="dash-kpi-card" id="dash-eficiencia-priv-card">
-      <span class="dash-kpi-label">Eficiência — Particulares</span>
-      <strong class="dash-kpi-value" id="dash-eficiencia-priv">—</strong>
-      <span class="dash-kpi-sub" id="dash-eficiencia-priv-label">—</span>
-    </div>
-
     <div class="dash-kpi-card" id="dash-inad-card">
       <span class="dash-kpi-label">Inadimplência</span>
       <strong class="dash-kpi-value" id="dash-inadimplencia">—</strong>
@@ -67,7 +55,34 @@
 
   </div>
 
-  <!-- LINHA 2: SAÚDE DO NEGÓCIO -->
+  <!-- LINHA 2: EFICIÊNCIA -->
+  <div class="dash-eficiencia-row">
+
+    <div class="dash-ef-card" id="dash-eficiencia-grupo-card">
+      <div class="dash-ef-header">
+        <span class="dash-ef-label">Eficiência — Turmas</span>
+        <strong class="dash-ef-value" id="dash-eficiencia-grupo">—</strong>
+      </div>
+      <div class="dash-ef-bar-wrap">
+        <div class="dash-ef-bar" id="dash-ef-bar-grupo"></div>
+      </div>
+      <span class="dash-ef-sub" id="dash-eficiencia-grupo-label">—</span>
+    </div>
+
+    <div class="dash-ef-card" id="dash-eficiencia-priv-card">
+      <div class="dash-ef-header">
+        <span class="dash-ef-label">Eficiência — Particulares</span>
+        <strong class="dash-ef-value" id="dash-eficiencia-priv">—</strong>
+      </div>
+      <div class="dash-ef-bar-wrap">
+        <div class="dash-ef-bar" id="dash-ef-bar-priv"></div>
+      </div>
+      <span class="dash-ef-sub" id="dash-eficiencia-priv-label">—</span>
+    </div>
+
+  </div>
+
+  <!-- LINHA 3: SAÚDE OPERACIONAL -->
   <div class="dash-health">
 
     <div class="dash-health-card">
@@ -99,19 +114,31 @@
       <span class="dash-health-sub" id="dash-frequencia-label">—</span>
     </div>
 
-    <div class="dash-health-card">
+  </div>
+
+  <!-- LINHA 4: STATUS + OPERACIONAL -->
+  <div class="dash-status-row">
+    <div class="dash-status-card">
       <h4>Status Geral</h4>
       <strong class="dash-status-badge" id="dash-status">—</strong>
       <div class="dash-operacional">
-        <span>Alunos: <b id="dash-alunos">—</b></span>
-        <span>Turmas: <b id="dash-turmas">—</b></span>
-        <span>Matrículas: <b id="dash-matriculas">—</b></span>
+        <div class="dash-op-item">
+          <span>Alunos</span>
+          <b id="dash-alunos">—</b>
+        </div>
+        <div class="dash-op-item">
+          <span>Turmas</span>
+          <b id="dash-turmas">—</b>
+        </div>
+        <div class="dash-op-item">
+          <span>Matrículas</span>
+          <b id="dash-matriculas">—</b>
+        </div>
       </div>
     </div>
-
   </div>
 
-  <!-- LINHA 3: GRÁFICO -->
+  <!-- LINHA 5: GRÁFICO -->
   <div class="dash-chart-card">
     <h4>Recebido vs Esperado — últimos 6 meses</h4>
     <div class="dash-chart-wrap">
@@ -119,7 +146,7 @@
     </div>
   </div>
 
-  <!-- LINHA 4: RANKING -->
+  <!-- LINHA 6: RANKING -->
   <div class="dash-card">
     <h4>Ranking de Turmas</h4>
     <div id="dash-ranking">
