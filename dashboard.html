@@ -2,34 +2,34 @@
 
   <!-- HEADER -->
   <div class="page-header">
-  <div>
-   <h1>Dashboard</h1>
-    <p>Visão executiva e financeira</p>
+    <div>
+      <h1>Dashboard</h1>
+      <p>Visão executiva e financeira</p>
+    </div>
+    <div class="dash-period">
+      <select id="dash-month">
+        <option value="">Todos os meses</option>
+        <option value="1">Janeiro</option>
+        <option value="2">Fevereiro</option>
+        <option value="3">Março</option>
+        <option value="4">Abril</option>
+        <option value="5">Maio</option>
+        <option value="6">Junho</option>
+        <option value="7">Julho</option>
+        <option value="8">Agosto</option>
+        <option value="9">Setembro</option>
+        <option value="10">Outubro</option>
+        <option value="11">Novembro</option>
+        <option value="12">Dezembro</option>
+      </select>
+      <select id="dash-year">
+        <option value="2025">2025</option>
+        <option value="2026" selected>2026</option>
+      </select>
+      <button id="dash-filter-btn" class="btn-primary">Filtrar</button>
+      <button id="dash-clear-btn" class="btn-secondary">Limpar</button>
+    </div>
   </div>
-  <div class="dash-period">
-    <select id="dash-month">
-      <option value="">Todos os meses</option>
-      <option value="1">Janeiro</option>
-      <option value="2">Fevereiro</option>
-      <option value="3">Março</option>
-      <option value="4">Abril</option>
-      <option value="5">Maio</option>
-      <option value="6">Junho</option>
-      <option value="7">Julho</option>
-      <option value="8">Agosto</option>
-      <option value="9">Setembro</option>
-      <option value="10">Outubro</option>
-      <option value="11">Novembro</option>
-      <option value="12">Dezembro</option>
-    </select>
-    <select id="dash-year">
-      <option value="2025">2025</option>
-      <option value="2026" selected>2026</option>
-    </select>
-    <button id="dash-filter-btn" class="btn-primary">Filtrar</button>
-    <button id="dash-clear-btn" class="btn-secondary">Limpar</button>
-  </div>
-</div>
 
   <!-- LINHA 1: KPIs DE DECISÃO -->
   <div class="dash-kpis">
@@ -41,30 +41,23 @@
     </div>
 
     <div class="dash-kpi-card">
-  <span class="dash-kpi-label">Esperado</span>
-  <strong class="dash-kpi-value" id="dash-esperado">—</strong>
-  <span class="dash-kpi-sub">Mensalidades: <span id="dash-esperado-mens">—</span></span>
-  <span class="dash-kpi-sub">Particulares: <span id="dash-esperado-priv">—</span></span>
-</div>
-<!-- DE: -->
-<div class="dash-kpi-card" id="dash-eficiencia-card">
-  <span class="dash-kpi-label">Eficiência</span>
-  <strong class="dash-kpi-value" id="dash-eficiencia">—</strong>
-  <span class="dash-kpi-sub" id="dash-eficiencia-label">—</span>
-</div>
+      <span class="dash-kpi-label">Esperado</span>
+      <strong class="dash-kpi-value" id="dash-esperado">—</strong>
+      <span class="dash-kpi-sub">Mensalidades: <span id="dash-esperado-mens">—</span></span>
+      <span class="dash-kpi-sub">Particulares: <span id="dash-esperado-priv">—</span></span>
+    </div>
 
-<!-- PARA: -->
-<div class="dash-kpi-card" id="dash-eficiencia-grupo-card">
-  <span class="dash-kpi-label">Eficiência — Turmas</span>
-  <strong class="dash-kpi-value" id="dash-eficiencia-grupo">—</strong>
-  <span class="dash-kpi-sub" id="dash-eficiencia-grupo-label">—</span>
-</div>
+    <div class="dash-kpi-card" id="dash-eficiencia-grupo-card">
+      <span class="dash-kpi-label">Eficiência — Turmas</span>
+      <strong class="dash-kpi-value" id="dash-eficiencia-grupo">—</strong>
+      <span class="dash-kpi-sub" id="dash-eficiencia-grupo-label">—</span>
+    </div>
 
-<div class="dash-kpi-card" id="dash-eficiencia-priv-card">
-  <span class="dash-kpi-label">Eficiência — Particulares</span>
-  <strong class="dash-kpi-value" id="dash-eficiencia-priv">—</strong>
-  <span class="dash-kpi-sub" id="dash-eficiencia-priv-label">—</span>
-</div>
+    <div class="dash-kpi-card" id="dash-eficiencia-priv-card">
+      <span class="dash-kpi-label">Eficiência — Particulares</span>
+      <strong class="dash-kpi-value" id="dash-eficiencia-priv">—</strong>
+      <span class="dash-kpi-sub" id="dash-eficiencia-priv-label">—</span>
+    </div>
 
     <div class="dash-kpi-card" id="dash-inad-card">
       <span class="dash-kpi-label">Inadimplência</span>
@@ -75,50 +68,50 @@
   </div>
 
   <!-- LINHA 2: SAÚDE DO NEGÓCIO -->
-<div class="dash-health">
+  <div class="dash-health">
 
-  <div class="dash-health-card">
-    <h4>Caixa</h4>
-    <strong class="dash-health-value" id="dash-saldo">—</strong>
-    <div class="dash-health-detail">
-      <span>Entradas: <b id="dash-entradas">—</b></span>
-      <span>Saídas: <b id="dash-saidas">—</b></span>
+    <div class="dash-health-card">
+      <h4>Caixa</h4>
+      <strong class="dash-health-value" id="dash-saldo">—</strong>
+      <div class="dash-health-detail">
+        <span>Entradas: <b id="dash-entradas">—</b></span>
+        <span>Saídas: <b id="dash-saidas">—</b></span>
+      </div>
     </div>
-  </div>
 
-  <div class="dash-health-card highlight">
-    <h4>Total Consolidado</h4>
-    <strong class="dash-health-value" id="dash-total">—</strong>
-    <span class="dash-health-sub">Mensalidades + Particulares + Caixa</span>
-  </div>
-
-  <div class="dash-health-card">
-    <h4>Aulas Particulares</h4>
-    <strong class="dash-health-value" id="dash-priv-recebido">—</strong>
-    <div class="dash-health-detail">
-      <span>Pendente: <b id="dash-priv-pendente">—</b></span>
+    <div class="dash-health-card highlight">
+      <h4>Total Consolidado</h4>
+      <strong class="dash-health-value" id="dash-total">—</strong>
+      <span class="dash-health-sub">Mensalidades + Particulares + Caixa</span>
     </div>
-  </div>
 
-  <div class="dash-health-card">
-    <h4>Frequência Média</h4>
-    <strong class="dash-health-value" id="dash-frequencia">—</strong>
-    <span class="dash-health-sub" id="dash-frequencia-label">—</span>
-  </div>
-
-  <div class="dash-health-card">
-    <h4>Status Geral</h4>
-    <strong class="dash-status-badge" id="dash-status">—</strong>
-    <div class="dash-operacional">
-      <span>Alunos: <b id="dash-alunos">—</b></span>
-      <span>Turmas: <b id="dash-turmas">—</b></span>
-      <span>Matrículas: <b id="dash-matriculas">—</b></span>
+    <div class="dash-health-card">
+      <h4>Aulas Particulares</h4>
+      <strong class="dash-health-value" id="dash-priv-recebido">—</strong>
+      <div class="dash-health-detail">
+        <span>Pendente: <b id="dash-priv-pendente">—</b></span>
+      </div>
     </div>
+
+    <div class="dash-health-card">
+      <h4>Frequência Média</h4>
+      <strong class="dash-health-value" id="dash-frequencia">—</strong>
+      <span class="dash-health-sub" id="dash-frequencia-label">—</span>
+    </div>
+
+    <div class="dash-health-card">
+      <h4>Status Geral</h4>
+      <strong class="dash-status-badge" id="dash-status">—</strong>
+      <div class="dash-operacional">
+        <span>Alunos: <b id="dash-alunos">—</b></span>
+        <span>Turmas: <b id="dash-turmas">—</b></span>
+        <span>Matrículas: <b id="dash-matriculas">—</b></span>
+      </div>
+    </div>
+
   </div>
 
-</div>
-  
-<!-- LINHA 3: GRÁFICO -->
+  <!-- LINHA 3: GRÁFICO -->
   <div class="dash-chart-card">
     <h4>Recebido vs Esperado — últimos 6 meses</h4>
     <div class="dash-chart-wrap">
