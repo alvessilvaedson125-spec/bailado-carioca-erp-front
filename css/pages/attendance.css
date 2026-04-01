@@ -11,12 +11,14 @@
   padding: 20px;
   border: 1px solid #e5e7eb;
   margin-bottom: 20px;
+  flex-wrap: wrap; /* 🔥 */
 }
 
 .attendance-filters .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1 1 180px; /* 🔥 */
 }
 
 .attendance-filters label {
@@ -33,7 +35,7 @@
   font-size: 14px;
   background: white;
   color: #1e293b;
-  min-width: 200px;
+  width: 100%; /* 🔥 era min-width: 200px */
 }
 
 /* ================================
@@ -43,8 +45,10 @@
 .attendance-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap; /* 🔥 */
 }
 
 .attendance-header h3 {
@@ -57,6 +61,11 @@
 .attendance-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap; /* 🔥 */
+}
+
+.attendance-actions button {
+  flex: 1; /* 🔥 */
 }
 
 /* ================================
@@ -66,17 +75,19 @@
 .att-toggle {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap; /* 🔥 */
 }
 
 .att-btn {
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
-  font-size: 13px;
+  font-size: 12px; /* 🔥 menor no mobile */
   cursor: pointer;
   background: white;
   color: #6b7280;
   transition: 0.15s;
+  white-space: nowrap;
 }
 
 .att-btn:hover {
@@ -108,13 +119,16 @@
   padding: 20px;
   border: 1px solid #e5e7eb;
   margin-top: 20px;
+  overflow-x: auto; /* 🔥 */
 }
 
 .attendance-history-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap; /* 🔥 */
 }
 
 .attendance-history-header h3 {
@@ -127,6 +141,8 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap; /* 🔥 */
+  width: 100%;
 }
 
 .attendance-history-filters select {
@@ -135,12 +151,17 @@
   border-radius: 8px;
   font-size: 14px;
   background: white;
-  min-width: 200px;
+  width: 100%; /* 🔥 era min-width: 200px */
+}
+
+.attendance-history-filters button {
+  white-space: nowrap;
 }
 
 #att-history-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 480px; /* 🔥 scroll horizontal só quando necessário */
 }
 
 #att-history-table thead {
@@ -172,4 +193,31 @@
 
 #att-history-table tr:hover td {
   background: #f9fafb;
+}
+
+/* ================================
+   MOBILE
+   ================================ */
+
+@media (max-width: 768px) {
+  .attendance-filters {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .attendance-header {
+    flex-direction: column;
+  }
+
+  .attendance-actions {
+    width: 100%;
+  }
+
+  .attendance-history {
+    padding: 14px;
+  }
+
+  .attendance-history-header {
+    flex-direction: column;
+  }
 }

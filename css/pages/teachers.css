@@ -2,30 +2,33 @@
    TEACHERS PAGE
 ================================ */
 
-/* ================================
-   HEADER + BUSCA
-================================ */
-
 .page-actions {
   display: flex;
   gap: 10px;
   align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap; /* 🔥 */
 }
 
 /* ================================
-   TABELA — usa .data-table global
-   Só ajustes específicos de teachers
+   TABELA
 ================================ */
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow-x: auto; /* 🔥 scroll horizontal */
+  margin-bottom: 24px;
+}
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 480px; /* 🔥 scroll só quando necessário */
 }
 
-.data-table thead {
-  background: #f9fafb;
-}
+.data-table thead { background: #f9fafb; }
 
 .data-table th {
   text-align: left;
@@ -36,6 +39,7 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   border-bottom: 2px solid #f1f5f9;
+  white-space: nowrap; /* 🔥 */
 }
 
 .data-table td {
@@ -46,12 +50,12 @@
   vertical-align: middle;
 }
 
-.data-table tr:last-child td {
-  border-bottom: none;
-}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td      { background: #f9fafb; }
 
-.data-table tr:hover td {
-  background: #f9fafb;
+/* Ações — não quebra linha */
+.data-table td:last-child {
+  white-space: nowrap;
 }
 
 /* ================================
@@ -65,6 +69,7 @@
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .status-inactive {
@@ -74,10 +79,11 @@
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 /* ================================
-   BOTÕES DE AÇÃO NA TABELA
+   BOTÕES DE AÇÃO
 ================================ */
 
 .btn-danger-soft {
@@ -91,6 +97,7 @@
   font-weight: 500;
   transition: 0.2s;
   margin-left: 6px;
+  white-space: nowrap;
 }
 
 .btn-danger-soft:hover {
@@ -109,7 +116,6 @@
   color: #1e293b;
 }
 
-/* Garante que inputs do modal tenham form-control mesmo sem a classe */
 #teacherModal input,
 #teacherModal select {
   width: 100%;
@@ -120,7 +126,6 @@
   background: #fff;
   transition: 0.2s;
   box-sizing: border-box;
-  margin-top: 0;
 }
 
 #teacherModal input:focus,
@@ -150,18 +155,7 @@
   margin-top: 24px;
   padding-top: 16px;
   border-top: 1px solid #f1f5f9;
-}
-
-/* ================================
-   TABLE CONTAINER
-================================ */
-
-.table-container {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-  margin-bottom: 24px;
+  flex-wrap: wrap; /* 🔥 */
 }
 
 /* ================================
@@ -170,17 +164,37 @@
 
 @media (max-width: 768px) {
   .page-actions {
-    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .search-input {
-    min-width: 0;
     width: 100%;
-    flex: 1;
+    flex: 1 1 100%;
+  }
+
+  /* Esconde colunas menos importantes no mobile */
+  .data-table th:nth-child(2),
+  .data-table td:nth-child(2),
+  .data-table th:nth-child(3),
+  .data-table td:nth-child(3) {
+    display: none;
   }
 
   .data-table th,
   .data-table td {
     padding: 10px 12px;
+  }
+
+  /* Modal ocupa mais espaço */
+  #teacherModal .modal-content {
+    padding: 16px;
+  }
+
+  #teacherModal .modal-actions {
+    justify-content: stretch;
+  }
+
+  #teacherModal .modal-actions button {
+    flex: 1;
   }
 }

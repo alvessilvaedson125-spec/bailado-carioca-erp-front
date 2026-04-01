@@ -2,10 +2,6 @@
    CASH PAGE
    ================================ */
 
-/* ================================
-   KPIs
-   ================================ */
-
 .cash-kpis {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -74,13 +70,14 @@
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap; /* 🔥 era nowrap */
 }
 
 .cash-form-row .form-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1 1 140px; /* 🔥 flex em vez de width fixo */
 }
 
 .cash-form-row .form-group label {
@@ -90,6 +87,7 @@
 
 .cash-form-row .form-group input,
 .cash-form-row .form-group select {
+  width: 100%; /* 🔥 */
   padding: 9px 12px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -97,6 +95,7 @@
   background: #f9fafb;
   outline: none;
   transition: 0.2s;
+  box-sizing: border-box;
 }
 
 .cash-form-row .form-group input:focus,
@@ -106,21 +105,15 @@
   box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
 }
 
-/* tamanhos dos campos */
-.cash-form-row .form-group:nth-child(1) { width: 150px; }
-.cash-form-row .form-group:nth-child(2) { width: 150px; }
-.cash-form-row .form-group:nth-child(3) { width: 130px; }
-
 .cash-descricao {
-  flex: 1;
-  min-width: 200px;
+  flex: 2 1 200px; /* 🔥 mais espaço para descrição */
 }
 
 .cash-form-buttons {
   display: flex;
   gap: 8px;
   align-items: flex-end;
-  padding-bottom: 1px;
+  flex: 0 0 auto;
 }
 
 /* ================================
@@ -132,6 +125,7 @@
   border-radius: 12px;
   padding: 20px;
   border: 1px solid #e5e7eb;
+  overflow-x: auto; /* 🔥 */
 }
 
 .cash-list-header {
@@ -153,6 +147,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap; /* 🔥 */
 }
 
 .cash-filters .form-control {
@@ -164,13 +159,8 @@
   outline: none;
 }
 
-.cash-filters select.form-control {
-  width: 120px;
-}
-
-.cash-filters input.form-control {
-  width: 200px;
-}
+.cash-filters select.form-control { width: 120px; }
+.cash-filters input.form-control  { width: 180px; }
 
 /* ================================
    TABLE
@@ -179,11 +169,10 @@
 #cash-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 480px; /* 🔥 scroll só quando necessário */
 }
 
-#cash-table thead {
-  background: #f9fafb;
-}
+#cash-table thead { background: #f9fafb; }
 
 #cash-table th {
   text-align: left;
@@ -204,16 +193,11 @@
   vertical-align: middle;
 }
 
-#cash-table tr:last-child td {
-  border-bottom: none;
-}
-
-#cash-table tr:hover td {
-  background: #f9fafb;
-}
+#cash-table tr:last-child td { border-bottom: none; }
+#cash-table tr:hover td      { background: #f9fafb; }
 
 /* ================================
-   BADGES TIPO
+   BADGES
    ================================ */
 
 .cash-type-in {
@@ -236,16 +220,8 @@
   color: #dc2626;
 }
 
-/* ================================
-   VALOR COM COR
-   ================================ */
-
 .cash-value-in  { color: #16a34a; font-weight: 600; }
 .cash-value-out { color: #dc2626; font-weight: 600; }
-
-/* ================================
-   BOTÃO CANCELAR
-   ================================ */
 
 .btn-cancel-entry {
   background: #fee2e2;
@@ -256,6 +232,7 @@
   font-size: 13px;
   cursor: pointer;
   transition: 0.2s;
+  white-space: nowrap;
 }
 
 .btn-cancel-entry:hover {
@@ -264,20 +241,53 @@
 }
 
 /* ================================
-   RESPONSIVO
+   MOBILE
    ================================ */
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
+  .cash-kpis {
+    grid-template-columns: 1fr; /* 🔥 um por linha */
+  }
+
+  .cash-kpi-value {
+    font-size: 20px;
+  }
+
+  .cash-form-card,
+  .cash-list-card {
+    padding: 14px;
+  }
+
   .cash-form-row {
-    flex-wrap: wrap;
+    gap: 10px;
   }
 
   .cash-form-row .form-group {
-    min-width: 140px;
+    flex: 1 1 100%; /* 🔥 cada campo ocupa linha inteira */
+  }
+
+  .cash-descricao {
+    flex: 1 1 100%;
+  }
+
+  .cash-form-buttons {
+    width: 100%;
+    justify-content: flex-end;
   }
 
   .cash-list-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .cash-filters {
+    width: 100%;
+  }
+
+  .cash-filters select.form-control,
+  .cash-filters input.form-control {
+    flex: 1;
+    width: auto;
+    min-width: 0;
   }
 }
