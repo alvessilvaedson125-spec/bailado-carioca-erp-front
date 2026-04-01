@@ -337,3 +337,32 @@
 }
 
 .dre-row .green { color: #16a34a; }
+
+.report-kpis {
+  grid-template-columns: repeat(3, 1fr); /* 🔥 3 por linha */
+}
+
+.report-kpi-card.purple {
+  border-left-color: #7c3aed;
+}
+.report-kpi-card.purple strong {
+  color: #7c3aed;
+}
+
+.report-kpi-card.indigo {
+  border-left-color: #4f46e5;
+}
+.report-kpi-card.indigo strong {
+  color: #4f46e5;
+}
+
+.report-kpi-card small {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* Cores dinâmicas por performance */
+.report-kpi-card.kpi-green strong { color: #16a34a; }
+.report-kpi-card.kpi-yellow strong { color: #ca8a04; }
+.report-kpi-card.kpi-red strong { color: #dc2626; }

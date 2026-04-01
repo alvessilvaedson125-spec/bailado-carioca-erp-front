@@ -128,6 +128,48 @@ async function init(){
     setText("rep-recebido", fmt(finance.receita.recebido + privPaid));
     setText("rep-pendente", fmt(finance.receita.pendente));
     setText("rep-atrasado", fmt(finance.inadimplencia.atrasado));
+
+    // 🔥 Eficiência turmas
+    const efGrupo = finance.receita.esperado > 0
+      ? (finance.receita.recebido / finance.receita.esperado) * 100
+      : 0;
+
+    setText("rep-ef-grupo", efGrupo.toFixed(1) + "%");
+    const efGrupoCard  = el("rep-ef-grupo-card");
+    const efGrupoLabel = el("rep-ef-grupo-label");
+    if(efGrupoCard) efGrupoCard.classList.remove("kpi-green","kpi-yellow","kpi-red");
+    if(efGrupo >= 70){
+      efGrupoCard?.classList.add("kpi-green");
+      if(efGrupoLabel) efGrupoLabel.innerText = "✅ Boa performance";
+    } else if(efGrupo >= 60){
+      efGrupoCard?.classList.add("kpi-yellow");
+      if(efGrupoLabel) efGrupoLabel.innerText = "⚠️ Atenção";
+    } else {
+      efGrupoCard?.classList.add("kpi-red");
+      if(efGrupoLabel) efGrupoLabel.innerText = "🔴 Abaixo do ideal";
+    }
+
+    // 🔥 Eficiência particulares
+    const efPriv = privTotal > 0
+      ? (privPaid / privTotal) * 100
+      : 0;
+
+    setText("rep-ef-priv", privTotal > 0 ? efPriv.toFixed(1) + "%" : "—");
+    const efPrivCard  = el("rep-ef-priv-card");
+    const efPrivLabel = el("rep-ef-priv-label");
+    if(efPrivCard) efPrivCard.classList.remove("kpi-green","kpi-yellow","kpi-red");
+    if(privTotal === 0){
+      if(efPrivLabel) efPrivLabel.innerText = "Sem dados";
+    } else if(efPriv >= 70){
+      efPrivCard?.classList.add("kpi-green");
+      if(efPrivLabel) efPrivLabel.innerText = "✅ Boa performance";
+    } else if(efPriv >= 60){
+      efPrivCard?.classList.add("kpi-yellow");
+      if(efPrivLabel) efPrivLabel.innerText = "⚠️ Atenção";
+    } else {
+      efPrivCard?.classList.add("kpi-red");
+      if(efPrivLabel) efPrivLabel.innerText = "🔴 Abaixo do ideal";
+    }
   }
 
   // ===============================
