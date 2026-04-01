@@ -173,35 +173,33 @@ function renderAll(list){
 // ===============================
 // STATS
 // ===============================
-
 function updateStats(list){
-  const total       = list.length;
-  const active      = list.filter(e => e.status === "active").length;
-  const inactive    = total - active;
- const scholarship = new Set(
-  list
-    .filter(e => Number(e.scholarship) === 1)
-    .map(e => e.student_id)
-).size;
+  // 🔥 Separa regulares de bolsistas
+  const regulares    = list.filter(e => Number(e.scholarship) === 0);
+  const bolsistas    = list.filter(e => Number(e.scholarship) === 1);
+
+  const total    = regulares.length;
+  const active   = regulares.filter(e => e.status === "active").length;
+  const inactive = total - active;
+
+  // 🔥 Bolsistas — alunos únicos
+  const scholarship = new Set(bolsistas.map(e => e.student_id)).size;
 
   // Impacto financeiro das bolsas
-  const impact = list
-    .filter(e => e.scholarship === 1)
-    .reduce((sum, e) => {
-      const fee      = Number(e.monthly_fee || 0);
-      const discount = Number(e.discount    || 0);
-      return sum + (fee * discount / 100);
-    }, 0);
+  const impact = bolsistas.reduce((sum, e) => {
+    const fee      = Number(e.monthly_fee || 0);
+    const discount = Number(e.discount    || 0);
+    return sum + (fee * discount / 100);
+  }, 0);
 
   const setText = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
 
-  setText("statTotal",      total);
-  setText("statActive",     active);
-  setText("statInactive",   inactive);
+  setText("statTotal",       total);
+  setText("statActive",      active);
+  setText("statInactive",    inactive);
   setText("statScholarship", scholarship);
-  setText("statImpact",     "- " + fmt(impact));
+  setText("statImpact",      "- " + fmt(impact));
 }
-
 // ===============================
 // RENDER MATRÍCULAS (por turma)
 // ===============================
