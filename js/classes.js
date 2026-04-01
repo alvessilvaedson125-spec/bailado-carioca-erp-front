@@ -181,19 +181,18 @@ const alunosLabel = total > 0
 
     const tr = document.createElement("tr");
 
-    tr.innerHTML = `
-      <td><strong>${safe(cls.name)}</strong></td>
-      <td>${safe(teacherNames)}</td>
-      <td>${safe(cls.unit_name)}</td>
-      <td>${safe(cls.day_of_week)}</td>
-      <td>${safe(cls.start_time)}</td>
-      <td>${alunosLabel}</td>
-      <td>${bolsistasLabel}</td>
-      <td>
+   tr.innerHTML = `
+      <td data-label="Nome"><strong>${safe(cls.name)}</strong></td>
+      <td data-label="Professor">${safe(teacherNames)}</td>
+      <td data-label="Unidade">${safe(cls.unit_name)}</td>
+      <td data-label="Dia">${safe(cls.day_of_week)}</td>
+      <td data-label="Horário">${safe(cls.start_time)}</td>
+      <td data-label="Alunos">${alunosLabel}</td>
+      <td data-label="Bolsistas">${bolsistasLabel}</td>
+      <td data-label="Ações">
         <button class="btn-edit">✏️ Editar</button>
       </td>
     `;
-
     tr.querySelector(".btn-edit").onclick = () => editClass(cls.id);
     tableBody.appendChild(tr);
   });
