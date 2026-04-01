@@ -16,52 +16,58 @@
 
 .login-card {
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
   background: #fff;
-  border-radius: 16px;
-  padding: 32px 28px;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  border-radius: 20px;
+  padding: 40px 32px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
 }
+
+/* ================================
+   LOGO
+================================ */
 
 .login-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
-.login-header h1 {
-  font-size: 22px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 4px;
+.login-logo {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  display: block;
+  margin: 0 auto 16px;
+  object-fit: contain;
 }
 
-.login-header p {
+.login-subtitle {
   font-size: 13px;
   color: #64748b;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.login-body h2 {
-  text-align: center;
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #1e293b;
-}
+/* ================================
+   FORMULÁRIO
+================================ */
 
 .input-group {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .input-group input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 13px 16px;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   background: #f8fafc;
   outline: none;
   transition: 0.2s;
   box-sizing: border-box;
+  color: #1e293b;
 }
 
 .input-group input:focus {
@@ -70,26 +76,34 @@
   box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
 }
 
+.input-group input::placeholder {
+  color: #94a3b8;
+}
+
 .login-btn {
   width: 100%;
-  padding: 12px;
+  padding: 13px;
   background: #6366f1;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   margin-top: 8px;
   font-size: 15px;
   font-weight: 600;
   transition: 0.2s;
+  letter-spacing: 0.02em;
 }
 
 .login-btn:hover {
   background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(99,102,241,0.3);
 }
 
 .login-btn:active {
   transform: scale(0.98);
+  box-shadow: none;
 }
 
 .login-error {
@@ -100,21 +114,20 @@
   min-height: 20px;
 }
 
-/* =========================
+/* ================================
    MOBILE
-========================= */
+================================ */
 
 @media (max-width: 480px) {
   .login-page {
-    align-items: center;
     padding: 16px;
   }
 
   .login-card {
-    padding: 24px 18px;
+    padding: 28px 20px;
   }
 
-  .login-header h1 {
-    font-size: 20px;
+  .login-logo {
+    max-width: 180px;
   }
 }
