@@ -209,9 +209,26 @@ let financeChartInstance = null;
         }
       }
 
-      setText("dash-alunos",     students.length);
-      setText("dash-turmas",     classes.length);
-      setText("dash-matriculas", enrollments.length);
+       // 🔥 Contadores separados — regulares vs bolsistas
+      const matriculasRegulares = enrollments.filter(e =>
+        Number(e.scholarship) === 0 && e.status === "active"
+      ).length;
+
+      const bolsistasUnicos = new Set(
+        enrollments
+          .filter(e => Number(e.scholarship) === 1)
+          .map(e => e.student_id)
+      ).size;
+
+      const bolsasVinculos = enrollments.filter(e =>
+        Number(e.scholarship) === 1
+      ).length;
+
+      setText("dash-alunos",          students.filter(s => s.origin === "school").length);
+      setText("dash-turmas",          classes.length);
+      setText("dash-matriculas",      matriculasRegulares);
+      setText("dash-bolsistas",       bolsistasUnicos);
+      setText("dash-bolsas-vinculos", bolsasVinculos > 0 ? `${bolsasVinculos} vínculo${bolsasVinculos > 1 ? "s" : ""}` : "—");
 
       // ==============================
       // RENDER FREQUÊNCIA
@@ -272,9 +289,11 @@ let financeChartInstance = null;
      "dash-frequencia", "dash-priv-recebido", "dash-priv-pendente"
     ].forEach(id => setText(id, "—"));
 
-    setText("dash-alunos",     "0");
-    setText("dash-turmas",     "0");
-    setText("dash-matriculas", "0");
+    setText("dash-alunos",          "0");
+    setText("dash-turmas",          "0");
+    setText("dash-matriculas",      "0");
+    setText("dash-bolsistas",       "0");
+    setText("dash-bolsas-vinculos", "—");
 
     const freqLabel = el("dash-frequencia-label");
     if (freqLabel) freqLabel.innerText = "Sem aulas registradas";
