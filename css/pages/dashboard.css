@@ -39,7 +39,6 @@
   box-shadow: 0 10px 24px rgba(0,0,0,0.08);
 }
 
-/* Card Recebido — destaque */
 .dash-kpi-destaque {
   border-left-color: #16a34a !important;
   background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 60%);
@@ -50,7 +49,6 @@
   color: #16a34a !important;
 }
 
-/* Card Esperado */
 .dash-kpis .dash-kpi-card:nth-child(2) {
   border-left-color: #2563eb;
 }
@@ -80,13 +78,14 @@
   color: #6b7280;
 }
 
-/* Cores por performance */
-.dash-kpi-card.kpi-green { border-left-color: #16a34a; }
-.dash-kpi-card.kpi-green .dash-kpi-value { color: #16a34a; }
-.dash-kpi-card.kpi-yellow { border-left-color: #f59e0b; }
-.dash-kpi-card.kpi-yellow .dash-kpi-value { color: #ca8a04; }
-.dash-kpi-card.kpi-red { border-left-color: #dc2626; }
-.dash-kpi-card.kpi-red .dash-kpi-value { color: #dc2626; }
+/* Cores por performance — apenas borda e texto, NUNCA background */
+.dash-kpi-card.kpi-green  { background: white; border-left-color: #16a34a; }
+.dash-kpi-card.kpi-yellow { background: white; border-left-color: #f59e0b; }
+.dash-kpi-card.kpi-red    { background: white; border-left-color: #dc2626; }
+
+.dash-kpi-card.kpi-green  .dash-kpi-value { color: #16a34a; }
+.dash-kpi-card.kpi-yellow .dash-kpi-value { color: #92400e; }
+.dash-kpi-card.kpi-red    .dash-kpi-value { color: #991b1b; }
 
 /* =========================
    LINHA 2 — EFICIÊNCIA
@@ -155,24 +154,18 @@
   color: #6b7280;
 }
 
-/* Cores eficiência */
-.dash-ef-card.kpi-green {
-  border-left-color: #16a34a;
-}
-.dash-ef-card.kpi-green .dash-ef-value { color: #16a34a; }
-.dash-ef-card.kpi-green .dash-ef-bar   { background: #22c55e; }
+/* Cores eficiência — background sempre white */
+.dash-ef-card.kpi-green  { background: white; border-left-color: #16a34a; }
+.dash-ef-card.kpi-yellow { background: white; border-left-color: #f59e0b; }
+.dash-ef-card.kpi-red    { background: white; border-left-color: #dc2626; }
 
-.dash-ef-card.kpi-yellow {
-  border-left-color: #f59e0b;
-}
-.dash-ef-card.kpi-yellow .dash-ef-value { color: #ca8a04; }
-.dash-ef-card.kpi-yellow .dash-ef-bar   { background: #f59e0b; }
+.dash-ef-card.kpi-green  .dash-ef-value { color: #16a34a; }
+.dash-ef-card.kpi-yellow .dash-ef-value { color: #92400e; }
+.dash-ef-card.kpi-red    .dash-ef-value { color: #991b1b; }
 
-.dash-ef-card.kpi-red {
-  border-left-color: #dc2626;
-}
-.dash-ef-card.kpi-red .dash-ef-value { color: #dc2626; }
-.dash-ef-card.kpi-red .dash-ef-bar   { background: #ef4444; }
+.dash-ef-card.kpi-green  .dash-ef-bar { background: #22c55e; }
+.dash-ef-card.kpi-yellow .dash-ef-bar { background: #f59e0b; }
+.dash-ef-card.kpi-red    .dash-ef-bar { background: #ef4444; }
 
 /* =========================
    LINHA 3 — SAÚDE OPERACIONAL
@@ -272,8 +265,8 @@
 }
 
 .dash-status-badge.green  { background: #dcfce7; color: #16a34a; }
-.dash-status-badge.yellow { background: #fef9c3; color: #ca8a04; }
-.dash-status-badge.red    { background: #fee2e2; color: #dc2626; }
+.dash-status-badge.yellow { background: #fef9c3; color: #92400e; }
+.dash-status-badge.red    { background: #fee2e2; color: #991b1b; }
 .dash-status-badge.gray   { background: #f3f4f6; color: #6b7280; }
 
 .dash-operacional {
@@ -397,8 +390,8 @@
 }
 
 .ranking-badge.green  { background: #dcfce7; color: #16a34a; }
-.ranking-badge.yellow { background: #fef9c3; color: #ca8a04; }
-.ranking-badge.red    { background: #fee2e2; color: #dc2626; }
+.ranking-badge.yellow { background: #fef9c3; color: #92400e; }
+.ranking-badge.red    { background: #fee2e2; color: #991b1b; }
 
 .ranking-bar {
   height: 8px;
@@ -448,38 +441,18 @@
 ========================= */
 
 @media (max-width: 1024px) {
-  .dash-kpis {
-    grid-template-columns: 1fr 1fr;
-  }
-  .dash-health {
-    grid-template-columns: 1fr 1fr;
-  }
+  .dash-kpis   { grid-template-columns: 1fr 1fr; }
+  .dash-health { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 768px) {
-  .dash-kpis {
-    grid-template-columns: 1fr;
-  }
-  .dash-eficiencia-row {
-    grid-template-columns: 1fr;
-  }
-  .dash-health {
-    grid-template-columns: 1fr 1fr;
-  }
-  .dash-kpi-destaque .dash-kpi-value {
-    font-size: 28px !important;
-  }
-  #dash-ranking {
-    max-width: 100%;
-  }
-  .dash-status-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .dash-operacional {
-    gap: 16px;
-  }
+  .dash-kpis            { grid-template-columns: 1fr; }
+  .dash-eficiencia-row  { grid-template-columns: 1fr; }
+  .dash-health          { grid-template-columns: 1fr 1fr; }
+  .dash-kpi-destaque .dash-kpi-value { font-size: 28px !important; }
+  #dash-ranking         { max-width: 100%; }
+  .dash-status-card     { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .dash-operacional     { gap: 16px; }
 }
 
 /* =========================
@@ -554,47 +527,3 @@
   color: #6b7280;
   margin: 0;
 }
-/* =========================
-   CORES POR PERFORMANCE — KPIS
-========================= */
-
-/* Verde */
-.dash-kpi-card.kpi-green { border-left-color: #16a34a; }
-.dash-kpi-card.kpi-green .dash-kpi-value { color: #16a34a; }
-
-/* Amarelo */
-.dash-kpi-card.kpi-yellow { border-left-color: #f59e0b; }
-.dash-kpi-card.kpi-yellow .dash-kpi-value { color: #92400e; }
-
-/* Vermelho */
-.dash-kpi-card.kpi-red { border-left-color: #dc2626; }
-.dash-kpi-card.kpi-red .dash-kpi-value { color: #991b1b; }
-
-/* =========================
-   CORES EFICIÊNCIA — CARDS
-========================= */
-
-.dash-ef-card.kpi-green { border-left-color: #16a34a; }
-.dash-ef-card.kpi-green .dash-ef-value { color: #16a34a; }
-.dash-ef-card.kpi-green .dash-ef-bar   { background: #22c55e; }
-
-.dash-ef-card.kpi-yellow { border-left-color: #f59e0b; }
-.dash-ef-card.kpi-yellow .dash-ef-value { color: #92400e; }
-.dash-ef-card.kpi-yellow .dash-ef-bar   { background: #f59e0b; }
-
-.dash-ef-card.kpi-red { border-left-color: #dc2626; }
-.dash-ef-card.kpi-red .dash-ef-value { color: #991b1b; }
-.dash-ef-card.kpi-red .dash-ef-bar   { background: #ef4444; }
-
-/* =========================
-   INADIMPLÊNCIA — ID ESPECÍFICO
-========================= */
-
-#dash-inad-card.kpi-green  { border-left-color: #16a34a; }
-#dash-inad-card.kpi-green  .dash-kpi-value { color: #16a34a; }
-
-#dash-inad-card.kpi-yellow { border-left-color: #f59e0b; }
-#dash-inad-card.kpi-yellow .dash-kpi-value { color: #92400e; }
-
-#dash-inad-card.kpi-red    { border-left-color: #dc2626; }
-#dash-inad-card.kpi-red    .dash-kpi-value { color: #991b1b; }
