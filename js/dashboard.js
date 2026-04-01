@@ -38,9 +38,7 @@ let financeChartInstance = null;
 
   async function loadDashboard() {
 
-    const efCard   = el("dash-eficiencia-card");
     const inadCard = el("dash-inad-card");
-    if (efCard)   efCard.classList.remove("kpi-green", "kpi-yellow", "kpi-red");
     if (inadCard) inadCard.classList.remove("kpi-green", "kpi-yellow", "kpi-red");
 
     try {
@@ -76,13 +74,13 @@ let financeChartInstance = null;
         apiRequest("/api/v1/private/payments/summary")
       ]);
 
-      const students      = studentsRes?.success      ? studentsRes.data      : [];
-      const classes       = classesRes?.success       ? classesRes.data       : [];
-      const enrollments   = enrollmentsRes?.success   ? enrollmentsRes.data   : [];
-      const payments      = paymentsRes?.success      ? paymentsRes.data      : [];
-      const cash          = cashRes?.success          ? cashRes.data          : [];
-      const byClass       = byClassRes?.success       ? byClassRes.data       : [];
-      const attendance    = attendanceRes?.success    ? attendanceRes.data    : null;
+      const students       = studentsRes?.success      ? studentsRes.data      : [];
+      const classes        = classesRes?.success       ? classesRes.data       : [];
+      const enrollments    = enrollmentsRes?.success   ? enrollmentsRes.data   : [];
+      const payments       = paymentsRes?.success      ? paymentsRes.data      : [];
+      const cash           = cashRes?.success          ? cashRes.data          : [];
+      const byClass        = byClassRes?.success       ? byClassRes.data       : [];
+      const attendance     = attendanceRes?.success    ? attendanceRes.data    : null;
       const privateSummary = privateSummaryRes?.success ? privateSummaryRes.data : null;
 
       // ONBOARDING
@@ -100,17 +98,26 @@ let financeChartInstance = null;
       const { esperado, recebido }      = finance.receita;
       const { atrasado, defaultRate }   = finance.inadimplencia;
       const { entries, exits, balance } = finance.caixa;
-      const total                       = finance.total;
 
       // Aulas particulares
-      const privPaid    = Number(privateSummary?.total_paid    || 0);
-      const privPending = Number(privateSummary?.total_pending || 0);
+      const privPaid    = Number(privateSummary?.total_paid     || 0);
+      const privPending = Number(privateSummary?.total_pending  || 0);
       const privTotal   = Number(privateSummary?.total_expected || 0);
 
-      // Receita consolidada (mensalidades + particulares)
-      const recebidoTotal  = recebido + privPaid;
-      const esperadoTotal  = esperado + privTotal;
+      // Receita consolidada
+      const recebidoTotal = recebido + privPaid;
+      const esperadoTotal = esperado + privTotal;
 
+      // 🔥 Eficiência separada
+      const eficienciaGrupo = esperado > 0
+        ? (recebido / esperado) * 100
+        : 0;
+
+      const eficienciaPriv = privTotal > 0
+        ? (privPaid / privTotal) * 100
+        : 0;
+
+      // Eficiência consolidada — usada apenas para status geral
       const eficiencia = esperadoTotal > 0
         ? (recebidoTotal / esperadoTotal) * 100
         : 0;
@@ -123,26 +130,46 @@ let financeChartInstance = null;
       setText("dash-esperado",      fmt(esperadoTotal));
       setText("dash-esperado-mens", fmt(esperado));
       setText("dash-esperado-priv", fmt(privTotal));
-      setText("dash-eficiencia",    eficiencia.toFixed(1) + "%");
       setText("dash-inadimplencia", defaultRate.toFixed(1) + "%");
       setText("dash-atrasado",      fmt(atrasado));
+
+      // 🔥 Eficiência turmas
+      setText("dash-eficiencia-grupo", eficienciaGrupo.toFixed(1) + "%");
+      const efGrupoCard  = el("dash-eficiencia-grupo-card");
+      const efGrupoLabel = el("dash-eficiencia-grupo-label");
+      if(efGrupoCard) efGrupoCard.classList.remove("kpi-green","kpi-yellow","kpi-red");
+      if(eficienciaGrupo >= 70){
+        efGrupoCard?.classList.add("kpi-green");
+        if(efGrupoLabel) efGrupoLabel.innerText = "✅ Boa performance";
+      } else if(eficienciaGrupo >= 60){
+        efGrupoCard?.classList.add("kpi-yellow");
+        if(efGrupoLabel) efGrupoLabel.innerText = "⚠️ Atenção";
+      } else {
+        efGrupoCard?.classList.add("kpi-red");
+        if(efGrupoLabel) efGrupoLabel.innerText = "🔴 Abaixo do ideal";
+      }
+
+      // 🔥 Eficiência particulares
+      setText("dash-eficiencia-priv", eficienciaPriv.toFixed(1) + "%");
+      const efPrivCard  = el("dash-eficiencia-priv-card");
+      const efPrivLabel = el("dash-eficiencia-priv-label");
+      if(efPrivCard) efPrivCard.classList.remove("kpi-green","kpi-yellow","kpi-red");
+      if(privTotal === 0){
+        if(efPrivLabel) efPrivLabel.innerText = "Sem dados";
+      } else if(eficienciaPriv >= 70){
+        efPrivCard?.classList.add("kpi-green");
+        if(efPrivLabel) efPrivLabel.innerText = "✅ Boa performance";
+      } else if(eficienciaPriv >= 60){
+        efPrivCard?.classList.add("kpi-yellow");
+        if(efPrivLabel) efPrivLabel.innerText = "⚠️ Atenção";
+      } else {
+        efPrivCard?.classList.add("kpi-red");
+        if(efPrivLabel) efPrivLabel.innerText = "🔴 Abaixo do ideal";
+      }
 
       const trendEl = el("dash-recebido-trend");
       if (trendEl) {
         trendEl.innerText = recebidoTotal > 0 ? "↗️ em dia" : "↘️ sem receita";
-      }
-
-      const efLabel = el("dash-eficiencia-label");
-
-      if (eficiencia >= 70) {
-        if (efCard)  efCard.classList.add("kpi-green");
-        if (efLabel) efLabel.innerText = "✅ Boa performance";
-      } else if (eficiencia >= 60) {
-        if (efCard)  efCard.classList.add("kpi-yellow");
-        if (efLabel) efLabel.innerText = "⚠️ Atenção";
-      } else {
-        if (efCard)  efCard.classList.add("kpi-red");
-        if (efLabel) efLabel.innerText = "🔴 Abaixo do ideal";
       }
 
       if (inadCard) {
@@ -159,11 +186,9 @@ let financeChartInstance = null;
       setText("dash-saidas",   fmt(exits));
       setText("dash-saldo",    fmt(balance));
 
-      // Total consolidado = mensalidades recebidas + particulares recebidas + saldo caixa
       const totalConsolidado = recebido + privPaid + balance;
       setText("dash-total", fmt(totalConsolidado));
 
-      // Aulas particulares
       setText("dash-priv-recebido", fmt(privPaid));
       setText("dash-priv-pendente", fmt(privPending));
 
@@ -238,7 +263,7 @@ let financeChartInstance = null;
 
   function renderOnboarding() {
 
-    ["dash-recebido", "dash-esperado", "dash-eficiencia",
+    ["dash-recebido", "dash-esperado", "dash-eficiencia-grupo", "dash-eficiencia-priv",
      "dash-inadimplencia", "dash-atrasado", "dash-entradas",
      "dash-saidas", "dash-saldo", "dash-total",
      "dash-frequencia", "dash-priv-recebido", "dash-priv-pendente"
