@@ -440,3 +440,151 @@
   }
 
 }
+
+/* =========================
+   BOTTOM NAVIGATION — MOBILE
+========================= */
+
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+
+  /* Esconde sidebar no mobile */
+  .sidebar {
+    display: none !important;
+  }
+
+  /* Esconde hamburguer — substituído pela bottom nav */
+  .menu-toggle {
+    display: none !important;
+  }
+
+  /* Mostra bottom nav */
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #111827;
+    border-top: 1px solid #1f2937;
+    z-index: 200;
+    align-items: stretch;
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 6px 4px;
+    transition: 0.15s;
+  }
+
+  .bottom-nav-item.active {
+    color: #818cf8;
+  }
+
+  .bottom-nav-item.active .bottom-nav-icon {
+    transform: scale(1.15);
+  }
+
+  .bottom-nav-icon {
+    font-size: 20px;
+    line-height: 1;
+    transition: transform 0.15s;
+  }
+
+  .bottom-nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  /* Padding no content para não ficar atrás da bottom nav */
+  #content {
+    padding-bottom: 76px !important;
+  }
+
+  /* =========================
+     DRAWER "MAIS"
+  ========================= */
+
+  .bottom-drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 198;
+  }
+
+  .bottom-drawer-overlay.active {
+    display: block;
+  }
+
+  .bottom-drawer {
+    position: fixed;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    background: #1f2937;
+    border-radius: 16px 16px 0 0;
+    padding: 12px 16px 20px;
+    z-index: 199;
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+  }
+
+  .bottom-drawer.open {
+    transform: translateY(0);
+  }
+
+  .bottom-drawer-handle {
+    width: 36px;
+    height: 4px;
+    background: #4b5563;
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+
+  .bottom-drawer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .bottom-drawer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #374151;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 8px;
+    color: #e5e7eb;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    transition: 0.15s;
+  }
+
+  .bottom-drawer-item:active {
+    background: #4f46e5;
+    color: white;
+  }
+
+  .bottom-drawer-item span:first-child {
+    font-size: 22px;
+  }
+}

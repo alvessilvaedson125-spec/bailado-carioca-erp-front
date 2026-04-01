@@ -52,6 +52,70 @@
 
 </div>
 
+<!-- BOTTOM NAV — só mobile -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bottom-nav-item" data-page="dashboard">
+    <span class="bottom-nav-icon">📊</span>
+    <span class="bottom-nav-label">Painel</span>
+  </button>
+  <button class="bottom-nav-item" data-page="students">
+    <span class="bottom-nav-icon">👥</span>
+    <span class="bottom-nav-label">Alunos</span>
+  </button>
+  <button class="bottom-nav-item" data-page="payments">
+    <span class="bottom-nav-icon">💳</span>
+    <span class="bottom-nav-label">Pagamentos</span>
+  </button>
+  <button class="bottom-nav-item" data-page="enrollments">
+    <span class="bottom-nav-icon">🎓</span>
+    <span class="bottom-nav-label">Matrículas</span>
+  </button>
+  <button class="bottom-nav-item" id="bottomMoreBtn">
+    <span class="bottom-nav-icon">☰</span>
+    <span class="bottom-nav-label">Mais</span>
+  </button>
+</nav>
+
+<!-- DRAWER "MAIS" — só mobile -->
+<div class="bottom-drawer-overlay" id="bottomDrawerOverlay"></div>
+<div class="bottom-drawer" id="bottomDrawer">
+  <div class="bottom-drawer-handle"></div>
+  <div class="bottom-drawer-grid">
+    <button class="bottom-drawer-item" data-page="classes">
+      <span>🏫</span>
+      <span>Turmas</span>
+    </button>
+    <button class="bottom-drawer-item" data-page="attendance">
+      <span>✅</span>
+      <span>Presença</span>
+    </button>
+    <button class="bottom-drawer-item" data-page="cash">
+      <span>💰</span>
+      <span>Caixa</span>
+    </button>
+    <button class="bottom-drawer-item" data-page="reports">
+      <span>📈</span>
+      <span>Relatórios</span>
+    </button>
+    <button class="bottom-drawer-item" data-page="private">
+      <span>🎵</span>
+      <span>Particulares</span>
+    </button>
+    <button class="bottom-drawer-item" data-page="teachers">
+      <span>👨‍🏫</span>
+      <span>Professores</span>
+    </button>
+    <button class="bottom-drawer-item" data-page="units">
+      <span>📍</span>
+      <span>Unidades</span>
+    </button>
+    <button class="bottom-drawer-item menu-admin-only" data-page="admin">
+      <span>⚙️</span>
+      <span>Admin</span>
+    </button>
+  </div>
+</div>
+
 <!-- CORE / GLOBAL -->
 <script src="/js/toast.js"></script>
 <script src="/js/utils.js"></script>
@@ -97,7 +161,9 @@
     });
   }
 
-  // 🔥 Hamburguer
+  // ===============================
+  // SIDEBAR — desktop/tablet
+  // ===============================
   const toggle  = document.getElementById("menuToggle");
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebarOverlay");
@@ -115,12 +181,80 @@
   if(toggle)  toggle.onclick  = () => sidebar.classList.contains("open") ? closeMenu() : openMenu();
   if(overlay) overlay.onclick = closeMenu;
 
-  // Fecha menu ao navegar no mobile
   document.querySelectorAll(".sidebar li").forEach(li => {
     li.addEventListener("click", () => {
       if(window.innerWidth <= 768) closeMenu();
     });
   });
+
+  // ===============================
+  // BOTTOM NAV — mobile
+  // ===============================
+  const drawer        = document.getElementById("bottomDrawer");
+  const drawerOverlay = document.getElementById("bottomDrawerOverlay");
+  const moreBtn       = document.getElementById("bottomMoreBtn");
+
+  function openDrawer(){
+    drawer?.classList.add("open");
+    drawerOverlay?.classList.add("active");
+  }
+
+  function closeDrawer(){
+    drawer?.classList.remove("open");
+    drawerOverlay?.classList.remove("active");
+  }
+
+  function setBottomActive(page){
+    document.querySelectorAll(".bottom-nav-item").forEach(b => b.classList.remove("active"));
+    const target = document.querySelector(`.bottom-nav-item[data-page="${page}"]`);
+    if(target){
+      target.classList.add("active");
+    } else {
+      // página está no drawer — destaca o botão Mais
+      moreBtn?.classList.add("active");
+    }
+  }
+
+  // Itens da bottom bar
+  document.querySelectorAll(".bottom-nav-item[data-page]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const page = btn.dataset.page;
+      window.location.hash = page;
+      setBottomActive(page);
+      closeDrawer();
+    });
+  });
+
+  // Botão Mais
+  if(moreBtn){
+    moreBtn.addEventListener("click", () => {
+      drawer?.classList.contains("open") ? closeDrawer() : openDrawer();
+    });
+  }
+
+  // Itens do drawer
+  document.querySelectorAll(".bottom-drawer-item[data-page]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const page = btn.dataset.page;
+      window.location.hash = page;
+      setBottomActive(page);
+      closeDrawer();
+    });
+  });
+
+  // Fecha drawer ao clicar no overlay
+  drawerOverlay?.addEventListener("click", closeDrawer);
+
+  // Sincroniza com hash
+  window.addEventListener("hashchange", () => {
+    const page = window.location.hash.replace("#", "") || "dashboard";
+    setBottomActive(page);
+    closeDrawer();
+  });
+
+  // Estado inicial
+  const currentPage = window.location.hash.replace("#", "") || "dashboard";
+  setBottomActive(currentPage);
 
 })();
 </script>
