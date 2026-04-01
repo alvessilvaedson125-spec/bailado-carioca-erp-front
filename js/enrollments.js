@@ -178,7 +178,11 @@ function updateStats(list){
   const total       = list.length;
   const active      = list.filter(e => e.status === "active").length;
   const inactive    = total - active;
- const scholarship = list.filter(e => Number(e.scholarship) === 1).length;
+ const scholarship = new Set(
+  list
+    .filter(e => Number(e.scholarship) === 1)
+    .map(e => e.student_id)
+).size;
 
   // Impacto financeiro das bolsas
   const impact = list
